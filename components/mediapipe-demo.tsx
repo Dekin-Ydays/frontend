@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
+import { drawSkeleton } from '@/utils/skeleton-renderer';
 
 // Dynamic imports handling for Web vs Native
 let VisionCamera: any = null;
@@ -26,8 +27,8 @@ interface HeadOrientation {
 
 // WebSocket Configuration
 const WS_URL = Platform.select({
-  android: 'ws://10.0.2.2:3001', // Android Emulator localhost
-  default: 'ws://localhost:3001/ws',
+  android: 'ws://10.0.2.2:3000/ws', // Android Emulator localhost
+  default: 'ws://localhost:3000/ws',
 });
 
 export default function MediaPipeDemo() {
@@ -106,7 +107,9 @@ export default function MediaPipeDemo() {
 // ----------------------------------------------------------------------
 function NativePoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any) => void; wsConnected: boolean }) {
   const [hasPermission, setHasPermission] = useState(false);
-  const device = VisionCamera?.useCameraDevice ? VisionCamera.useCameraDevice('front') : null;
+  const useCameraDevice =
+    VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
+  const device = useCameraDevice('front');
   const { useTensorflowModel } = FastTflite || { useTensorflowModel: () => ({ state: 'error' }) };
   const { useFrameProcessor } = VisionCamera || { useFrameProcessor: () => null };
 
@@ -209,10 +212,21 @@ function NativePoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: 
 function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any) => void; wsConnected: boolean }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const poseLandmarkerRef = useRef<any>(null);
+  const animationIdRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
+  const modeRef = useRef<'camera' | 'file'>('file');
+  const lastTimestampMsRef = useRef<number>(-Infinity);
+  const [mode, setMode] = useState<'camera' | 'file'>('file');
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [modelReady, setModelReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [poseDetected, setPoseDetected] = useState<boolean>(false);
   const [headOrientation, setHeadOrientation] = useState<HeadOrientation | null>(null);
+  const lastOrientationUpdateRef = useRef<number>(0);
 
   // We use a ref to hold the latest sendLandmarks function to avoid stale closures in the animation loop
   const sendLandmarksRef = useRef(sendLandmarks);
@@ -221,92 +235,74 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
   }, [sendLandmarks]);
 
   useEffect(() => {
-    initializeWebPoseDetection();
+    let cancelled = false;
+
+    const stopActiveSource = () => {
+      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+      animationIdRef.current = null;
+
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+
+      const video = videoRef.current;
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+        video.removeAttribute('src');
+        video.load();
+      }
+    };
+
+    const initialize = async () => {
+      try {
+        const { PoseLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
+        const vision = await FilesetResolver.forVisionTasks(
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+        );
+
+        poseLandmarkerRef.current = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath:
+              'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+            delegate: 'GPU',
+          },
+          runningMode: 'VIDEO',
+          numPoses: 1,
+        });
+
+        if (cancelled) return;
+        setModelReady(true);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Error initializing MediaPipe Web:', err);
+        setError(err instanceof Error ? err.message : 'Failed to initialize MediaPipe');
+        setIsLoading(false);
+      }
+    };
+
+    void initialize();
+
     return () => {
-      /* cleanup handled in closure */
+      cancelled = true;
+      stopActiveSource();
+      if (poseLandmarkerRef.current) poseLandmarkerRef.current.close();
+      poseLandmarkerRef.current = null;
     };
   }, []);
 
-  async function initializeWebPoseDetection() {
-    let poseLandmarker: any = null;
-    let animationId: number;
-    let stream: MediaStream | null = null;
-
-    try {
-      const { PoseLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
-      const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
-      );
-
-      poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath:
-            'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
-          delegate: 'GPU',
-        },
-        runningMode: 'VIDEO',
-        numPoses: 1,
-      });
-
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.addEventListener('loadeddata', () => {
-          setIsLoading(false);
-          detectPose();
-        });
-      }
-
-      function detectPose() {
-        if (!videoRef.current || !canvasRef.current || !poseLandmarker) return;
-
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        async function detect() {
-          if (!video || !canvas || !ctx || !poseLandmarker) return;
-          const startTimeMs = performance.now();
-          const results = poseLandmarker.detectForVideo(video, startTimeMs);
-
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          if (results.landmarks && results.landmarks.length > 0) {
-            setPoseDetected(true);
-            drawLandmarks(ctx, results.landmarks, canvas.width, canvas.height);
-
-            // Send to WebSocket
-            sendLandmarksRef.current(results.landmarks);
-          } else {
-            setPoseDetected(false);
-            setHeadOrientation(null);
-          }
-          animationId = requestAnimationFrame(detect);
-        }
-        detect();
-      }
-
-      return () => {
-        if (animationId) cancelAnimationFrame(animationId);
-        if (stream) stream.getTracks().forEach((t) => t.stop());
-        if (poseLandmarker) poseLandmarker.close();
-      };
-    } catch (err) {
-      console.error('Error initializing MediaPipe Web:', err);
-      setError(err instanceof Error ? err.message : 'Failed to initialize MediaPipe');
-      setIsLoading(false);
-    }
-  }
-
-  function drawLandmarks(ctx: CanvasRenderingContext2D, landmarksList: any[], width: number, height: number) {
+  function drawLandmarks(
+    ctx: CanvasRenderingContext2D,
+    landmarksList: any[],
+    width: number,
+    height: number
+  ) {
     for (const landmarks of landmarksList) {
       // Calculate head orientation
       const nose = landmarks[0];
@@ -314,75 +310,240 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
       const rightEye = landmarks[5];
 
       if (nose && leftEye && rightEye) {
-        const eyeCenterX = (leftEye.x + rightEye.x) / 2;
-        const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
-        const eyeCenterY = (leftEye.y + rightEye.y) / 2;
-        const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
-        const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) * (180 / Math.PI);
-        setHeadOrientation({ pitch, yaw, roll });
-      }
+        const now = Date.now();
+        if (now - lastOrientationUpdateRef.current > 200) {
+          lastOrientationUpdateRef.current = now;
 
-      // Connections
-      const connections = [
-        // Face
-        [0, 1],
-        [1, 2],
-        [2, 3],
-        [3, 7],
-        [0, 4],
-        [4, 5],
-        [5, 6],
-        [6, 8],
-        [9, 10],
-        // Torso
-        [11, 12],
-        [11, 13],
-        [13, 15],
-        [15, 17],
-        [15, 19],
-        [15, 21],
-        [12, 14],
-        [14, 16],
-        [16, 18],
-        [16, 20],
-        [16, 22],
-        [11, 23],
-        [12, 24],
-        [23, 24],
-        // Legs
-        [23, 25],
-        [25, 27],
-        [27, 29],
-        [29, 31],
-        [27, 31],
-        [24, 26],
-        [26, 28],
-        [28, 30],
-        [30, 32],
-        [28, 32],
-      ];
-
-      ctx.strokeStyle = '#00FF00';
-      ctx.lineWidth = 3;
-      for (const [start, end] of connections) {
-        if (landmarks[start] && landmarks[end]) {
-          ctx.beginPath();
-          ctx.moveTo(landmarks[start].x * width, landmarks[start].y * height);
-          ctx.lineTo(landmarks[end].x * width, landmarks[end].y * height);
-          ctx.stroke();
+          const eyeCenterX = (leftEye.x + rightEye.x) / 2;
+          const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
+          const eyeCenterY = (leftEye.y + rightEye.y) / 2;
+          const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
+          const roll =
+            Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) *
+            (180 / Math.PI);
+          setHeadOrientation({ pitch, yaw, roll });
         }
       }
 
-      // Points
-      for (let i = 0; i < landmarks.length; i++) {
-        const l = landmarks[i];
-        ctx.fillStyle = i <= 10 ? '#00FFFF' : i <= 22 ? '#FF0000' : '#FFFF00';
-        ctx.beginPath();
-        ctx.arc(l.x * width, l.y * height, 6, 0, 2 * Math.PI);
-        ctx.fill();
-      }
+      drawSkeleton(ctx, landmarks, { width, height });
     }
   }
+
+  const handleUploadPress = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    if (!file) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!poseLandmarkerRef.current) {
+      setError('Pose model is not ready yet');
+      return;
+    }
+
+    // Reset input so selecting the same file twice triggers onChange.
+    event.target.value = '';
+
+    if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+    animationIdRef.current = null;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    lastTimestampMsRef.current = -Infinity;
+
+    modeRef.current = 'file';
+    setMode('file');
+    setSelectedFileName(file.name);
+    setError(null);
+    setIsLoading(true);
+    setPoseDetected(false);
+    setHeadOrientation(null);
+
+    const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
+    video.srcObject = null;
+    video.src = url;
+    video.playsInline = true;
+    video.loop = true;
+    video.muted = true;
+
+    const onLoadedData = async () => {
+      setIsLoading(false);
+      try {
+        await video.play();
+      } catch {
+        // Autoplay can be blocked; detection will still run once user interacts.
+      }
+
+      // Ensure canvas sizes are ready.
+      if (canvasRef.current) {
+        canvasRef.current.width = video.videoWidth;
+        canvasRef.current.height = video.videoHeight;
+      }
+
+      // Start detection loop.
+      const start = () => {
+        if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current) return;
+        const ctx = canvasRef.current.getContext('2d');
+        if (!ctx) return;
+
+        lastTimestampMsRef.current = -Infinity;
+
+        const detect = () => {
+          const currentVideo = videoRef.current;
+          const currentCanvas = canvasRef.current;
+          const currentCtx = currentCanvas?.getContext('2d');
+          const currentLandmarker = poseLandmarkerRef.current;
+          if (!currentVideo || !currentCanvas || !currentCtx || !currentLandmarker) return;
+
+          const proposed = performance.now();
+          const last = lastTimestampMsRef.current;
+          const timestampMs = proposed > last ? proposed : last + 1;
+          lastTimestampMsRef.current = timestampMs;
+          const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
+
+          currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
+          currentCtx.drawImage(
+            currentVideo,
+            0,
+            0,
+            currentCanvas.width,
+            currentCanvas.height,
+          );
+
+          if (results.landmarks && results.landmarks.length > 0) {
+            setPoseDetected(true);
+            drawLandmarks(
+              currentCtx,
+              results.landmarks,
+              currentCanvas.width,
+              currentCanvas.height,
+            );
+            sendLandmarksRef.current(results.landmarks);
+          } else {
+            setPoseDetected(false);
+            setHeadOrientation(null);
+          }
+
+          animationIdRef.current = requestAnimationFrame(detect);
+        };
+
+        detect();
+      };
+
+      start();
+    };
+
+    video.addEventListener('loadeddata', onLoadedData, { once: true });
+    video.load();
+  };
+
+  const handleUseCameraPress = async () => {
+    if (modeRef.current === 'camera') return;
+    // Re-run the same initialization effect logic by starting camera directly.
+    // This is safe because we keep the landmarker in a ref.
+    const video = videoRef.current;
+    if (!video) return;
+    if (!poseLandmarkerRef.current) {
+      setError('Pose model is not ready yet');
+      return;
+    }
+
+    if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+    animationIdRef.current = null;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+
+    modeRef.current = 'camera';
+    setMode('camera');
+    setSelectedFileName(null);
+    setError(null);
+    setIsLoading(true);
+    lastTimestampMsRef.current = -Infinity;
+    setPoseDetected(false);
+    setHeadOrientation(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: 'user' },
+      });
+      streamRef.current = stream;
+      video.srcObject = stream;
+      const onLoadedData = () => {
+        setIsLoading(false);
+        if (!videoRef.current || !canvasRef.current) return;
+        if (!poseLandmarkerRef.current) return;
+
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        lastTimestampMsRef.current = -Infinity;
+
+        const detect = () => {
+          const currentVideo = videoRef.current;
+          const currentCanvas = canvasRef.current;
+          const currentCtx = currentCanvas?.getContext('2d');
+          const currentLandmarker = poseLandmarkerRef.current;
+          if (!currentVideo || !currentCanvas || !currentCtx || !currentLandmarker) return;
+
+          const proposed = performance.now();
+          const last = lastTimestampMsRef.current;
+          const timestampMs = proposed > last ? proposed : last + 1;
+          lastTimestampMsRef.current = timestampMs;
+          const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
+
+          currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
+          currentCtx.drawImage(
+            currentVideo,
+            0,
+            0,
+            currentCanvas.width,
+            currentCanvas.height,
+          );
+
+          if (results.landmarks && results.landmarks.length > 0) {
+            setPoseDetected(true);
+            drawLandmarks(
+              currentCtx,
+              results.landmarks,
+              currentCanvas.width,
+              currentCanvas.height,
+            );
+            sendLandmarksRef.current(results.landmarks);
+          } else {
+            setPoseDetected(false);
+            setHeadOrientation(null);
+          }
+
+          animationIdRef.current = requestAnimationFrame(detect);
+        };
+
+        detect();
+      };
+
+      video.addEventListener('loadeddata', onLoadedData, { once: true });
+    } catch (err) {
+      console.error('Error starting camera:', err);
+      setError(err instanceof Error ? err.message : 'Failed to start camera');
+      setIsLoading(false);
+    }
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -390,8 +551,44 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
       <ThemedText style={{ color: wsConnected ? 'green' : 'red' }}>
         WS Status: {wsConnected ? 'Connected' : 'Disconnected'}
       </ThemedText>
+      <View style={styles.sourceRow}>
+        <TouchableOpacity
+          style={[styles.sourceButton, mode === 'camera' && styles.sourceButtonActive]}
+          onPress={handleUseCameraPress}
+          accessibilityLabel="Use camera"
+        >
+          <ThemedText style={styles.sourceButtonText}>Camera</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sourceButton, mode === 'file' && styles.sourceButtonActive]}
+          onPress={handleUploadPress}
+          accessibilityLabel="Upload video"
+        >
+          <ThemedText style={styles.sourceButtonText}>Upload video</ThemedText>
+        </TouchableOpacity>
+        <input
+          ref={fileInputRef as any}
+          type="file"
+          accept="video/*"
+          onChange={handleFileSelected}
+          style={{ display: 'none' } as any}
+        />
+      </View>
+      {selectedFileName && (
+        <ThemedText style={styles.fileHint} numberOfLines={1}>
+          Using: {selectedFileName}
+        </ThemedText>
+      )}
       <ThemedText>
-        {isLoading ? 'Loading MediaPipe...' : poseDetected ? 'Pose detected!' : 'No pose detected'}
+        {!modelReady
+          ? 'Loading MediaPipe...'
+          : isLoading
+            ? 'Preparing video...'
+            : mode === 'file' && !selectedFileName
+              ? 'Upload a video to start'
+              : poseDetected
+                ? 'Pose detected!'
+                : 'No pose detected'}
       </ThemedText>
       {headOrientation && (
         <ThemedView style={styles.orientationContainer}>
@@ -424,409 +621,59 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
   },
-  videoContainer: {
+  sourceRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  canvas: {
-    maxWidth: '100%',
-    height: 'auto',
-    border: '2px solid #00FF00',
-    borderRadius: 8,
-  },
-  error: {
-    color: '#FF6B6B',
-  },
-  orientationContainer: {
-    padding: 12,
-    gap: 4,
-    backgroundColor: 'rgba(0, 255, 255, 0.1)',
+  sourceButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#00FFFF',
+    borderColor: 'rgba(128, 128, 128, 0.3)',
+    backgroundColor: 'rgba(128, 128, 128, 0.08)',
   },
-  cameraContainer: {
-    width: '100%',
-    height: 400,
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginTop: 16,
+  sourceButtonActive: {
+    borderColor: '#007AFF',
+    backgroundColor: 'rgba(0, 122, 255, 0.12)',
   },
-  camera: {
-    flex: 1,
+  sourceButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
-});
-import { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Platform, Dimensions } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-
-interface HeadOrientation {
-  pitch: number;
-  yaw: number;
-  roll: number;
-}
-
-export default function MediaPipeDemo() {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [poseDetected, setPoseDetected] = useState<boolean>(false);
-  const [headOrientation, setHeadOrientation] = useState<HeadOrientation | null>(null);
-  const [permission, requestPermission] = useCameraPermissions();
-
-  useEffect(() => {
-    if (Platform.OS === 'web') {
-      initializeWebPoseDetection();
-    } else {
-      // For mobile, request camera permission
-      if (permission?.granted) {
-        initializeMobilePoseDetection();
-      }
-    }
-  }, [permission]);
-
-  async function initializeWebPoseDetection() {
-    let poseLandmarker: any = null;
-    let animationId: number;
-
-    try {
-      // Dynamically import MediaPipe Tasks Vision (web only)
-      const { PoseLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
-
-      // Initialize MediaPipe
-      const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
-      );
-
-      poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
-          delegate: 'GPU',
-        },
-        runningMode: 'VIDEO',
-        numPoses: 1,
-      });
-
-      // Get video stream
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.addEventListener('loadeddata', () => {
-          setIsLoading(false);
-          detectPose();
-        });
-      }
-
-      function detectPose() {
-        if (!videoRef.current || !canvasRef.current || !poseLandmarker) return;
-
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-
-        if (!ctx) return;
-
-        // Set canvas size to match video
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        async function detect() {
-          if (!video || !canvas || !ctx || !poseLandmarker) return;
-
-          const startTimeMs = performance.now();
-          const results = poseLandmarker.detectForVideo(video, startTimeMs);
-
-          // Clear canvas
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-          // Draw video frame
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          // Draw pose landmarks
-          if (results.landmarks && results.landmarks.length > 0) {
-            setPoseDetected(true);
-
-            for (const landmarks of results.landmarks) {
-              // Calculate head orientation using key face landmarks
-              const nose = landmarks[0];
-              const leftEye = landmarks[2];
-              const rightEye = landmarks[5];
-
-              if (nose && leftEye && rightEye) {
-                // Calculate yaw (left/right rotation)
-                const eyeCenterX = (leftEye.x + rightEye.x) / 2;
-                const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
-
-                // Calculate pitch (up/down tilt)
-                const eyeCenterY = (leftEye.y + rightEye.y) / 2;
-                const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
-
-                // Calculate roll (side tilt)
-                const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) * (180 / Math.PI);
-
-                setHeadOrientation({ pitch, yaw, roll });
-              }
-
-              // All pose connections (33 landmarks total)
-              const connections = [
-                // Face
-                [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8],
-                [9, 10],
-                // Torso and shoulders
-                [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
-                [12, 14], [14, 16], [16, 18], [16, 20], [16, 22],
-                // Body connection
-                [11, 23], [12, 24], [23, 24],
-                // Left leg
-                [23, 25], [25, 27], [27, 29], [29, 31], [27, 31],
-                // Right leg
-                [24, 26], [26, 28], [28, 30], [30, 32], [28, 32],
-              ];
-
-              // Draw connections
-              ctx.strokeStyle = '#00FF00';
-              ctx.lineWidth = 3;
-
-              for (const [start, end] of connections) {
-                if (landmarks[start] && landmarks[end]) {
-                  const startPoint = landmarks[start];
-                  const endPoint = landmarks[end];
-
-                  ctx.beginPath();
-                  ctx.moveTo(startPoint.x * canvas.width, startPoint.y * canvas.height);
-                  ctx.lineTo(endPoint.x * canvas.width, endPoint.y * canvas.height);
-                  ctx.stroke();
-                }
-              }
-
-              // Draw all landmarks with different colors
-              for (let i = 0; i < landmarks.length; i++) {
-                const landmark = landmarks[i];
-
-                // Color code landmarks by body part
-                if (i >= 0 && i <= 10) {
-                  ctx.fillStyle = '#00FFFF'; // Cyan for face
-                } else if (i >= 11 && i <= 22) {
-                  ctx.fillStyle = '#FF0000'; // Red for upper body
-                } else if (i >= 23 && i <= 24) {
-                  ctx.fillStyle = '#FFFF00'; // Yellow for hips
-                } else {
-                  ctx.fillStyle = '#FF00FF'; // Magenta for legs/feet
-                }
-
-                ctx.beginPath();
-                ctx.arc(
-                  landmark.x * canvas.width,
-                  landmark.y * canvas.height,
-                  6,
-                  0,
-                  2 * Math.PI
-                );
-                ctx.fill();
-
-                // Draw landmark number
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = '10px Arial';
-                ctx.fillText(
-                  i.toString(),
-                  landmark.x * canvas.width + 8,
-                  landmark.y * canvas.height - 8
-                );
-              }
-            }
-          } else {
-            setPoseDetected(false);
-            setHeadOrientation(null);
-          }
-
-          animationId = requestAnimationFrame(detect);
-        }
-
-        detect();
-      }
-
-      return () => {
-        if (animationId) {
-          cancelAnimationFrame(animationId);
-        }
-        if (videoRef.current?.srcObject) {
-          const stream = videoRef.current.srcObject as MediaStream;
-          stream.getTracks().forEach(track => track.stop());
-        }
-        if (poseLandmarker) {
-          poseLandmarker.close();
-        }
-      };
-    } catch (err) {
-      console.error('Error initializing MediaPipe:', err);
-      setError(err instanceof Error ? err.message : 'Failed to initialize MediaPipe');
-      setIsLoading(false);
-    }
-  }
-
-  async function initializeMobilePoseDetection() {
-    try {
-      setIsLoading(false);
-      // Mobile implementation note: Full pose detection requires native modules
-      // For now, showing camera feed. For production, consider:
-      // 1. Using react-native-vision-camera with frame processors
-      // 2. Using TensorFlow Lite with native bindings
-      // 3. Using a backend service for pose detection
-    } catch (err) {
-      console.error('Error initializing mobile pose detection:', err);
-      setError(err instanceof Error ? err.message : 'Failed to initialize camera');
-      setIsLoading(false);
-    }
-  }
-
-  // Mobile permission handling
-  if (Platform.OS !== 'web') {
-    if (!permission) {
-      return (
-        <ThemedView style={styles.container}>
-          <ThemedText>Loading camera permissions...</ThemedText>
-        </ThemedView>
-      );
-    }
-
-    if (!permission.granted) {
-      return (
-        <ThemedView style={styles.container}>
-          <ThemedText style={styles.message}>Camera permission is required for pose tracking</ThemedText>
-          <ThemedText
-            style={styles.permissionButton}
-            onPress={requestPermission}
-          >
-            Grant Camera Permission
-          </ThemedText>
-        </ThemedView>
-      );
-    }
-
-    // Mobile camera view
-    return (
-      <ThemedView style={styles.container}>
-        <ThemedText type="subtitle">Body Pose Tracking (Mobile)</ThemedText>
-        <ThemedText style={styles.message}>
-          Camera is active. Note: Full pose detection on mobile requires additional native modules.
-        </ThemedText>
-        <ThemedText style={styles.infoText}>
-          For production use, consider integrating:
-          {'\n'}• TensorFlow Lite with native bindings
-          {'\n'}• react-native-vision-camera with frame processors
-          {'\n'}• MediaPipe native SDKs (iOS/Android)
-        </ThemedText>
-        <View style={styles.cameraContainer}>
-          <CameraView
-            style={styles.camera}
-            facing="front"
-          />
-        </View>
-      </ThemedView>
-    );
-  }
-
-  // Web implementation
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">Body Pose Tracking Demo</ThemedText>
-      <ThemedText>
-        {isLoading ? 'Loading MediaPipe...' : poseDetected ? 'Pose detected!' : 'No pose detected'}
-      </ThemedText>
-      {headOrientation && (
-        <ThemedView style={styles.orientationContainer}>
-          <ThemedText type="defaultSemiBold">Head Orientation:</ThemedText>
-          <ThemedText>Pitch (up/down): {headOrientation.pitch.toFixed(1)}°</ThemedText>
-          <ThemedText>Yaw (left/right): {headOrientation.yaw.toFixed(1)}°</ThemedText>
-          <ThemedText>Roll (tilt): {headOrientation.roll.toFixed(1)}°</ThemedText>
-        </ThemedView>
-      )}
-      {error && <ThemedText style={styles.error}>{error}</ThemedText>}
-      <View style={styles.videoContainer}>
-        <video
-          ref={videoRef as any}
-          autoPlay
-          playsInline
-          style={{ display: 'none' }}
-        />
-        <canvas ref={canvasRef as any} style={styles.canvas} />
-      </View>
-      <ThemedView style={styles.legend}>
-        <ThemedText style={styles.legendText}>
-          🔵 Face (0-10)  🔴 Upper body (11-22)  🟡 Hips (23-24)  🟣 Legs (25-32)
-        </ThemedText>
-      </ThemedView>
-    </ThemedView>
-  );
-}
-
-const { width } = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    gap: 16,
-  },
-  videoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  canvas: {
-    maxWidth: '100%',
-    height: 'auto',
-    border: '2px solid #00FF00',
-    borderRadius: 8,
-  },
-  error: {
-    color: '#FF6B6B',
-  },
-  orientationContainer: {
-    padding: 12,
-    gap: 4,
-    backgroundColor: 'rgba(0, 255, 255, 0.1)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#00FFFF',
-  },
-  legend: {
-    padding: 8,
-    alignItems: 'center',
-  },
-  legendText: {
-    fontSize: 12,
-  },
-  cameraContainer: {
-    width: '100%',
-    height: 400,
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginTop: 16,
-  },
-  camera: {
-    flex: 1,
-  },
-  message: {
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  infoText: {
-    fontSize: 12,
+  fileHint: {
     opacity: 0.7,
-    marginBottom: 12,
   },
-  permissionButton: {
-    padding: 12,
-    backgroundColor: '#007AFF',
-    color: '#FFFFFF',
+  videoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  canvas: {
+    maxWidth: '100%',
+    height: 'auto',
     borderRadius: 8,
-    textAlign: 'center',
-    fontWeight: 'bold',
+  },
+  error: {
+    color: '#FF6B6B',
+  },
+  orientationContainer: {
+    padding: 12,
+    gap: 4,
+    backgroundColor: 'rgba(0, 255, 255, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#00FFFF',
+  },
+  cameraContainer: {
+    width: '100%',
+    height: 400,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 16,
+  },
+  camera: {
+    flex: 1,
   },
 });
