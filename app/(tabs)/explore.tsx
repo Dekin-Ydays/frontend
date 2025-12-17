@@ -55,6 +55,22 @@ export default function TabTwoScreen() {
           <ThemedText type="link">Learn more about MediaPipe</ThemedText>
         </ExternalLink>
       </Collapsible>
+      <Collapsible title="MediaPipe Body Tracking">
+        <ThemedText>
+          This demo uses{' '}
+          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
+            @mediapipe/tasks-vision
+          </ThemedText>{' '}
+          on web to perform real-time body pose tracking. It detects 33 body landmarks including face, torso, arms, and legs, then draws them on a canvas with head orientation tracking.
+        </ThemedText>
+        <ThemedText style={{ marginTop: 8, marginBottom: 8 }}>
+          On mobile, the camera is accessible but full pose detection requires additional native modules or development builds.
+        </ThemedText>
+        <MediaPipeDemo />
+        <ExternalLink href="https://developers.google.com/mediapipe">
+          <ThemedText type="link">Learn more about MediaPipe</ThemedText>
+        </ExternalLink>
+      </Collapsible>
     </ParallaxScrollView>
   );
 }
