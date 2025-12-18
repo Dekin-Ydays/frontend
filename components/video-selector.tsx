@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 import { listVideos, VideoMetadata } from '@/services/video-parser-api';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 
 interface VideoSelectorProps {
   selectedVideoId: string | null;
@@ -14,6 +16,7 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchVideos();
@@ -33,6 +36,12 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
     }
   };
 
+  const handleCopyId = async (id: string) => {
+    await Clipboard.setStringAsync(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   const formatDuration = (ms: number | null): string => {
     if (!ms) return 'In progress';
     const seconds = Math.floor(ms / 1000);
@@ -50,7 +59,10 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="defaultSemiBold" style={styles.label}>
+      <ThemedText
+        type="defaultSemiBold"
+        style={styles.label}
+      >
         Select Video
       </ThemedText>
 
@@ -60,20 +72,46 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator size="small" color="#007AFF" />
+          <ActivityIndicator
+            size="small"
+            color="#007AFF"
+          />
         ) : selectedVideo ? (
           <View style={styles.selectedVideoInfo}>
-            <ThemedText style={styles.selectedVideoText} numberOfLines={1}>
-              {formatTimestamp(selectedVideo.startTime)}
-            </ThemedText>
-            <ThemedText style={styles.selectedVideoMeta}>
-              {selectedVideo.frameCount} frames • {formatDuration(selectedVideo.duration)}
-            </ThemedText>
+            <View style={styles.selectedVideoHeader}>
+              <ThemedText
+                style={styles.selectedVideoText}
+                numberOfLines={1}
+              >
+                {formatTimestamp(selectedVideo.startTime)}
+              </ThemedText>
+              <ThemedText style={styles.selectedVideoMeta}>
+                {selectedVideo.frameCount} frames • {formatDuration(selectedVideo.duration)}
+              </ThemedText>
+            </View>
+            <TouchableOpacity
+              style={styles.copyIdContainer}
+              onPress={(e) => {
+                e.stopPropagation();
+                handleCopyId(selectedVideo.id);
+              }}
+            >
+              <ThemedText
+                style={styles.selectedVideoId}
+                numberOfLines={1}
+              >
+                ID: {selectedVideo.id}
+              </ThemedText>
+              <IconSymbol
+                name="doc.on.doc.fill"
+                size={14}
+                color={copiedId === selectedVideo.id ? '#34C759' : '#808080'}
+              />
+              {copiedId === selectedVideo.id && <ThemedText style={styles.copiedText}>Copied!</ThemedText>}
+            </TouchableOpacity>
           </View>
         ) : (
-          <ThemedText style={styles.placeholder}>
-            {error ? 'Error loading videos' : 'Choose a video...'}
-          </ThemedText>
+          <ThemedText style={styles.placeholder}>{error ? 'Error loading videos' : 'Choose a video...'}</ThemedText>
         )}
         <ThemedText style={styles.arrow}>{expanded ? '▲' : '▼'}</ThemedText>
       </TouchableOpacity>
@@ -81,36 +119,40 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
       {error && (
         <View style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>{error}</ThemedText>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchVideos}>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={fetchVideos}
+          >
             <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
           </TouchableOpacity>
         </View>
       )}
 
       {expanded && !loading && !error && (
-        <ScrollView style={styles.dropdown} nestedScrollEnabled>
+        <ScrollView
+          style={styles.dropdown}
+          nestedScrollEnabled
+        >
           {videos.length === 0 ? (
             <View style={styles.emptyState}>
               <ThemedText style={styles.emptyText}>No videos available</ThemedText>
-              <ThemedText style={styles.emptySubtext}>
-                Record some poses to see videos here
-              </ThemedText>
+              <ThemedText style={styles.emptySubtext}>Record some poses to see videos here</ThemedText>
             </View>
           ) : (
             videos.map((video) => (
               <TouchableOpacity
                 key={video.id}
-                style={[
-                  styles.videoItem,
-                  selectedVideoId === video.id && styles.videoItemSelected,
-                ]}
+                style={[styles.videoItem, selectedVideoId === video.id && styles.videoItemSelected]}
                 onPress={() => {
                   onSelectVideo(video.id);
                   setExpanded(false);
                 }}
               >
                 <View style={styles.videoItemHeader}>
-                  <ThemedText type="defaultSemiBold" style={styles.videoItemTitle}>
+                  <ThemedText
+                    type="defaultSemiBold"
+                    style={styles.videoItemTitle}
+                  >
                     {formatTimestamp(video.startTime)}
                   </ThemedText>
                   {!video.endTime && (
@@ -122,9 +164,27 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
                 <ThemedText style={styles.videoItemMeta}>
                   {video.frameCount} frames • {formatDuration(video.duration)}
                 </ThemedText>
-                <ThemedText style={styles.videoItemId} numberOfLines={1}>
-                  ID: {video.id}
-                </ThemedText>
+                <View style={styles.videoItemIdContainer}>
+                  <ThemedText
+                    style={styles.videoItemId}
+                    numberOfLines={1}
+                  >
+                    ID: {video.id}
+                  </ThemedText>
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleCopyId(video.id);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <IconSymbol
+                      name="doc.on.doc.fill"
+                      size={12}
+                      color={copiedId === video.id ? '#34C759' : '#808080'}
+                    />
+                  </TouchableOpacity>
+                </View>
               </TouchableOpacity>
             ))
           )}
@@ -156,6 +216,12 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
+  selectedVideoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginRight: 8,
+  },
   selectedVideoText: {
     fontSize: 14,
     fontWeight: '600',
@@ -163,6 +229,21 @@ const styles = StyleSheet.create({
   selectedVideoMeta: {
     fontSize: 12,
     opacity: 0.6,
+  },
+  copyIdContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  selectedVideoId: {
+    fontSize: 11,
+    opacity: 0.5,
+    fontFamily: Platform.select({ ios: 'Courier', default: 'monospace' }),
+  },
+  copiedText: {
+    fontSize: 10,
+    color: '#34C759',
+    fontWeight: '600',
   },
   placeholder: {
     flex: 1,
@@ -249,9 +330,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     opacity: 0.6,
   },
+  videoItemIdContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   videoItemId: {
     fontSize: 10,
     opacity: 0.4,
-    fontFamily: 'monospace',
+    fontFamily: Platform.select({ ios: 'Courier', default: 'monospace' }),
   },
 });

@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts } from '@/constants/theme';
 import MediaPipeDemo from '@/components/mediapipe-demo';
-import { ClientsList } from '@/components/clients-list';
+import { FrameComparator } from '@/components/frame-comparator';
 import { VideoComparison } from '@/components/video-comparison';
 import { VideoReplay } from '@/components/video-replay';
 
@@ -57,12 +57,11 @@ export default function TabTwoScreen() {
         </ExternalLink>
       </Collapsible>
 
-      <Collapsible title="👥 Connected Clients">
+      <Collapsible title="🆚 Frame Comparator">
         <ThemedText style={{ marginBottom: 12 }}>
-          View all connected WebSocket clients and their recorded videos. Each client automatically
-          records a video session.
+          Compare two videos visually by overlaying their pose landmarks. Green is the reference, Red is the comparison.
         </ThemedText>
-        <ClientsList />
+        <FrameComparator />
       </Collapsible>
 
       <Collapsible title="⚖️ Compare Videos">

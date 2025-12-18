@@ -51,6 +51,7 @@ export interface DrawOptions {
   lineWidth?: number;
   showPoints?: boolean;
   pointRadius?: number;
+  pointColor?: string;
 }
 
 export function drawSkeleton(
@@ -65,6 +66,7 @@ export function drawSkeleton(
     lineWidth = 3,
     showPoints = true,
     pointRadius = 6,
+    pointColor,
   } = options;
 
   // Draw connections
@@ -84,7 +86,11 @@ export function drawSkeleton(
     for (let i = 0; i < landmarks.length; i++) {
       const landmark = landmarks[i];
       // Color coding: cyan (face 0-10), red (torso 11-22), yellow (legs 23-32)
-      ctx.fillStyle = i <= 10 ? '#00FFFF' : i <= 22 ? '#FF0000' : '#FFFF00';
+      if (pointColor) {
+        ctx.fillStyle = pointColor;
+      } else {
+        ctx.fillStyle = i <= 10 ? '#00FFFF' : i <= 22 ? '#FF0000' : '#FFFF00';
+      }
       ctx.beginPath();
       ctx.arc(
         landmark.x * width,
