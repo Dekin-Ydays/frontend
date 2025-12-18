@@ -11,6 +11,19 @@ interface VideoSelectorProps {
   onSelectVideo: (videoId: string) => void;
 }
 
+const formatDuration = (ms: number | null): string => {
+  if (!ms) return 'In progress';
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+const formatTimestamp = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+};
+
 export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorProps) {
   const [videos, setVideos] = useState<VideoMetadata[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,19 +53,6 @@ export function VideoSelector({ selectedVideoId, onSelectVideo }: VideoSelectorP
     await Clipboard.setStringAsync(id);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const formatDuration = (ms: number | null): string => {
-    if (!ms) return 'In progress';
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const formatTimestamp = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
 
   const selectedVideo = videos.find((v) => v.id === selectedVideoId);

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
@@ -6,14 +6,13 @@ import { getVideo, VideoFrame } from '@/services/video-parser-api';
 import { drawSkeleton } from '@/utils/skeleton-renderer';
 import { VideoSelector } from './video-selector';
 import { FrameControls } from './frame-controls';
+import { useVideoPlayer } from '@/hooks/use-video-player';
 
 interface VideoReplayState {
   selectedVideoId: string | null;
   frames: VideoFrame[];
   loading: boolean;
   error: string | null;
-  isPlaying: boolean;
-  currentFrameIndex: number;
 }
 
 export function VideoReplay() {
@@ -22,50 +21,11 @@ export function VideoReplay() {
     frames: [],
     loading: false,
     error: null,
-    isPlaying: false,
-    currentFrameIndex: 0,
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number | null>(null);
-  const lastFrameTimeRef = useRef<number>(0);
-
   const CANVAS_WIDTH = 640;
   const CANVAS_HEIGHT = 480;
-  const TARGET_FPS = 30; // MediaPipe default frame rate
-
-  // Load video when selected
-  const handleSelectVideo = async (videoId: string) => {
-    setState((prev) => ({ ...prev, loading: true, error: null, isPlaying: false }));
-
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-    lastFrameTimeRef.current = 0;
-
-    try {
-      const video = await getVideo(videoId);
-      setState((prev) => ({
-        ...prev,
-        selectedVideoId: videoId,
-        frames: video.frames,
-        loading: false,
-        currentFrameIndex: 0,
-      }));
-
-      // Render first frame
-      if (video.frames.length > 0) {
-        renderFrame(0, video.frames);
-      }
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        error: err instanceof Error ? err.message : 'Failed to load video',
-        loading: false,
-      }));
-    }
-  };
 
   // Render a specific frame
   const renderFrame = useCallback((frameIndex: number, frames: VideoFrame[]) => {
@@ -85,95 +45,47 @@ export function VideoReplay() {
     });
   }, []);
 
-  // Animation loop for playback
-  useEffect(() => {
-    if (!state.isPlaying || state.frames.length === 0) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
+  const {
+    isPlaying,
+    currentFrameIndex,
+    togglePlayPause,
+    seek,
+    nextFrame,
+    prevFrame,
+    jumpToStart,
+    jumpToEnd,
+  } = useVideoPlayer({
+    totalFrames: state.frames.length,
+    onFrameChange: (index) => renderFrame(index, state.frames),
+  });
+
+  // Load video when selected
+  const handleSelectVideo = async (videoId: string) => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    
+    // Stop playback and reset
+    jumpToStart();
+
+    try {
+      const video = await getVideo(videoId);
+      setState((prev) => ({
+        ...prev,
+        selectedVideoId: videoId,
+        frames: video.frames,
+        loading: false,
+      }));
+
+      // Render first frame
+      if (video.frames.length > 0) {
+        renderFrame(0, video.frames);
       }
-      return;
+    } catch (err) {
+      setState((prev) => ({
+        ...prev,
+        error: err instanceof Error ? err.message : 'Failed to load video',
+        loading: false,
+      }));
     }
-
-    const frameInterval = 1000 / TARGET_FPS;
-
-    const animate = (currentTime: number) => {
-      if (!lastFrameTimeRef.current) {
-        lastFrameTimeRef.current = currentTime;
-      }
-
-      const elapsed = currentTime - lastFrameTimeRef.current;
-
-      if (elapsed >= frameInterval) {
-        lastFrameTimeRef.current = currentTime;
-
-        setState((prev) => {
-          const nextIndex = prev.currentFrameIndex + 1;
-          if (nextIndex >= prev.frames.length) {
-            const lastIndex = Math.max(0, prev.frames.length - 1);
-            renderFrame(lastIndex, prev.frames);
-            return { ...prev, isPlaying: false, currentFrameIndex: lastIndex };
-          }
-
-          renderFrame(nextIndex, prev.frames);
-          return { ...prev, currentFrameIndex: nextIndex };
-        });
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [state.isPlaying, state.frames, renderFrame]);
-
-  // Playback control handlers
-  const handlePlayPause = () => {
-    setState((prev) => {
-      const maxIndex = Math.max(0, prev.frames.length - 1);
-      const nextIsPlaying = !prev.isPlaying;
-
-      if (!nextIsPlaying) return { ...prev, isPlaying: false };
-
-      lastFrameTimeRef.current = 0;
-
-      if (prev.currentFrameIndex >= maxIndex && prev.frames.length > 0) {
-        renderFrame(0, prev.frames);
-        return { ...prev, isPlaying: true, currentFrameIndex: 0 };
-      }
-
-      return { ...prev, isPlaying: true };
-    });
-  };
-
-  const handleSeek = (frameIndex: number) => {
-    const normalizedIndex = Math.floor(Math.max(0, Math.min(frameIndex, state.frames.length - 1)));
-    lastFrameTimeRef.current = 0;
-    setState((prev) => ({ ...prev, currentFrameIndex: normalizedIndex, isPlaying: false }));
-    renderFrame(normalizedIndex, state.frames);
-  };
-
-  const handleNextFrame = () => {
-    const nextIndex = Math.min(state.currentFrameIndex + 1, state.frames.length - 1);
-    handleSeek(nextIndex);
-  };
-
-  const handlePreviousFrame = () => {
-    const prevIndex = Math.max(state.currentFrameIndex - 1, 0);
-    handleSeek(prevIndex);
-  };
-
-  const handleJumpToStart = () => {
-    handleSeek(0);
-  };
-
-  const handleJumpToEnd = () => {
-    handleSeek(state.frames.length - 1);
   };
 
   if (Platform.OS !== 'web') {
@@ -218,15 +130,15 @@ export function VideoReplay() {
           </View>
 
           <FrameControls
-            isPlaying={state.isPlaying}
-            currentFrame={state.currentFrameIndex}
+            isPlaying={isPlaying}
+            currentFrame={currentFrameIndex}
             totalFrames={state.frames.length}
-            onPlayPause={handlePlayPause}
-            onSeek={handleSeek}
-            onNextFrame={handleNextFrame}
-            onPreviousFrame={handlePreviousFrame}
-            onJumpToStart={handleJumpToStart}
-            onJumpToEnd={handleJumpToEnd}
+            onPlayPause={togglePlayPause}
+            onSeek={seek}
+            onNextFrame={nextFrame}
+            onPreviousFrame={prevFrame}
+            onJumpToStart={jumpToStart}
+            onJumpToEnd={jumpToEnd}
           />
         </>
       )}

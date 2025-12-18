@@ -12,6 +12,145 @@ import { ScoreVisualization } from './score-visualization';
 
 type PresetType = keyof typeof COMPARISON_PRESETS;
 
+interface VideoInputProps {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  hint: string;
+}
+
+const VideoInput = ({ label, value, onChangeText, placeholder, hint }: VideoInputProps) => (
+  <View style={styles.inputGroup}>
+    <ThemedText type="defaultSemiBold" style={styles.label}>
+      {label}
+    </ThemedText>
+    <TextInput
+      style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      placeholderTextColor="rgba(128, 128, 128, 0.5)"
+      autoCapitalize="none"
+      autoCorrect={false}
+    />
+    <ThemedText style={styles.hint}>
+      {hint}
+    </ThemedText>
+  </View>
+);
+
+interface ComparisonFormProps {
+  referenceId: string;
+  setReferenceId: (id: string) => void;
+  comparisonId: string;
+  setComparisonId: (id: string) => void;
+  selectedPreset: PresetType;
+  setSelectedPreset: (preset: PresetType) => void;
+  loading: boolean;
+  onCompare: () => void;
+}
+
+const ComparisonForm = ({
+  referenceId,
+  setReferenceId,
+  comparisonId,
+  setComparisonId,
+  selectedPreset,
+  setSelectedPreset,
+  loading,
+  onCompare,
+}: ComparisonFormProps) => (
+  <View style={styles.inputContainer}>
+    <ThemedText type="subtitle" style={styles.title}>
+      Compare Videos
+    </ThemedText>
+
+    <VideoInput
+      label="Reference Video ID"
+      value={referenceId}
+      onChangeText={setReferenceId}
+      placeholder="Enter reference video ID"
+      hint="The video to compare against (teacher/reference)"
+    />
+
+    <VideoInput
+      label="Comparison Video ID"
+      value={comparisonId}
+      onChangeText={setComparisonId}
+      placeholder="Enter comparison video ID"
+      hint="The video to analyze (student/comparison)"
+    />
+
+    <View style={styles.inputGroup}>
+      <ThemedText type="defaultSemiBold" style={styles.label}>
+        Comparison Preset
+      </ThemedText>
+      <View style={styles.presetContainer}>
+        {(Object.keys(COMPARISON_PRESETS) as PresetType[]).map((preset) => (
+          <TouchableOpacity
+            key={preset}
+            style={[
+              styles.presetButton,
+              selectedPreset === preset && styles.presetButtonActive,
+            ]}
+            onPress={() => setSelectedPreset(preset)}
+          >
+            <ThemedText
+              style={[
+                styles.presetButtonText,
+                selectedPreset === preset && styles.presetButtonTextActive,
+              ]}
+            >
+              {preset.charAt(0).toUpperCase() + preset.slice(1)}
+            </ThemedText>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <ThemedText style={styles.hint}>
+        {selectedPreset === 'dance' &&
+          'Position & angles balanced (50/50)'}
+        {selectedPreset === 'yoga' &&
+          'Focus on angles, rotation-invariant'}
+        {selectedPreset === 'sports' &&
+          'Focus on position, higher visibility threshold'}
+      </ThemedText>
+    </View>
+
+    <TouchableOpacity
+      style={[styles.compareButton, loading && styles.compareButtonDisabled]}
+      onPress={onCompare}
+      disabled={loading}
+    >
+      {loading ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <ThemedText style={styles.compareButtonText}>
+          Compare Videos
+        </ThemedText>
+      )}
+    </TouchableOpacity>
+  </View>
+);
+
+interface ComparisonResultsProps {
+  result: ScoringResult;
+  onClear: () => void;
+}
+
+const ComparisonResults = ({ result, onClear }: ComparisonResultsProps) => (
+  <View style={styles.resultContainer}>
+    <View style={styles.resultHeader}>
+      <ThemedText type="subtitle">Comparison Results</ThemedText>
+      <TouchableOpacity onPress={onClear} style={styles.clearButton}>
+        <ThemedText style={styles.clearButtonText}>New Comparison</ThemedText>
+      </TouchableOpacity>
+    </View>
+
+    <ScoreVisualization result={result} />
+  </View>
+);
+
 export function VideoComparison() {
   const [referenceId, setReferenceId] = useState('');
   const [comparisonId, setComparisonId] = useState('');
@@ -56,107 +195,18 @@ export function VideoComparison() {
   return (
     <ThemedView style={styles.container}>
       {!result ? (
-        <View style={styles.inputContainer}>
-          <ThemedText type="subtitle" style={styles.title}>
-            Compare Videos
-          </ThemedText>
-
-          <View style={styles.inputGroup}>
-            <ThemedText type="defaultSemiBold" style={styles.label}>
-              Reference Video ID
-            </ThemedText>
-            <TextInput
-              style={styles.input}
-              value={referenceId}
-              onChangeText={setReferenceId}
-              placeholder="Enter reference video ID"
-              placeholderTextColor="rgba(128, 128, 128, 0.5)"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <ThemedText style={styles.hint}>
-              The video to compare against (teacher/reference)
-            </ThemedText>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <ThemedText type="defaultSemiBold" style={styles.label}>
-              Comparison Video ID
-            </ThemedText>
-            <TextInput
-              style={styles.input}
-              value={comparisonId}
-              onChangeText={setComparisonId}
-              placeholder="Enter comparison video ID"
-              placeholderTextColor="rgba(128, 128, 128, 0.5)"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <ThemedText style={styles.hint}>
-              The video to analyze (student/comparison)
-            </ThemedText>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <ThemedText type="defaultSemiBold" style={styles.label}>
-              Comparison Preset
-            </ThemedText>
-            <View style={styles.presetContainer}>
-              {(Object.keys(COMPARISON_PRESETS) as PresetType[]).map((preset) => (
-                <TouchableOpacity
-                  key={preset}
-                  style={[
-                    styles.presetButton,
-                    selectedPreset === preset && styles.presetButtonActive,
-                  ]}
-                  onPress={() => setSelectedPreset(preset)}
-                >
-                  <ThemedText
-                    style={[
-                      styles.presetButtonText,
-                      selectedPreset === preset && styles.presetButtonTextActive,
-                    ]}
-                  >
-                    {preset.charAt(0).toUpperCase() + preset.slice(1)}
-                  </ThemedText>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <ThemedText style={styles.hint}>
-              {selectedPreset === 'dance' &&
-                'Position & angles balanced (50/50)'}
-              {selectedPreset === 'yoga' &&
-                'Focus on angles, rotation-invariant'}
-              {selectedPreset === 'sports' &&
-                'Focus on position, higher visibility threshold'}
-            </ThemedText>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.compareButton, loading && styles.compareButtonDisabled]}
-            onPress={handleCompare}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <ThemedText style={styles.compareButtonText}>
-                Compare Videos
-              </ThemedText>
-            )}
-          </TouchableOpacity>
-        </View>
+        <ComparisonForm
+          referenceId={referenceId}
+          setReferenceId={setReferenceId}
+          comparisonId={comparisonId}
+          setComparisonId={setComparisonId}
+          selectedPreset={selectedPreset}
+          setSelectedPreset={setSelectedPreset}
+          loading={loading}
+          onCompare={handleCompare}
+        />
       ) : (
-        <View style={styles.resultContainer}>
-          <View style={styles.resultHeader}>
-            <ThemedText type="subtitle">Comparison Results</ThemedText>
-            <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
-              <ThemedText style={styles.clearButtonText}>New Comparison</ThemedText>
-            </TouchableOpacity>
-          </View>
-
-          <ScoreVisualization result={result} />
-        </View>
+        <ComparisonResults result={result} onClear={handleClear} />
       )}
     </ThemedView>
   );
