@@ -1,11 +1,16 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ExternalLink } from '@/components/external-link';
+import { FrameComparator } from '@/components/frame-comparator';
+import MediaPipeDemo from '@/components/mediapipe-demo';
+import { Collapsible } from '@/components/ui/collapsible';
+import { VideoComparison } from '@/components/video-comparison';
+import { VideoReplay } from '@/components/video-replay';
+import { Fonts } from '@/constants/theme';
 
 export default function HomeScreen() {
   return (
@@ -16,64 +21,63 @@ export default function HomeScreen() {
           source={require('@/assets/images/partial-react-logo.png')}
           style={styles.reactLogo}
         />
-      }>
+      }
+    >
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
+        <ThemedText
+          type="title"
+          style={{
+            fontFamily: Fonts.rounded,
+          }}
+        >
+          Pose Analysis
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+      <ThemedText>Capture body poses with MediaPipe and compare videos using AI-powered scoring.</ThemedText>
 
+      <Collapsible title="📹 Record Poses">
         <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
+          This demo uses{' '}
+          <ThemedText
+            type="defaultSemiBold"
+            style={{ fontFamily: Fonts.mono }}
+          >
+            @mediapipe/tasks-vision
+          </ThemedText>{' '}
+          on web to perform real-time body pose tracking. It detects 33 body landmarks including face, torso, arms, and
+          legs.
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+        <ThemedText style={{ marginTop: 8, marginBottom: 8 }}>
+          Poses are automatically streamed to the backend and saved as videos for comparison.
         </ThemedText>
-      </ThemedView>
+        <MediaPipeDemo />
+        <ExternalLink href="https://developers.google.com/mediapipe">
+          <ThemedText type="link">Learn more about MediaPipe</ThemedText>
+        </ExternalLink>
+      </Collapsible>
+
+      <Collapsible title="🆚 Frame Comparator">
+        <ThemedText style={{ marginBottom: 12 }}>
+          Compare two videos visually by overlaying their pose landmarks. Green is the reference, Red is the comparison.
+        </ThemedText>
+        <FrameComparator />
+      </Collapsible>
+
+      <Collapsible title="⚖️ Compare Videos">
+        <ThemedText style={{ marginBottom: 12 }}>
+          Compare two pose videos and get detailed scoring on position accuracy, joint angles, and timing. Perfect for
+          dance, yoga, sports form analysis, and more.
+        </ThemedText>
+        <VideoComparison />
+      </Collapsible>
+
+      <Collapsible title="⏺ Replay Videos">
+        <ThemedText style={{ marginBottom: 12 }}>
+          Replay recorded pose videos frame-by-frame on a canvas. Use the timeline to scrub and the controls to step
+          through frames.
+        </ThemedText>
+        <VideoReplay />
+      </Collapsible>
     </ParallaxScrollView>
   );
 }

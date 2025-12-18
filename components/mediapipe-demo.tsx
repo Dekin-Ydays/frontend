@@ -31,6 +31,8 @@ const WS_URL = Platform.select({
   default: 'ws://localhost:3000/ws',
 });
 
+const VIDEO_FPS = 10; // Limit sending to 5 FPS
+
 export default function MediaPipeDemo() {
   // Shared WebSocket logic could go here, but for simplicity/separation,
   // I'll implement it inside each view or pass it down.
@@ -74,8 +76,7 @@ export default function MediaPipeDemo() {
 
   const sendLandmarks = useCallback((landmarks: any) => {
     const now = Date.now();
-    if (now - lastSendTimeRef.current < 200) {
-      // Limit to 5 FPS (1000ms / 5 = 200ms)
+    if (now - lastSendTimeRef.current < 1000 / VIDEO_FPS) {
       return;
     }
 
@@ -107,8 +108,7 @@ export default function MediaPipeDemo() {
 // ----------------------------------------------------------------------
 function NativePoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any) => void; wsConnected: boolean }) {
   const [hasPermission, setHasPermission] = useState(false);
-  const useCameraDevice =
-    VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
+  const useCameraDevice = VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
   const device = useCameraDevice('front');
   const { useTensorflowModel } = FastTflite || { useTensorflowModel: () => ({ state: 'error' }) };
   const { useFrameProcessor } = VisionCamera || { useFrameProcessor: () => null };
@@ -297,12 +297,7 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
     };
   }, []);
 
-  function drawLandmarks(
-    ctx: CanvasRenderingContext2D,
-    landmarksList: any[],
-    width: number,
-    height: number
-  ) {
+  function drawLandmarks(ctx: CanvasRenderingContext2D, landmarksList: any[], width: number, height: number) {
     for (const landmarks of landmarksList) {
       // Calculate head orientation
       const nose = landmarks[0];
@@ -318,9 +313,7 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
           const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
           const eyeCenterY = (leftEye.y + rightEye.y) / 2;
           const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
-          const roll =
-            Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) *
-            (180 / Math.PI);
+          const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) * (180 / Math.PI);
           setHeadOrientation({ pitch, yaw, roll });
         }
       }
@@ -409,22 +402,11 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
           const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
 
           currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
-          currentCtx.drawImage(
-            currentVideo,
-            0,
-            0,
-            currentCanvas.width,
-            currentCanvas.height,
-          );
+          currentCtx.drawImage(currentVideo, 0, 0, currentCanvas.width, currentCanvas.height);
 
           if (results.landmarks && results.landmarks.length > 0) {
             setPoseDetected(true);
-            drawLandmarks(
-              currentCtx,
-              results.landmarks,
-              currentCanvas.width,
-              currentCanvas.height,
-            );
+            drawLandmarks(currentCtx, results.landmarks, currentCanvas.width, currentCanvas.height);
             sendLandmarksRef.current(results.landmarks);
           } else {
             setPoseDetected(false);
@@ -509,22 +491,11 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
           const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
 
           currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
-          currentCtx.drawImage(
-            currentVideo,
-            0,
-            0,
-            currentCanvas.width,
-            currentCanvas.height,
-          );
+          currentCtx.drawImage(currentVideo, 0, 0, currentCanvas.width, currentCanvas.height);
 
           if (results.landmarks && results.landmarks.length > 0) {
             setPoseDetected(true);
-            drawLandmarks(
-              currentCtx,
-              results.landmarks,
-              currentCanvas.width,
-              currentCanvas.height,
-            );
+            drawLandmarks(currentCtx, results.landmarks, currentCanvas.width, currentCanvas.height);
             sendLandmarksRef.current(results.landmarks);
           } else {
             setPoseDetected(false);
@@ -575,7 +546,10 @@ function WebPoseView({ sendLandmarks, wsConnected }: { sendLandmarks: (data: any
         />
       </View>
       {selectedFileName && (
-        <ThemedText style={styles.fileHint} numberOfLines={1}>
+        <ThemedText
+          style={styles.fileHint}
+          numberOfLines={1}
+        >
           Using: {selectedFileName}
         </ThemedText>
       )}
