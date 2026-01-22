@@ -1,12 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-import { getVideo, VideoFrame } from '@/services/video-parser-api';
-import { drawSkeleton } from '@/utils/skeleton-renderer';
-import { VideoSelector } from './video-selector';
-import { FrameControls } from './frame-controls';
-import { useVideoPlayer } from '@/hooks/use-video-player';
+import React, { useState, useRef, useCallback } from "react";
+import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
+import { getVideo, VideoFrame } from "@/services/video-parser-api";
+import { drawSkeleton } from "@/utils/skeleton-renderer";
+import { VideoSelector } from "./video-selector";
+import { FrameControls } from "./frame-controls";
+import { useVideoPlayer } from "@/hooks/use-video-player";
 
 interface FrameComparatorState {
   video1Id: string | null;
@@ -24,7 +24,11 @@ interface VideoSelectorSectionProps {
   onSelectVideo: (id: string) => void;
 }
 
-const VideoSelectorSection = ({ label, selectedVideoId, onSelectVideo }: VideoSelectorSectionProps) => (
+const VideoSelectorSection = ({
+  label,
+  selectedVideoId,
+  onSelectVideo,
+}: VideoSelectorSectionProps) => (
   <View style={styles.selectorWrapper}>
     <ThemedText style={styles.selectorLabel}>{label}</ThemedText>
     <VideoSelector
@@ -49,37 +53,40 @@ export function FrameComparator() {
   const CANVAS_WIDTH = 640;
   const CANVAS_HEIGHT = 480;
 
-  const renderFrame = useCallback((frameIndex: number, frames1: VideoFrame[], frames2: VideoFrame[]) => {
-    if (!canvasRef.current) return;
+  const renderFrame = useCallback(
+    (frameIndex: number, frames1: VideoFrame[], frames2: VideoFrame[]) => {
+      if (!canvasRef.current) return;
 
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) return;
+      const ctx = canvasRef.current.getContext("2d");
+      if (!ctx) return;
 
-    // Clear canvas
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      // Clear canvas
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Draw Video 1 (Reference) - Green
-    if (frames1[frameIndex]) {
-      drawSkeleton(ctx, frames1[frameIndex].landmarks, {
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-        lineColor: '#00FF00', // Green
-        pointColor: '#00CC00',
-      });
-    }
+      // Draw Video 1 (Reference) - Green
+      if (frames1[frameIndex]) {
+        drawSkeleton(ctx, frames1[frameIndex].landmarks, {
+          width: CANVAS_WIDTH,
+          height: CANVAS_HEIGHT,
+          lineColor: "#00FF00", // Green
+          pointColor: "#00CC00",
+        });
+      }
 
-    // Draw Video 2 (Comparison) - Red/Orange
-    // If frames2 is shorter, it just won't draw after its end
-    if (frames2[frameIndex]) {
-      drawSkeleton(ctx, frames2[frameIndex].landmarks, {
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-        lineColor: '#FF4500', // OrangeRed
-        pointColor: '#FF0000',
-      });
-    }
-  }, []);
+      // Draw Video 2 (Comparison) - Red/Orange
+      // If frames2 is shorter, it just won't draw after its end
+      if (frames2[frameIndex]) {
+        drawSkeleton(ctx, frames2[frameIndex].landmarks, {
+          width: CANVAS_WIDTH,
+          height: CANVAS_HEIGHT,
+          lineColor: "#FF4500", // OrangeRed
+          pointColor: "#FF0000",
+        });
+      }
+    },
+    [],
+  );
 
   const maxFrames = Math.max(state.frames1.length, state.frames2.length);
 
@@ -100,34 +107,37 @@ export function FrameComparator() {
   const loadVideo = async (videoId: string, isFirst: boolean) => {
     setState((prev) => ({
       ...prev,
-      [isFirst ? 'loading1' : 'loading2']: true,
+      [isFirst ? "loading1" : "loading2"]: true,
       error: null,
     }));
-    
+
     // Stop playback and reset
     jumpToStart();
 
     try {
       const video = await getVideo(videoId);
-      
+
       setState((prev) => {
         const nextState = {
-            ...prev,
-            [isFirst ? 'video1Id' : 'video2Id']: videoId,
-            [isFirst ? 'frames1' : 'frames2']: video.frames,
-            [isFirst ? 'loading1' : 'loading2']: false,
+          ...prev,
+          [isFirst ? "video1Id" : "video2Id"]: videoId,
+          [isFirst ? "frames1" : "frames2"]: video.frames,
+          [isFirst ? "loading1" : "loading2"]: false,
         };
-        
+
         // Render initial frame with new data immediately
         renderFrame(0, nextState.frames1, nextState.frames2);
-        
+
         return nextState;
       });
     } catch (err) {
       setState((prev) => ({
         ...prev,
-        error: err instanceof Error ? err.message : `Failed to load video ${isFirst ? '1' : '2'}`,
-        [isFirst ? 'loading1' : 'loading2']: false,
+        error:
+          err instanceof Error
+            ? err.message
+            : `Failed to load video ${isFirst ? "1" : "2"}`,
+        [isFirst ? "loading1" : "loading2"]: false,
       }));
     }
   };
@@ -135,7 +145,7 @@ export function FrameComparator() {
   const handleSelectVideo1 = (videoId: string) => loadVideo(videoId, true);
   const handleSelectVideo2 = (videoId: string) => loadVideo(videoId, false);
 
-  if (Platform.OS !== 'web') {
+  if (Platform.OS !== "web") {
     return (
       <ThemedView style={styles.container}>
         <ThemedText style={styles.platformWarning}>
@@ -173,37 +183,45 @@ export function FrameComparator() {
         </View>
       )}
 
-      {!state.loading1 && !state.loading2 && !state.error && (state.frames1.length > 0 || state.frames2.length > 0) && (
-        <>
-          <View style={styles.canvasContainer}>
-            <canvas
-              ref={canvasRef as any}
-              width={CANVAS_WIDTH}
-              height={CANVAS_HEIGHT}
-              style={styles.canvas}
+      {!state.loading1 &&
+        !state.loading2 &&
+        !state.error &&
+        (state.frames1.length > 0 || state.frames2.length > 0) && (
+          <>
+            <View style={styles.canvasContainer}>
+              <canvas
+                ref={canvasRef as any}
+                width={CANVAS_WIDTH}
+                height={CANVAS_HEIGHT}
+                style={styles.canvas}
+              />
+            </View>
+
+            <FrameControls
+              isPlaying={isPlaying}
+              currentFrame={currentFrameIndex}
+              totalFrames={maxFrames}
+              onPlayPause={togglePlayPause}
+              onSeek={seek}
+              onNextFrame={nextFrame}
+              onPreviousFrame={prevFrame}
+              onJumpToStart={jumpToStart}
+              onJumpToEnd={jumpToEnd}
             />
+          </>
+        )}
+
+      {!state.loading1 &&
+        !state.loading2 &&
+        !state.error &&
+        state.frames1.length === 0 &&
+        state.frames2.length === 0 && (
+          <View style={styles.centerContent}>
+            <ThemedText style={styles.emptySubtext}>
+              Select videos to compare them
+            </ThemedText>
           </View>
-
-          <FrameControls
-            isPlaying={isPlaying}
-            currentFrame={currentFrameIndex}
-            totalFrames={maxFrames}
-            onPlayPause={togglePlayPause}
-            onSeek={seek}
-            onNextFrame={nextFrame}
-            onPreviousFrame={prevFrame}
-            onJumpToStart={jumpToStart}
-            onJumpToEnd={jumpToEnd}
-          />
-        </>
-      )}
-      
-       {!state.loading1 && !state.loading2 && !state.error && state.frames1.length === 0 && state.frames2.length === 0 && (
-         <View style={styles.centerContent}>
-            <ThemedText style={styles.emptySubtext}>Select videos to compare them</ThemedText>
-         </View>
-       )}
-
+        )}
     </ThemedView>
   );
 }
@@ -221,13 +239,13 @@ const styles = StyleSheet.create({
   },
   selectorLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     opacity: 0.8,
   },
   centerContent: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
     gap: 12,
   },
@@ -236,35 +254,35 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     padding: 16,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: "rgba(239, 68, 68, 0.3)",
   },
   errorText: {
-    color: '#ef4444',
-    textAlign: 'center',
+    color: "#ef4444",
+    textAlign: "center",
   },
   canvasContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#000",
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   canvas: {
-    maxWidth: '100%',
-    height: 'auto',
+    maxWidth: "100%",
+    height: "auto",
     borderRadius: 8,
   },
   emptySubtext: {
     fontSize: 14,
     opacity: 0.6,
-    textAlign: 'center',
+    textAlign: "center",
   },
   platformWarning: {
     padding: 16,
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.7,
   },
 });

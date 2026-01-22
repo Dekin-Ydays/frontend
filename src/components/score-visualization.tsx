@@ -1,8 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-import { ScoringResult, getScoreColor, getScoreLabel } from '@/services/video-parser-api';
+import React from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
+import {
+  ScoringResult,
+  getScoreColor,
+  getScoreLabel,
+} from "@/services/video-parser-api";
 
 interface ScoreVisualizationProps {
   result: ScoringResult;
@@ -177,28 +181,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   overallScoreContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(128, 128, 128, 0.2)',
+    borderBottomColor: "rgba(128, 128, 128, 0.2)",
   },
   overallScoreTitle: {
     marginBottom: 12,
   },
   overallScoreValue: {
     fontSize: 64,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   scoreLabel: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   breakdownContainer: {
     padding: 20,
     gap: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(128, 128, 128, 0.2)',
+    borderBottomColor: "rgba(128, 128, 128, 0.2)",
   },
   sectionTitle: {
     marginBottom: 8,
@@ -207,9 +211,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   scoreItemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   scoreItemDescription: {
     fontSize: 12,
@@ -217,28 +221,28 @@ const styles = StyleSheet.create({
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: 'rgba(128, 128, 128, 0.2)',
+    backgroundColor: "rgba(128, 128, 128, 0.2)",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressBar: {
-    height: '100%',
+    height: "100%",
     borderRadius: 4,
   },
   statisticsContainer: {
     padding: 20,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(128, 128, 128, 0.2)',
+    borderBottomColor: "rgba(128, 128, 128, 0.2)",
   },
   statsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   statItem: {
     flex: 1,
     padding: 12,
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
+    backgroundColor: "rgba(128, 128, 128, 0.1)",
     borderRadius: 8,
     gap: 4,
   },
@@ -262,20 +266,20 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   chart: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
     height: 200,
     gap: 2,
     paddingBottom: 20,
   },
   barContainer: {
     width: 8,
-    height: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   bar: {
-    width: '100%',
+    width: "100%",
     borderRadius: 2,
   },
   barLabel: {
