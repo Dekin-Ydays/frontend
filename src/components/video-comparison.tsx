@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
 import {
   compareVideos,
   ComparisonConfig,
   ScoringResult,
   COMPARISON_PRESETS,
-} from '@/services/video-parser-api';
-import { ScoreVisualization } from './score-visualization';
+} from "@/services/video-parser-api";
+import { ScoreVisualization } from "./score-visualization";
 
 type PresetType = keyof typeof COMPARISON_PRESETS;
 
@@ -20,7 +27,13 @@ interface VideoInputProps {
   hint: string;
 }
 
-const VideoInput = ({ label, value, onChangeText, placeholder, hint }: VideoInputProps) => (
+const VideoInput = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  hint,
+}: VideoInputProps) => (
   <View style={styles.inputGroup}>
     <ThemedText type="defaultSemiBold" style={styles.label}>
       {label}
@@ -34,9 +47,7 @@ const VideoInput = ({ label, value, onChangeText, placeholder, hint }: VideoInpu
       autoCapitalize="none"
       autoCorrect={false}
     />
-    <ThemedText style={styles.hint}>
-      {hint}
-    </ThemedText>
+    <ThemedText style={styles.hint}>{hint}</ThemedText>
   </View>
 );
 
@@ -108,12 +119,10 @@ const ComparisonForm = ({
         ))}
       </View>
       <ThemedText style={styles.hint}>
-        {selectedPreset === 'dance' &&
-          'Position & angles balanced (50/50)'}
-        {selectedPreset === 'yoga' &&
-          'Focus on angles, rotation-invariant'}
-        {selectedPreset === 'sports' &&
-          'Focus on position, higher visibility threshold'}
+        {selectedPreset === "dance" && "Position & angles balanced (50/50)"}
+        {selectedPreset === "yoga" && "Focus on angles, rotation-invariant"}
+        {selectedPreset === "sports" &&
+          "Focus on position, higher visibility threshold"}
       </ThemedText>
     </View>
 
@@ -125,9 +134,7 @@ const ComparisonForm = ({
       {loading ? (
         <ActivityIndicator color="#fff" />
       ) : (
-        <ThemedText style={styles.compareButtonText}>
-          Compare Videos
-        </ThemedText>
+        <ThemedText style={styles.compareButtonText}>Compare Videos</ThemedText>
       )}
     </TouchableOpacity>
   </View>
@@ -152,15 +159,15 @@ const ComparisonResults = ({ result, onClear }: ComparisonResultsProps) => (
 );
 
 export function VideoComparison() {
-  const [referenceId, setReferenceId] = useState('');
-  const [comparisonId, setComparisonId] = useState('');
-  const [selectedPreset, setSelectedPreset] = useState<PresetType>('dance');
+  const [referenceId, setReferenceId] = useState("");
+  const [comparisonId, setComparisonId] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState<PresetType>("dance");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScoringResult | null>(null);
 
   const handleCompare = async () => {
     if (!referenceId.trim() || !comparisonId.trim()) {
-      Alert.alert('Error', 'Please enter both video IDs');
+      Alert.alert("Error", "Please enter both video IDs");
       return;
     }
 
@@ -178,8 +185,8 @@ export function VideoComparison() {
       setResult(comparisonResult);
     } catch (error) {
       Alert.alert(
-        'Comparison Failed',
-        error instanceof Error ? error.message : 'An unknown error occurred'
+        "Comparison Failed",
+        error instanceof Error ? error.message : "An unknown error occurred",
       );
     } finally {
       setLoading(false);
@@ -187,8 +194,8 @@ export function VideoComparison() {
   };
 
   const handleClear = () => {
-    setReferenceId('');
-    setComparisonId('');
+    setReferenceId("");
+    setComparisonId("");
     setResult(null);
   };
 
@@ -231,19 +238,19 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: 'rgba(128, 128, 128, 0.3)',
+    borderColor: "rgba(128, 128, 128, 0.3)",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: "#000",
+    backgroundColor: "#fff",
   },
   hint: {
     fontSize: 12,
     opacity: 0.6,
   },
   presetContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   presetButton: {
@@ -252,55 +259,55 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(128, 128, 128, 0.3)',
-    backgroundColor: 'rgba(128, 128, 128, 0.05)',
-    alignItems: 'center',
+    borderColor: "rgba(128, 128, 128, 0.3)",
+    backgroundColor: "rgba(128, 128, 128, 0.05)",
+    alignItems: "center",
   },
   presetButtonActive: {
-    borderColor: '#007AFF',
-    backgroundColor: '#007AFF',
+    borderColor: "#007AFF",
+    backgroundColor: "#007AFF",
   },
   presetButtonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   presetButtonTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   compareButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     paddingVertical: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   compareButtonDisabled: {
     opacity: 0.6,
   },
   compareButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   resultContainer: {
     flex: 1,
   },
   resultHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(128, 128, 128, 0.2)',
+    borderBottomColor: "rgba(128, 128, 128, 0.2)",
   },
   clearButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 6,
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
+    backgroundColor: "rgba(128, 128, 128, 0.1)",
   },
   clearButtonText: {
-    color: '#007AFF',
-    fontWeight: '600',
+    color: "#007AFF",
+    fontWeight: "600",
   },
 });

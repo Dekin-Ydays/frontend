@@ -1,12 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator, Platform } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-import { getVideo, VideoFrame } from '@/services/video-parser-api';
-import { drawSkeleton } from '@/utils/skeleton-renderer';
-import { VideoSelector } from './video-selector';
-import { FrameControls } from './frame-controls';
-import { useVideoPlayer } from '@/hooks/use-video-player';
+import React, { useState, useRef, useCallback } from "react";
+import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
+import { getVideo, VideoFrame } from "@/services/video-parser-api";
+import { drawSkeleton } from "@/utils/skeleton-renderer";
+import { VideoSelector } from "./video-selector";
+import { FrameControls } from "./frame-controls";
+import { useVideoPlayer } from "@/hooks/use-video-player";
 
 interface VideoReplayState {
   selectedVideoId: string | null;
@@ -28,22 +28,25 @@ export function VideoReplay() {
   const CANVAS_HEIGHT = 480;
 
   // Render a specific frame
-  const renderFrame = useCallback((frameIndex: number, frames: VideoFrame[]) => {
-    if (!canvasRef.current || !frames[frameIndex]) return;
+  const renderFrame = useCallback(
+    (frameIndex: number, frames: VideoFrame[]) => {
+      if (!canvasRef.current || !frames[frameIndex]) return;
 
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) return;
+      const ctx = canvasRef.current.getContext("2d");
+      if (!ctx) return;
 
-    // Clear canvas
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      // Clear canvas
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Draw skeleton
-    drawSkeleton(ctx, frames[frameIndex].landmarks, {
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-    });
-  }, []);
+      // Draw skeleton
+      drawSkeleton(ctx, frames[frameIndex].landmarks, {
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      });
+    },
+    [],
+  );
 
   const {
     isPlaying,
@@ -62,7 +65,7 @@ export function VideoReplay() {
   // Load video when selected
   const handleSelectVideo = async (videoId: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
-    
+
     // Stop playback and reset
     jumpToStart();
 
@@ -82,17 +85,18 @@ export function VideoReplay() {
     } catch (err) {
       setState((prev) => ({
         ...prev,
-        error: err instanceof Error ? err.message : 'Failed to load video',
+        error: err instanceof Error ? err.message : "Failed to load video",
         loading: false,
       }));
     }
   };
 
-  if (Platform.OS !== 'web') {
+  if (Platform.OS !== "web") {
     return (
       <ThemedView style={styles.container}>
         <ThemedText style={styles.platformWarning}>
-          Video replay is currently only supported on web. Native support coming soon!
+          Video replay is currently only supported on web. Native support coming
+          soon!
         </ThemedText>
       </ThemedView>
     );
@@ -143,14 +147,19 @@ export function VideoReplay() {
         </>
       )}
 
-      {!state.loading && !state.error && state.selectedVideoId && state.frames.length === 0 && (
-        <View style={styles.centerContent}>
-          <ThemedText style={styles.emptyText}>This video has no frames</ThemedText>
-          <ThemedText style={styles.emptySubtext}>
-            The recording may have been incomplete
-          </ThemedText>
-        </View>
-      )}
+      {!state.loading &&
+        !state.error &&
+        state.selectedVideoId &&
+        state.frames.length === 0 && (
+          <View style={styles.centerContent}>
+            <ThemedText style={styles.emptyText}>
+              This video has no frames
+            </ThemedText>
+            <ThemedText style={styles.emptySubtext}>
+              The recording may have been incomplete
+            </ThemedText>
+          </View>
+        )}
     </ThemedView>
   );
 }
@@ -162,8 +171,8 @@ const styles = StyleSheet.create({
   },
   centerContent: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 40,
     gap: 12,
   },
@@ -172,40 +181,40 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     padding: 16,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: "rgba(239, 68, 68, 0.3)",
   },
   errorText: {
-    color: '#ef4444',
-    textAlign: 'center',
+    color: "#ef4444",
+    textAlign: "center",
   },
   canvasContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#000",
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   canvas: {
-    maxWidth: '100%',
-    height: 'auto',
+    maxWidth: "100%",
+    height: "auto",
     borderRadius: 8,
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
   },
   emptySubtext: {
     fontSize: 14,
     opacity: 0.6,
-    textAlign: 'center',
+    textAlign: "center",
   },
   platformWarning: {
     padding: 16,
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.7,
   },
 });
