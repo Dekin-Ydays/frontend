@@ -122,8 +122,8 @@ function NativePoseView({
 
   // Note: For native, you would need to:
   // 1. Download the model from https://www.tensorflow.org/lite/models/pose_estimation
-  // 2. Add it to assets/models/ directory
-  // 3. Then require it: const modelAsset = require('../assets/models/pose_landmark_lite.tflite');
+  // 2. Add it to assets/models/ directory (project root)
+  // 3. Then require it: const modelAsset = require('../../assets/models/pose_landmark_lite.tflite');
   const modelAsset = null;
   const model = useTensorflowModel(modelAsset) || { state: "error" };
 
