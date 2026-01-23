@@ -32,6 +32,8 @@ const WS_URL = Platform.select({
 });
 
 const VIDEO_FPS = 10; // Limit sending to 5 FPS
+const TASKS_VISION_VERSION = "0.10.22-rc.20250304";
+const TASKS_VISION_WASM_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TASKS_VISION_VERSION}/wasm`;
 
 export default function MediaPipeDemo() {
   // Shared WebSocket logic could go here, but for simplicity/separation,
@@ -282,7 +284,7 @@ function WebPoseView({
         const { PoseLandmarker, FilesetResolver } =
           await import("@mediapipe/tasks-vision");
         const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm",
+          TASKS_VISION_WASM_BASE,
         );
 
         poseLandmarkerRef.current = await PoseLandmarker.createFromOptions(
