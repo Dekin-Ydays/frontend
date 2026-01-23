@@ -1,7 +1,11 @@
 import React, { useState, useRef, useCallback } from "react";
-import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Platform,
+  Text,
+} from "react-native";
 import { getVideo, VideoFrame } from "@/services/video-parser-api";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { VideoSelector } from "./video-selector";
@@ -93,17 +97,17 @@ export function VideoReplay() {
 
   if (Platform.OS !== "web") {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.platformWarning}>
+      <View style={styles.container}>
+        <Text style={styles.platformWarning}>
           Video replay is currently only supported on web. Native support coming
           soon!
-        </ThemedText>
-      </ThemedView>
+        </Text>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <VideoSelector
         selectedVideoId={state.selectedVideoId}
         onSelectVideo={handleSelectVideo}
@@ -112,13 +116,13 @@ export function VideoReplay() {
       {state.loading && (
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <ThemedText style={styles.loadingText}>Loading video...</ThemedText>
+          <Text style={styles.loadingText}>Loading video...</Text>
         </View>
       )}
 
       {state.error && (
         <View style={styles.errorContainer}>
-          <ThemedText style={styles.errorText}>{state.error}</ThemedText>
+          <Text style={styles.errorText}>{state.error}</Text>
         </View>
       )}
 
@@ -152,15 +156,13 @@ export function VideoReplay() {
         state.selectedVideoId &&
         state.frames.length === 0 && (
           <View style={styles.centerContent}>
-            <ThemedText style={styles.emptyText}>
-              This video has no frames
-            </ThemedText>
-            <ThemedText style={styles.emptySubtext}>
+            <Text style={styles.emptyText}>This video has no frames</Text>
+            <Text style={styles.emptySubtext}>
               The recording may have been incomplete
-            </ThemedText>
+            </Text>
           </View>
         )}
-    </ThemedView>
+    </View>
   );
 }
 

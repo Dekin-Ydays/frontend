@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import {
   View,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
 import {
   compareVideos,
   ComparisonConfig,
@@ -35,9 +34,7 @@ const VideoInput = ({
   hint,
 }: VideoInputProps) => (
   <View style={styles.inputGroup}>
-    <ThemedText type="defaultSemiBold" style={styles.label}>
-      {label}
-    </ThemedText>
+    <Text style={[styles.label, styles.semiBold]}>{label}</Text>
     <TextInput
       style={styles.input}
       value={value}
@@ -47,7 +44,7 @@ const VideoInput = ({
       autoCapitalize="none"
       autoCorrect={false}
     />
-    <ThemedText style={styles.hint}>{hint}</ThemedText>
+    <Text style={styles.hint}>{hint}</Text>
   </View>
 );
 
@@ -73,9 +70,7 @@ const ComparisonForm = ({
   onCompare,
 }: ComparisonFormProps) => (
   <View style={styles.inputContainer}>
-    <ThemedText type="subtitle" style={styles.title}>
-      Compare Videos
-    </ThemedText>
+    <Text style={[styles.title, styles.subtitle]}>Compare Videos</Text>
 
     <VideoInput
       label="Reference Video ID"
@@ -94,9 +89,7 @@ const ComparisonForm = ({
     />
 
     <View style={styles.inputGroup}>
-      <ThemedText type="defaultSemiBold" style={styles.label}>
-        Comparison Preset
-      </ThemedText>
+      <Text style={[styles.label, styles.semiBold]}>Comparison Preset</Text>
       <View style={styles.presetContainer}>
         {(Object.keys(COMPARISON_PRESETS) as PresetType[]).map((preset) => (
           <TouchableOpacity
@@ -107,23 +100,23 @@ const ComparisonForm = ({
             ]}
             onPress={() => setSelectedPreset(preset)}
           >
-            <ThemedText
+            <Text
               style={[
                 styles.presetButtonText,
                 selectedPreset === preset && styles.presetButtonTextActive,
               ]}
             >
               {preset.charAt(0).toUpperCase() + preset.slice(1)}
-            </ThemedText>
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
-      <ThemedText style={styles.hint}>
+      <Text style={styles.hint}>
         {selectedPreset === "dance" && "Position & angles balanced (50/50)"}
         {selectedPreset === "yoga" && "Focus on angles, rotation-invariant"}
         {selectedPreset === "sports" &&
           "Focus on position, higher visibility threshold"}
-      </ThemedText>
+      </Text>
     </View>
 
     <TouchableOpacity
@@ -134,7 +127,7 @@ const ComparisonForm = ({
       {loading ? (
         <ActivityIndicator color="#fff" />
       ) : (
-        <ThemedText style={styles.compareButtonText}>Compare Videos</ThemedText>
+        <Text style={styles.compareButtonText}>Compare Videos</Text>
       )}
     </TouchableOpacity>
   </View>
@@ -148,9 +141,9 @@ interface ComparisonResultsProps {
 const ComparisonResults = ({ result, onClear }: ComparisonResultsProps) => (
   <View style={styles.resultContainer}>
     <View style={styles.resultHeader}>
-      <ThemedText type="subtitle">Comparison Results</ThemedText>
+      <Text style={styles.subtitle}>Comparison Results</Text>
       <TouchableOpacity onPress={onClear} style={styles.clearButton}>
-        <ThemedText style={styles.clearButtonText}>New Comparison</ThemedText>
+        <Text style={styles.clearButtonText}>New Comparison</Text>
       </TouchableOpacity>
     </View>
 
@@ -200,7 +193,7 @@ export function VideoComparison() {
   };
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       {!result ? (
         <ComparisonForm
           referenceId={referenceId}
@@ -215,7 +208,7 @@ export function VideoComparison() {
       ) : (
         <ComparisonResults result={result} onClear={handleClear} />
       )}
-    </ThemedView>
+    </View>
   );
 }
 
@@ -229,6 +222,13 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  semiBold: {
+    fontWeight: "600",
   },
   inputGroup: {
     gap: 8,

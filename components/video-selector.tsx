@@ -6,10 +6,9 @@ import {
   ActivityIndicator,
   ScrollView,
   Platform,
+  Text,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
 import { listVideos, VideoMetadata } from "@/services/video-parser-api";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 
@@ -68,10 +67,8 @@ export function VideoSelector({
   const selectedVideo = videos.find((v) => v.id === selectedVideoId);
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="defaultSemiBold" style={styles.label}>
-        Select Video
-      </ThemedText>
+    <View style={styles.container}>
+      <Text style={[styles.label, styles.semiBold]}>Select Video</Text>
 
       <TouchableOpacity
         style={styles.selector}
@@ -83,13 +80,13 @@ export function VideoSelector({
         ) : selectedVideo ? (
           <View style={styles.selectedVideoInfo}>
             <View style={styles.selectedVideoHeader}>
-              <ThemedText style={styles.selectedVideoText} numberOfLines={1}>
+              <Text style={styles.selectedVideoText} numberOfLines={1}>
                 {formatTimestamp(selectedVideo.startTime)}
-              </ThemedText>
-              <ThemedText style={styles.selectedVideoMeta}>
+              </Text>
+              <Text style={styles.selectedVideoMeta}>
                 {selectedVideo.frameCount} frames •{" "}
                 {formatDuration(selectedVideo.duration)}
-              </ThemedText>
+              </Text>
             </View>
             <TouchableOpacity
               style={styles.copyIdContainer}
@@ -98,32 +95,32 @@ export function VideoSelector({
                 handleCopyId(selectedVideo.id);
               }}
             >
-              <ThemedText style={styles.selectedVideoId} numberOfLines={1}>
+              <Text style={styles.selectedVideoId} numberOfLines={1}>
                 ID: {selectedVideo.id}
-              </ThemedText>
+              </Text>
               <IconSymbol
                 name="doc.on.doc.fill"
                 size={14}
                 color={copiedId === selectedVideo.id ? "#34C759" : "#808080"}
               />
               {copiedId === selectedVideo.id && (
-                <ThemedText style={styles.copiedText}>Copied!</ThemedText>
+                <Text style={styles.copiedText}>Copied!</Text>
               )}
             </TouchableOpacity>
           </View>
         ) : (
-          <ThemedText style={styles.placeholder}>
+          <Text style={styles.placeholder}>
             {error ? "Error loading videos" : "Choose a video..."}
-          </ThemedText>
+          </Text>
         )}
-        <ThemedText style={styles.arrow}>{expanded ? "▲" : "▼"}</ThemedText>
+        <Text style={styles.arrow}>{expanded ? "▲" : "▼"}</Text>
       </TouchableOpacity>
 
       {error && (
         <View style={styles.errorContainer}>
-          <ThemedText style={styles.errorText}>{error}</ThemedText>
+          <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchVideos}>
-            <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+            <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -132,12 +129,10 @@ export function VideoSelector({
         <ScrollView style={styles.dropdown} nestedScrollEnabled>
           {videos.length === 0 ? (
             <View style={styles.emptyState}>
-              <ThemedText style={styles.emptyText}>
-                No videos available
-              </ThemedText>
-              <ThemedText style={styles.emptySubtext}>
+              <Text style={styles.emptyText}>No videos available</Text>
+              <Text style={styles.emptySubtext}>
                 Record some poses to see videos here
-              </ThemedText>
+              </Text>
             </View>
           ) : (
             videos.map((video) => (
@@ -153,27 +148,22 @@ export function VideoSelector({
                 }}
               >
                 <View style={styles.videoItemHeader}>
-                  <ThemedText
-                    type="defaultSemiBold"
-                    style={styles.videoItemTitle}
-                  >
+                  <Text style={[styles.videoItemTitle, styles.semiBold]}>
                     {formatTimestamp(video.startTime)}
-                  </ThemedText>
+                  </Text>
                   {!video.endTime && (
                     <View style={styles.recordingBadge}>
-                      <ThemedText style={styles.recordingBadgeText}>
-                        Recording
-                      </ThemedText>
+                      <Text style={styles.recordingBadgeText}>Recording</Text>
                     </View>
                   )}
                 </View>
-                <ThemedText style={styles.videoItemMeta}>
+                <Text style={styles.videoItemMeta}>
                   {video.frameCount} frames • {formatDuration(video.duration)}
-                </ThemedText>
+                </Text>
                 <View style={styles.videoItemIdContainer}>
-                  <ThemedText style={styles.videoItemId} numberOfLines={1}>
+                  <Text style={styles.videoItemId} numberOfLines={1}>
                     ID: {video.id}
-                  </ThemedText>
+                  </Text>
                   <TouchableOpacity
                     onPress={(e) => {
                       e.stopPropagation();
@@ -193,7 +183,7 @@ export function VideoSelector({
           )}
         </ScrollView>
       )}
-    </ThemedView>
+    </View>
   );
 }
 
@@ -204,6 +194,9 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 4,
+  },
+  semiBold: {
+    fontWeight: "600",
   },
   selector: {
     flexDirection: "row",

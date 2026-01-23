@@ -1,7 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+} from "react-native";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 
 // Dynamic imports handling for Web vs Native
@@ -178,32 +182,32 @@ function NativePoseView({
 
   if (!VisionCamera) {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.error}>Native modules not loaded.</ThemedText>
-      </ThemedView>
+      <View style={styles.container}>
+        <Text style={styles.error}>Native modules not loaded.</Text>
+      </View>
     );
   }
 
   if (!hasPermission)
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText>Requesting permission...</ThemedText>
-      </ThemedView>
+      <View style={styles.container}>
+        <Text>Requesting permission...</Text>
+      </View>
     );
   if (device == null)
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText>No camera found</ThemedText>
-      </ThemedView>
+      <View style={styles.container}>
+        <Text>No camera found</Text>
+      </View>
     );
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">Native Pose Detection</ThemedText>
-      <ThemedText style={{ color: wsConnected ? "green" : "red" }}>
+    <View style={styles.container}>
+      <Text style={styles.subtitle}>Native Pose Detection</Text>
+      <Text style={{ color: wsConnected ? "green" : "red" }}>
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
-      </ThemedText>
-      <ThemedText>Model State: {model.state}</ThemedText>
+      </Text>
+      <Text>Model State: {model.state}</Text>
 
       <View style={styles.cameraContainer}>
         <VisionCamera.Camera
@@ -214,7 +218,7 @@ function NativePoseView({
           pixelFormat="yuv"
         />
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -596,11 +600,11 @@ function WebPoseView({
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">Body Pose Tracking (Web)</ThemedText>
-      <ThemedText style={{ color: wsConnected ? "green" : "red" }}>
+    <View style={styles.container}>
+      <Text style={styles.subtitle}>Body Pose Tracking (Web)</Text>
+      <Text style={{ color: wsConnected ? "green" : "red" }}>
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
-      </ThemedText>
+      </Text>
       <View style={styles.sourceRow}>
         <TouchableOpacity
           style={[
@@ -610,7 +614,7 @@ function WebPoseView({
           onPress={handleUseCameraPress}
           accessibilityLabel="Use camera"
         >
-          <ThemedText style={styles.sourceButtonText}>Camera</ThemedText>
+          <Text style={styles.sourceButtonText}>Camera</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -620,7 +624,7 @@ function WebPoseView({
           onPress={handleUploadPress}
           accessibilityLabel="Upload video"
         >
-          <ThemedText style={styles.sourceButtonText}>Upload video</ThemedText>
+          <Text style={styles.sourceButtonText}>Upload video</Text>
         </TouchableOpacity>
         <input
           ref={fileInputRef as any}
@@ -631,11 +635,11 @@ function WebPoseView({
         />
       </View>
       {selectedFileName && (
-        <ThemedText style={styles.fileHint} numberOfLines={1}>
+        <Text style={styles.fileHint} numberOfLines={1}>
           Using: {selectedFileName}
-        </ThemedText>
+        </Text>
       )}
-      <ThemedText>
+      <Text>
         {!modelReady
           ? "Loading MediaPipe..."
           : isLoading
@@ -645,16 +649,16 @@ function WebPoseView({
               : poseDetected
                 ? "Pose detected!"
                 : "No pose detected"}
-      </ThemedText>
+      </Text>
       {headOrientation && (
-        <ThemedView style={styles.orientationContainer}>
-          <ThemedText type="defaultSemiBold">Head Orientation:</ThemedText>
-          <ThemedText>Pitch: {headOrientation.pitch.toFixed(1)}°</ThemedText>
-          <ThemedText>Yaw: {headOrientation.yaw.toFixed(1)}°</ThemedText>
-          <ThemedText>Roll: {headOrientation.roll.toFixed(1)}°</ThemedText>
-        </ThemedView>
+        <View style={styles.orientationContainer}>
+          <Text style={styles.semiBold}>Head Orientation:</Text>
+          <Text>Pitch: {headOrientation.pitch.toFixed(1)}°</Text>
+          <Text>Yaw: {headOrientation.yaw.toFixed(1)}°</Text>
+          <Text>Roll: {headOrientation.roll.toFixed(1)}°</Text>
+        </View>
       )}
-      {error && <ThemedText style={styles.error}>{error}</ThemedText>}
+      {error && <Text style={styles.error}>{error}</Text>}
       <View style={styles.videoContainer}>
         <video
           ref={videoRef as any}
@@ -664,7 +668,7 @@ function WebPoseView({
         />
         <canvas ref={canvasRef as any} style={styles.canvas} />
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -673,6 +677,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     gap: 16,
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  semiBold: {
+    fontWeight: "600",
   },
   sourceRow: {
     flexDirection: "row",
