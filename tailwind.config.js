@@ -4,7 +4,14 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        primary: "#D6F31F",
+        secondary: "#3CFFD0",
+        background: "#0E0E0E",
+        lightgray: "#BDBDBD",
+        gray: "#919191",
+        dangerous: "#E84545",
+      },
       fontFamily: {
         bebas: ["BebasNeue_400Regular"],
         montserrat: ["Montserrat_400Regular"],
