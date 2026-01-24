@@ -47,7 +47,7 @@ export default function ParallaxScrollView({
   return (
     <Animated.ScrollView
       ref={scrollRef}
-      style={{ backgroundColor: "#ffffff", flex: 1 }}
+      style={{ backgroundColor: "#0E0E0E", flex: 1 }}
       scrollEventThrottle={16}
     >
       <Animated.View

@@ -1,7 +1,7 @@
 import { PropsWithChildren, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { NavArrowRight } from "iconoir-react-native";
 
 export function Collapsible({
   children,
@@ -16,10 +16,9 @@ export function Collapsible({
         onPress={() => setIsOpen((value) => !value)}
         activeOpacity={0.8}
       >
-        <IconSymbol
-          name="chevron.right"
-          size={18}
-          weight="medium"
+        <NavArrowRight
+          width={18}
+          height={18}
           color="#000"
           style={{ transform: [{ rotate: isOpen ? "90deg" : "0deg" }] }}
         />

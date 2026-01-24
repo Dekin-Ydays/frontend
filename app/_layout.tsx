@@ -1,8 +1,10 @@
 import "@/global.css";
 import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
   Montserrat_400Regular,
   Montserrat_500Medium,
@@ -10,6 +12,7 @@ import {
   Montserrat_700Bold,
 } from "@expo-google-fonts/montserrat";
 import { BebasNeue_400Regular } from "@expo-google-fonts/bebas-neue";
+import { View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +26,8 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    SystemUI.setBackgroundColorAsync("#0E0E0E");
+
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
@@ -32,5 +37,9 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Slot />;
+  return (
+    <SafeAreaProvider>
+      <Slot />
+    </SafeAreaProvider>
+  );
 }

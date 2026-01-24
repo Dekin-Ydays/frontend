@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { listVideos, VideoMetadata } from "@/services/video-parser-api";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Copy } from "iconoir-react-native";
 
 interface VideoSelectorProps {
   selectedVideoId: string | null;
@@ -98,9 +98,9 @@ export function VideoSelector({
               <Text style={styles.selectedVideoId} numberOfLines={1}>
                 ID: {selectedVideo.id}
               </Text>
-              <IconSymbol
-                name="doc.on.doc.fill"
-                size={14}
+              <Copy
+                width={14}
+                height={14}
                 color={copiedId === selectedVideo.id ? "#34C759" : "#808080"}
               />
               {copiedId === selectedVideo.id && (
@@ -171,9 +171,9 @@ export function VideoSelector({
                     }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
-                    <IconSymbol
-                      name="doc.on.doc.fill"
-                      size={12}
+                    <Copy
+                      width={12}
+                      height={12}
                       color={copiedId === video.id ? "#34C759" : "#808080"}
                     />
                   </TouchableOpacity>

@@ -11,15 +11,7 @@ import { VideoReplay } from "@/components/video-replay";
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
+    <>
       <View style={styles.titleContainer}>
         <Text style={styles.title} className="font-bebas">
           Pose Analysis
@@ -73,7 +65,7 @@ export default function HomeScreen() {
         </Text>
         <VideoReplay />
       </Collapsible>
-    </ParallaxScrollView>
+    </>
   );
 }
 
