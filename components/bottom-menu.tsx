@@ -20,8 +20,11 @@ const styles = {
   textInput:
     "h-16 w-full rounded-full bg-white/10 border border-white/5 px-4 text-white placeholder:text-gray outline-none",
   transition: "transition-all duration-300",
-};
+} as const;
 
+/*
+// Secondary components
+*/
 type MenuButtonProps = {
   label: string;
   isActive: boolean;
@@ -29,9 +32,6 @@ type MenuButtonProps = {
   Icon: ComponentType<{ className?: string }>;
 };
 
-/*
-// Secondary components
-*/
 function MenuButton({ label, isActive, onPress, Icon }: MenuButtonProps) {
   return (
     <Pressable
@@ -116,9 +116,7 @@ export function BottomMenu({
             Icon={Search}
           />
         </View>
-        {isSearchActive && (
-          <SearchBar />
-        )}
+        {isSearchActive && <SearchBar />}
       </View>
     </View>
   );
