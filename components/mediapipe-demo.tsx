@@ -6,7 +6,6 @@ import {
   View,
   Text,
 } from "react-native";
-import { drawSkeleton } from "@/utils/skeleton-renderer";
 
 // Dynamic imports handling for Web vs Native
 let VisionCamera: any = null;
@@ -353,8 +352,6 @@ function WebPoseView({
           setHeadOrientation({ pitch, yaw, roll });
         }
       }
-
-      drawSkeleton(ctx, landmarks, { width, height });
     }
   }
 

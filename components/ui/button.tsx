@@ -36,14 +36,15 @@ export function Button({
   className,
   disabled = false,
 }: ButtonProps) {
+  const textVariant =
+    variant === "primary" || variant === "secondary" ? "title" : "baseText";
+  const textColor = variant === "secondaryRounded" ? "text-white" : "text-dark";
   const iconSize =
     variant === "primary" || variant === "secondary"
       ? styles.iconLarge
       : styles.iconSmall;
-  const textVariant =
-    variant === "primary" || variant === "secondary" ? "title" : "baseText";
-  const textColor = variant === "secondaryRounded" ? "text-white" : "text-dark";
   const iconRight = variant === "primary";
+  const iconColor = variant === "secondaryRounded" ? "text-white" : "text-dark";
 
   return (
     <Pressable
@@ -53,13 +54,13 @@ export function Button({
       disabled={disabled || !onPress}
       className={`${styles.base} ${styles[variant]} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
     >
-      {Icon && !iconRight && <Icon className={` ${iconSize}`} />}
+      {Icon && !iconRight && <Icon className={` ${iconSize} ${iconColor}`} />}
       {label && (
         <AppText variant={textVariant} className={textColor}>
           {label}
         </AppText>
       )}
-      {Icon && iconRight && <Icon className={` ${iconSize}`} />}
+      {Icon && iconRight && <Icon className={` ${iconSize} ${iconColor}`} />}
     </Pressable>
   );
 }

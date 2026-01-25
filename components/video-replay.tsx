@@ -7,7 +7,6 @@ import {
   Text,
 } from "react-native";
 import { getVideo, VideoFrame } from "@/services/video-parser-api";
-import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { VideoSelector } from "./video-selector";
 import { FrameControls } from "./frame-controls";
 import { useVideoPlayer } from "@/hooks/use-video-player";
@@ -42,12 +41,6 @@ export function VideoReplay() {
       // Clear canvas
       ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-      // Draw skeleton
-      drawSkeleton(ctx, frames[frameIndex].landmarks, {
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-      });
     },
     [],
   );

@@ -7,7 +7,6 @@ import {
   Text,
 } from "react-native";
 import { getVideo, VideoFrame } from "@/services/video-parser-api";
-import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { VideoSelector } from "./video-selector";
 import { FrameControls } from "./frame-controls";
 import { useVideoPlayer } from "@/hooks/use-video-player";
@@ -67,27 +66,6 @@ export function FrameComparator() {
       // Clear canvas
       ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-      // Draw Video 1 (Reference) - Green
-      if (frames1[frameIndex]) {
-        drawSkeleton(ctx, frames1[frameIndex].landmarks, {
-          width: CANVAS_WIDTH,
-          height: CANVAS_HEIGHT,
-          lineColor: "#00FF00", // Green
-          pointColor: "#00CC00",
-        });
-      }
-
-      // Draw Video 2 (Comparison) - Red/Orange
-      // If frames2 is shorter, it just won't draw after its end
-      if (frames2[frameIndex]) {
-        drawSkeleton(ctx, frames2[frameIndex].landmarks, {
-          width: CANVAS_WIDTH,
-          height: CANVAS_HEIGHT,
-          lineColor: "#FF4500", // OrangeRed
-          pointColor: "#FF0000",
-        });
-      }
     },
     [],
   );

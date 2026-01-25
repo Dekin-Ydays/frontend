@@ -9,16 +9,16 @@ import { HomeAlt, Telegram, Search, User } from "iconoir-react-native";
 // Tailwind styles
 */
 const styles = {
-  bar: "bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center",
+  bar: "absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center",
   row: "flex-row items-center justify-center gap-3 px-4 w-full",
   container:
-    "h-16 w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1",
+    "h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1",
   pressable: "flex items-center justify-center h-full w-16 rounded-full",
   pressableActive: "!bg-white/20",
   icon: "h-8 w-8 text-white",
   iconActive: "!text-secondary",
   textInput:
-    "h-16 w-full rounded-full bg-white/10 border border-white/5 px-4 text-white placeholder:text-gray outline-none",
+    "h-16 w-full rounded-full bg-white/10 border border-white/5 px-4 text-white placeholder:text-gray outline-none focus:border-secondary",
   transition: "transition-all duration-300",
 } as const;
 
@@ -52,7 +52,7 @@ function SearchBar() {
     <TextInput
       placeholder="Rechercher une danse..."
       underlineColorAndroid="transparent"
-      className={styles.textInput}
+      className={`${styles.textInput} ${styles.transition}`}
     />
   );
 }
