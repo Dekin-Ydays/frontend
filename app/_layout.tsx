@@ -12,7 +12,6 @@ import {
   Montserrat_700Bold,
 } from "@expo-google-fonts/montserrat";
 import { BebasNeue_400Regular } from "@expo-google-fonts/bebas-neue";
-import { View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,7 +37,7 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider className="bg-dark flex-1">
       <Slot />
     </SafeAreaProvider>
   );

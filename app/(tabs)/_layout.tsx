@@ -3,6 +3,7 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { BottomMenu } from "@/components/nav/bottom-menu";
 import { TopHeader } from "@/components/nav/top-header";
+import { TopFeed } from "@/components/nav/top-feed";
 
 export default function TabLayout() {
   const user = {
@@ -14,8 +15,20 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      screenOptions={{
-        header: () => <TopHeader backButton userItem={user} />,
+      screenOptions={({ route }) => {
+        const isFeedRoute =
+          route.name === "index" ||
+          route.name === "following" ||
+          route.name === "favorites";
+
+        return {
+          header: () =>
+            isFeedRoute ? (
+              <TopFeed />
+            ) : (
+              <TopHeader backButton userItem={user} />
+            ),
+        };
       }}
       tabBar={(props) => <BottomMenu {...props} />}
     >

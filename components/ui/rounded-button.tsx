@@ -6,17 +6,17 @@ import { AppText } from "@/components/ui/app-text";
 // Tailwind styles
 */
 const styles = {
-  base: "flex-row justify-center items-center gap-3 px-4 py-2 h-16 rounded-2xl w-full",
-  primary: "bg-primary justify-between",
-  secondary: "bg-white items-center",
-  icon: "h-8 w-8 text-dark",
+  base: "flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit",
+  primary: "bg-primary",
+  secondary: "bg-white/10",
+  icon: "h-4 w-4",
   disabled: "opacity-50 pointer-events-none",
 } as const;
 
 /*
 // Main component
 */
-type ButtonProps = {
+type RoundedButtonProps = {
   variant: "primary" | "secondary";
   label?: string;
   onPress?: () => void;
@@ -25,15 +25,15 @@ type ButtonProps = {
   disabled?: boolean;
 };
 
-export function Button({
+export function RoundedButton({
   label,
   onPress,
   variant,
   Icon,
   className,
   disabled = false,
-}: ButtonProps) {
-  const iconRight = variant === "primary";
+}: RoundedButtonProps) {
+  const color = variant === "secondary" ? "text-white" : "!text-dark";
 
   return (
     <Pressable
@@ -43,13 +43,12 @@ export function Button({
       disabled={disabled || !onPress}
       className={`${styles.base} ${styles[variant]} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
     >
-      {Icon && !iconRight && <Icon className={` ${styles.icon} `} />}
+      {Icon && <Icon className={` ${styles.icon} ${color}`} />}
       {label && (
-        <AppText variant="title" className="!text-dark">
+        <AppText variant="baseText" className={color}>
           {label}
         </AppText>
       )}
-      {Icon && iconRight && <Icon className={` ${styles.icon} `} />}
     </Pressable>
   );
 }

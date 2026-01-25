@@ -10,7 +10,7 @@ import { UserItem, type UserItemProps } from "../user-item";
 // Tailwind styles
 */
 const styles = {
-  bar: "absolute top-0 left-0 right-0 bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 flex-row items-center justify-between px-4",
+  bar: "w-full bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 h-24 flex-row items-center justify-between px-4",
   row: "flex-row items-center gap-3",
   icon: "h-8 w-8 text-white",
   avatar: "h-12 w-12 rounded-full bg-secondary",
