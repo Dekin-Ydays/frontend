@@ -5,7 +5,7 @@ import { AppText } from "./ui/app-text";
 // Tailwind styles
 */
 const styles = {
-  container: "flex-row items-center gap-3 py-2",
+  container: "flex-row items-center gap-3",
   avatarContainer: "relative",
   avatar: "h-12 w-12 rounded-full bg-secondary",
   onlineIndicator:

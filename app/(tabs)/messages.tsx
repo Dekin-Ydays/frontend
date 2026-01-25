@@ -6,10 +6,7 @@ import { UserItem } from "@/components/user-item";
 
 export default function MessagesScreen() {
   return (
-    <ScrollView
-      className="flex-1 bg-dark text-dark px-4 gap-2 py-6"
-      contentContainerClassName="pb-32"
-    >
+    <ScrollView className="flex-1 bg-dark text-dark px-4 flex-col py-24">
       <AppText variant="title">Messages</AppText>
       <AppText className="mt-2">Vos conversations apparaîtront ici</AppText>
       <Button Icon={Home} label="primary" variant="primary" />

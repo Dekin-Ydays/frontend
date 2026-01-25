@@ -3,14 +3,14 @@ import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NavArrowLeft, MoreHoriz, EditPencil } from "iconoir-react-native";
-import { AppText } from "./ui/app-text";
-import { UserItem, type UserItemProps } from "./user-item";
+import { AppText } from "../ui/app-text";
+import { UserItem, type UserItemProps } from "../user-item";
 
 /*
 // Tailwind styles
 */
 const styles = {
-  bar: "absolute top-0 left-0 right-0 bg-gradient-to-t from-secondary/0 to-secondary/80 h-24 flex-row items-center justify-between px-4",
+  bar: "absolute top-0 left-0 right-0 bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 flex-row items-center justify-between px-4",
   row: "flex-row items-center gap-3",
   icon: "h-8 w-8 text-white",
   avatar: "h-12 w-12 rounded-full bg-secondary",

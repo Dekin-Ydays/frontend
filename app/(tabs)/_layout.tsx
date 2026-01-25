@@ -1,10 +1,8 @@
 import "@/global.css";
 import React from "react";
 import { Tabs } from "expo-router";
-import { View } from "react-native";
-
-import { BottomMenu } from "@/components/bottom-menu";
-import { TopHeader } from "@/components/top-header";
+import { BottomMenu } from "@/components/nav/bottom-menu";
+import { TopHeader } from "@/components/nav/top-header";
 
 export default function TabLayout() {
   const user = {
@@ -15,18 +13,16 @@ export default function TabLayout() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <Tabs
-        screenOptions={{
-          header: () => <TopHeader backButton userItem={user} />,
-        }}
-        tabBar={(props) => <BottomMenu {...props} />}
-      >
-        <Tabs.Screen name="index" options={{ title: "Home" }} />
-        <Tabs.Screen name="messages" options={{ title: "Messages" }} />
-        <Tabs.Screen name="profile" options={{ title: "Profil" }} />
-        <Tabs.Screen name="search" options={{ title: "Recherche" }} />
-      </Tabs>
-    </View>
+    <Tabs
+      screenOptions={{
+        header: () => <TopHeader backButton userItem={user} />,
+      }}
+      tabBar={(props) => <BottomMenu {...props} />}
+    >
+      <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="messages" options={{ title: "Messages" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profil" }} />
+      <Tabs.Screen name="search" options={{ title: "Recherche" }} />
+    </Tabs>
   );
 }

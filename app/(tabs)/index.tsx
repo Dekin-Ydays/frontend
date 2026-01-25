@@ -9,10 +9,7 @@ import { AppText } from "@/components/ui/app-text";
 
 export default function HomeScreen() {
   return (
-    <ScrollView
-      className="flex-1"
-      contentContainerClassName="p-4 pb-32 bg-dark"
-    >
+    <ScrollView className="flex-1 bg-dark py-24">
       <View className="flex-row items-center gap-2">
         <AppText variant="title">Pose Analysis</AppText>
       </View>
