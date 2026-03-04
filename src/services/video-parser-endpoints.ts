@@ -42,7 +42,7 @@ function parseExpoDevClientHost(value: string | null | undefined): string | null
   // dekin://expo-development-client/?url=http%3A%2F%2F10.0.0.15%3A8081
   const nestedBundleUrl = parsed.searchParams.get('url');
   if (nestedBundleUrl) {
-    return parseHostname(decodeURIComponent(nestedBundleUrl));
+    return parseHostname(nestedBundleUrl);
   }
 
   return null;
@@ -63,8 +63,8 @@ function resolveRuntimeHost(): string | null {
     Constants.expoConfig?.hostUri,
     Constants.expoGoConfig?.debuggerHost,
     constantsWithManifest.manifest2?.extra?.expoClient?.hostUri,
-    Constants.linkingUri,
     parseExpoDevClientHost(Constants.linkingUri),
+    Constants.linkingUri,
   ];
 
   for (const candidate of candidates) {

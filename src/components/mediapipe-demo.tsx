@@ -48,7 +48,7 @@ type PoseLandmarkPayload = Landmark & { presence?: number };
 // WebSocket Configuration
 const WS_URL = getVideoParserWsUrl("/ws");
 
-const VIDEO_FPS = 10; // Limit sending to 5 FPS
+const VIDEO_FPS = 10; // Limit sending to 10 FPS
 const FALLBACK_POSE_SOLUTION = {
   frameProcessor: undefined,
   cameraViewLayoutChangeHandler: () => {},
@@ -222,7 +222,7 @@ function NativePoseView({
         if (emptyResultCountRef.current % 60 === 0) {
           console.log("Native pose still empty after frames:", emptyResultCountRef.current);
         }
-        setNativeLandmarks([]);
+        setNativeLandmarks((previous) => (previous.length === 0 ? previous : []));
         return;
       }
       emptyResultCountRef.current = 0;
@@ -248,7 +248,7 @@ function NativePoseView({
         );
 
       if (parserLandmarks.length < 33) {
-        setNativeLandmarks([]);
+        setNativeLandmarks((previous) => (previous.length === 0 ? previous : []));
         return;
       }
 
