@@ -46,9 +46,9 @@
         }
       ],
       [
-        "expo-camera",
+        "react-native-mediapipe-posedetection",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for pose tracking."
+          "assetsPaths": ["./assets/models/"]
         }
       ],
       [
@@ -62,7 +62,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
