@@ -3,6 +3,7 @@ import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
+import { getVideoParserWsUrl } from "@/services/video-parser-endpoints";
 
 // Dynamic imports handling for Web vs Native
 let VisionCamera: any = null;
@@ -26,10 +27,7 @@ interface HeadOrientation {
 }
 
 // WebSocket Configuration
-const WS_URL = Platform.select({
-  android: "ws://10.0.2.2:3000/ws", // Android Emulator localhost
-  default: "ws://localhost:3000/ws",
-});
+const WS_URL = getVideoParserWsUrl("/ws");
 
 const VIDEO_FPS = 10; // Limit sending to 5 FPS
 
@@ -46,6 +44,7 @@ export default function MediaPipeDemo() {
     let ws: WebSocket;
 
     const connect = () => {
+      console.log("Connecting to WebSocket server:", WS_URL);
       ws = new WebSocket(WS_URL);
 
       ws.onopen = () => {
