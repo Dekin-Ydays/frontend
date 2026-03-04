@@ -1,10 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { vi } from 'vitest';
 
 import { Button } from '../button';
 
 describe('Button', () => {
   it('renders the label and calls onPress when tapped', () => {
-    const onPress = jest.fn();
+    const onPress = vi.fn();
 
     render(<Button variant="primary" label="Start" onPress={onPress} />);
     fireEvent.press(screen.getByRole('button', { name: 'Start' }));
@@ -14,12 +15,12 @@ describe('Button', () => {
   });
 
   it('uses fallback accessibility label when no label is provided', () => {
-    render(<Button variant="secondary" onPress={jest.fn()} />);
+    render(<Button variant="secondary" onPress={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Button' })).toBeTruthy();
   });
 
   it('does not call onPress when disabled', () => {
-    const onPress = jest.fn();
+    const onPress = vi.fn();
 
     render(
       <Button variant="secondary" label="Disabled" onPress={onPress} disabled />

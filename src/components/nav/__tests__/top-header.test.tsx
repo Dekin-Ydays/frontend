@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
+import type { MockedFunction } from 'vitest';
+import { vi } from 'vitest';
 
 import { TopHeader } from '../top-header';
 
-jest.mock('@expo/vector-icons/MaterialIcons', () => {
+vi.mock('@expo/vector-icons/MaterialIcons', () => {
   return function MockMaterialIcon({
     name: _name,
   }: {
@@ -13,19 +15,19 @@ jest.mock('@expo/vector-icons/MaterialIcons', () => {
   };
 });
 
-jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
+vi.mock('expo-router', () => ({
+  useRouter: vi.fn(),
 }));
 
-jest.mock('react-native-safe-area-context', () => ({
+vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 8, left: 0, right: 0, bottom: 0 }),
 }));
 
-const mockedUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
+const mockedUseRouter = useRouter as MockedFunction<typeof useRouter>;
 
 describe('TopHeader', () => {
   it('calls router.back when back button is pressed without custom handler', () => {
-    const back = jest.fn();
+    const back = vi.fn();
     mockedUseRouter.mockReturnValue({ back } as ReturnType<typeof useRouter>);
 
     render(<TopHeader title="Profile" backButton />);
@@ -36,8 +38,8 @@ describe('TopHeader', () => {
   });
 
   it('uses custom back handler when provided', () => {
-    const back = jest.fn();
-    const onBack = jest.fn();
+    const back = vi.fn();
+    const onBack = vi.fn();
     mockedUseRouter.mockReturnValue({ back } as ReturnType<typeof useRouter>);
 
     render(<TopHeader backButton onBack={onBack} />);
@@ -48,9 +50,9 @@ describe('TopHeader', () => {
   });
 
   it('renders and handles edit and more buttons', () => {
-    const onEdit = jest.fn();
-    const onMore = jest.fn();
-    mockedUseRouter.mockReturnValue({ back: jest.fn() } as ReturnType<typeof useRouter>);
+    const onEdit = vi.fn();
+    const onMore = vi.fn();
+    mockedUseRouter.mockReturnValue({ back: vi.fn() } as ReturnType<typeof useRouter>);
 
     render(<TopHeader editButton moreButton onEdit={onEdit} onMore={onMore} />);
 
@@ -62,7 +64,7 @@ describe('TopHeader', () => {
   });
 
   it('renders user details when userItem is provided', () => {
-    mockedUseRouter.mockReturnValue({ back: jest.fn() } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({ back: vi.fn() } as ReturnType<typeof useRouter>);
 
     render(
       <TopHeader

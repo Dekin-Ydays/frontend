@@ -1,0 +1,15 @@
+name: Run Tests
+
+on:
+  push:
+    branches: ['main', 'master', 'develop']
+  pull_request:
+
+jobs:
+  lint_and_test:
+    name: Lint and Test
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - run: npm run lint
+      - run: npm run test:coverage

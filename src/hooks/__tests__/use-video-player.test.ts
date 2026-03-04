@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react-native';
+import { vi } from 'vitest';
 
 import { useVideoPlayer } from '../use-video-player';
 
@@ -6,7 +7,7 @@ const originalRequestAnimationFrame = global.requestAnimationFrame;
 const originalCancelAnimationFrame = global.cancelAnimationFrame;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
   let now = 0;
   global.requestAnimationFrame = ((callback: FrameRequestCallback) => {
@@ -22,8 +23,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
+  vi.runOnlyPendingTimers();
+  vi.useRealTimers();
 });
 
 afterAll(() => {
@@ -40,7 +41,7 @@ describe('useVideoPlayer', () => {
   });
 
   it('clamps seek to valid frame bounds', () => {
-    const onFrameChange = jest.fn();
+    const onFrameChange = vi.fn();
     const { result } = renderHook(() =>
       useVideoPlayer({ totalFrames: 5, onFrameChange })
     );
@@ -72,7 +73,7 @@ describe('useVideoPlayer', () => {
   });
 
   it('restarts from frame 0 when playing from the end', () => {
-    const onFrameChange = jest.fn();
+    const onFrameChange = vi.fn();
     const { result } = renderHook(() =>
       useVideoPlayer({ totalFrames: 5, onFrameChange })
     );
@@ -88,14 +89,14 @@ describe('useVideoPlayer', () => {
   });
 
   it('advances frames while playing and stops at last frame', () => {
-    const onFrameChange = jest.fn();
+    const onFrameChange = vi.fn();
     const { result } = renderHook(() =>
       useVideoPlayer({ totalFrames: 3, fps: 30, onFrameChange })
     );
 
     act(() => result.current.togglePlayPause());
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     expect(result.current.currentFrameIndex).toBe(2);

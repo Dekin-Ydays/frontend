@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   COMPARISON_PRESETS,
   compareVideos,
@@ -9,11 +11,11 @@ import {
   listVideos,
 } from '../video-parser-api';
 
-jest.mock('@/services/video-parser-endpoints', () => ({
+vi.mock('@/services/video-parser-endpoints', () => ({
   getVideoParserHttpBaseUrl: () => 'http://api.test',
 }));
 
-const mockFetch = jest.fn();
+const mockFetch = vi.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
 afterEach(() => {
