@@ -7,11 +7,13 @@
 
 import { Platform } from 'react-native';
 
-// API Base URL
-const API_BASE_URL = Platform.select({
-  android: 'http://10.0.2.2:3000', // Android Emulator localhost
-  default: 'http://localhost:3000',
-});
+// API Base URL - override with EXPO_PUBLIC_API_URL env variable for deployment
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ??
+  Platform.select({
+    android: 'http://10.0.2.2:3000', // Android Emulator localhost
+    default: 'http://localhost:3000',
+  });
 
 // Type definitions matching the API documentation
 export interface Landmark {
@@ -136,9 +138,7 @@ export async function getVideo(videoId: string): Promise<Video> {
 /**
  * Compare two videos and get scoring results
  */
-export async function compareVideos(
-  request: CompareVideosRequest
-): Promise<ScoringResult> {
+export async function compareVideos(request: CompareVideosRequest): Promise<ScoringResult> {
   const response = await fetch(`${API_BASE_URL}/pose/compare`, {
     method: 'POST',
     headers: {
