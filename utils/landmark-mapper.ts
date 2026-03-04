@@ -1,4 +1,4 @@
-import { Landmark } from './skeleton-renderer';
+import type { Landmark } from '@/utils/skeleton-renderer';
 
 /**
  * MoveNet index → MediaPipe index mapping.

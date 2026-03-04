@@ -28,7 +28,7 @@ const mockedUseRouter = useRouter as MockedFunction<typeof useRouter>;
 describe('TopHeader', () => {
   it('calls router.back when back button is pressed without custom handler', () => {
     const back = vi.fn();
-    mockedUseRouter.mockReturnValue({ back } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({ back } as unknown as ReturnType<typeof useRouter>);
 
     render(<TopHeader title="Profile" backButton />);
     fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
@@ -40,7 +40,7 @@ describe('TopHeader', () => {
   it('uses custom back handler when provided', () => {
     const back = vi.fn();
     const onBack = vi.fn();
-    mockedUseRouter.mockReturnValue({ back } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({ back } as unknown as ReturnType<typeof useRouter>);
 
     render(<TopHeader backButton onBack={onBack} />);
     fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
@@ -52,7 +52,7 @@ describe('TopHeader', () => {
   it('renders and handles edit and more buttons', () => {
     const onEdit = vi.fn();
     const onMore = vi.fn();
-    mockedUseRouter.mockReturnValue({ back: vi.fn() } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({ back: vi.fn() } as unknown as ReturnType<typeof useRouter>);
 
     render(<TopHeader editButton moreButton onEdit={onEdit} onMore={onMore} />);
 
@@ -64,7 +64,7 @@ describe('TopHeader', () => {
   });
 
   it('renders user details when userItem is provided', () => {
-    mockedUseRouter.mockReturnValue({ back: vi.fn() } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({ back: vi.fn() } as unknown as ReturnType<typeof useRouter>);
 
     render(
       <TopHeader
