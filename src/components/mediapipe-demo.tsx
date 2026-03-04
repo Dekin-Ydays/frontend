@@ -3,6 +3,7 @@ import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import Constants from "expo-constants";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
+import SkeletonOverlay from "./skeleton-overlay";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { getVideoParserWsUrl } from "@/services/video-parser-endpoints";
 
@@ -210,6 +211,8 @@ function NativePoseView({
   wsConnected: boolean;
 }) {
   const [hasPermission, setHasPermission] = useState(false);
+  const [nativeLandmarks, setNativeLandmarks] = useState<any[]>([]);
+  const [previewSize, setPreviewSize] = useState({ width: 0, height: 0 });
   const useCameraDevice =
     VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
   const frontDevice = useCameraDevice("front");
@@ -248,9 +251,17 @@ function NativePoseView({
   // Since sendLandmarks is a JS function, we need to create a wrapper that the worklet can call.
   // Ideally, we pass a function that explicitly calls runOnJS.
 
+  const handlePoseDetectedJs = useCallback(
+    (landmarks: any[]) => {
+      setNativeLandmarks(landmarks);
+      sendLandmarks(landmarks);
+    },
+    [sendLandmarks],
+  );
+
   const handlePoseDetected =
     Worklets && typeof Worklets.createRunOnJS === "function"
-      ? Worklets.createRunOnJS(sendLandmarks)
+      ? Worklets.createRunOnJS(handlePoseDetectedJs)
       : null;
 
   useEffect(() => {
@@ -332,9 +343,14 @@ function NativePoseView({
               return null;
             }
 
+            const normalizedX =
+              x < 0 || x > 1.2 ? x / inputWidth : x;
+            const normalizedY =
+              y < 0 || y > 1.2 ? y / inputHeight : y;
+
             landmarks.push({
-              x,
-              y,
+              x: normalizedX,
+              y: normalizedY,
               z,
               visibility: Number.isFinite(visibility) ? visibility : undefined,
               presence: Number.isFinite(presence) ? presence : undefined,
@@ -411,7 +427,13 @@ function NativePoseView({
       </ThemedText>
       <ThemedText>Model State: {model.state}</ThemedText>
 
-      <View style={styles.cameraContainer}>
+      <View
+        style={styles.cameraContainer}
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout;
+          setPreviewSize({ width, height });
+        }}
+      >
         <VisionCamera.Camera
           style={styles.camera}
           device={device}
@@ -419,6 +441,16 @@ function NativePoseView({
           frameProcessor={frameProcessor}
           pixelFormat="yuv"
         />
+        {nativeLandmarks.length > 0 &&
+        previewSize.width > 0 &&
+        previewSize.height > 0 ? (
+          <SkeletonOverlay
+            landmarks={nativeLandmarks}
+            width={previewSize.width}
+            height={previewSize.height}
+            mirrored={device?.position === "front"}
+          />
+        ) : null}
       </View>
     </ThemedView>
   );
