@@ -1,17 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import Constants from "expo-constants";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import SkeletonOverlay from "./skeleton-overlay";
-import { drawSkeleton } from "@/utils/skeleton-renderer";
+import { drawSkeleton, type Landmark } from "@/utils/skeleton-renderer";
 import { getVideoParserWsUrl } from "@/services/video-parser-endpoints";
 
 // Dynamic imports handling for Web vs Native
 let VisionCamera: any = null;
-let FastTflite: any = null;
-let Worklets: any = null;
-let VisionCameraResizePlugin: any = null;
+let MediaPipePoseDetection: any = null;
 let nativeModulesLoadError: string | null = null;
 
 if (Platform.OS !== "web") {
@@ -26,38 +24,16 @@ if (Platform.OS !== "web") {
   }
 
   try {
-    FastTflite = require("react-native-fast-tflite");
+    MediaPipePoseDetection = require("react-native-mediapipe-posedetection");
   } catch (error) {
     if (!nativeModulesLoadError) {
       const message =
         error instanceof Error ? error.message : JSON.stringify(error);
-      nativeModulesLoadError = `react-native-fast-tflite: ${message}`;
+      nativeModulesLoadError = `react-native-mediapipe-posedetection: ${message}`;
     }
   }
 
-  let workletsModule: any = null;
-  try {
-    workletsModule = require("react-native-worklets-core");
-  } catch (error) {
-    if (!nativeModulesLoadError) {
-      const message =
-        error instanceof Error ? error.message : JSON.stringify(error);
-      nativeModulesLoadError = `react-native-worklets-core: ${message}`;
-    }
-  }
-  Worklets = workletsModule?.Worklets ?? (global as any).Worklets ?? null;
-
-  try {
-    VisionCameraResizePlugin = require("vision-camera-resize-plugin");
-  } catch (error) {
-    if (!nativeModulesLoadError) {
-      const message =
-        error instanceof Error ? error.message : JSON.stringify(error);
-      nativeModulesLoadError = `vision-camera-resize-plugin: ${message}`;
-    }
-  }
-
-  if (!VisionCamera || !FastTflite || !VisionCameraResizePlugin) {
+  if (!VisionCamera || !MediaPipePoseDetection) {
     console.warn("Failed to load native modules:", nativeModulesLoadError);
   }
 }
@@ -67,37 +43,20 @@ interface HeadOrientation {
   yaw: number;
   roll: number;
 }
-
-function resolveInputSizeFromShape(
-  shape: number[] | undefined,
-): { width: number; height: number } | null {
-  if (!shape || shape.length < 3) return null;
-
-  // Common formats:
-  // NHWC: [1, H, W, C]
-  // NCHW: [1, C, H, W]
-  // HWC: [H, W, C]
-  // CHW: [C, H, W]
-  if (shape.length === 4) {
-    const [, a, b, c] = shape;
-    if (c === 3 || c === 4) return { width: b, height: a };
-    if (a === 3 || a === 4) return { width: c, height: b };
-  }
-
-  if (shape.length === 3) {
-    const [a, b, c] = shape;
-    if (c === 3 || c === 4) return { width: b, height: a };
-    if (a === 3 || a === 4) return { width: c, height: b };
-  }
-
-  return null;
-}
+type PoseLandmarkPayload = Landmark & { presence?: number };
 
 // WebSocket Configuration
 const WS_URL = getVideoParserWsUrl("/ws");
 
 const VIDEO_FPS = 10; // Limit sending to 5 FPS
-const FALLBACK_TFLITE_STATE = { state: "error", model: undefined } as const;
+const FALLBACK_POSE_SOLUTION = {
+  frameProcessor: undefined,
+  cameraViewLayoutChangeHandler: () => {},
+  cameraDeviceChangeHandler: () => {},
+  cameraOrientationChangedHandler: () => {},
+  resizeModeChangeHandler: () => {},
+  cameraViewDimensions: { width: 0, height: 0 },
+} as const;
 
 export default function MediaPipeDemo() {
   // Shared WebSocket logic could go here, but for simplicity/separation,
@@ -211,66 +170,145 @@ function NativePoseView({
   wsConnected: boolean;
 }) {
   const [hasPermission, setHasPermission] = useState(false);
-  const [nativeLandmarks, setNativeLandmarks] = useState<any[]>([]);
+  const [nativeLandmarks, setNativeLandmarks] = useState<PoseLandmarkPayload[]>(
+    [],
+  );
   const [previewSize, setPreviewSize] = useState({ width: 0, height: 0 });
+  const loggedNativeResultsRef = useRef(false);
+  const emptyResultCountRef = useRef(0);
   const useCameraDevice =
     VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
   const frontDevice = useCameraDevice("front");
   const backDevice = useCameraDevice("back");
   const device = frontDevice ?? backDevice;
-  const { useTensorflowModel } = FastTflite || {
-    useTensorflowModel: () => ({ state: "error" }),
-  };
-  const { useFrameProcessor } = VisionCamera || {
-    useFrameProcessor: () => null,
-  };
-  const useResizePlugin = VisionCameraResizePlugin?.useResizePlugin ?? (() => ({ resize: null }));
-  const { resize } = useResizePlugin();
+  const usePoseDetection =
+    MediaPipePoseDetection?.usePoseDetection ??
+    ((_callbacks: any, _runningMode: any, _model: string, _options: any) =>
+      FALLBACK_POSE_SOLUTION);
+  const runningMode =
+    MediaPipePoseDetection?.RunningMode?.LIVE_STREAM ?? "LIVE_STREAM";
+  const delegate = MediaPipePoseDetection?.Delegate?.GPU ?? "GPU";
 
-  const modelAsset =
-    Platform.OS === "web"
-      ? null
-      : require("../assets/models/pose_landmark_lite.tflite");
-  const model = useTensorflowModel(modelAsset) || FALLBACK_TFLITE_STATE;
-  const modelLoggedRef = useRef(false);
-  const unsupportedInputTypeLoggedRef = useRef(false);
+  const onPoseResults = useCallback(
+    (result: any, viewCoordinator?: any) => {
+      const resultEntries = Array.isArray(result?.results) ? result.results : [];
+      const bundleLandmarks = resultEntries.flatMap((entry: any) =>
+        Array.isArray(entry?.landmarks) ? entry.landmarks : [],
+      );
+      const topLevelLandmarks = Array.isArray(result?.landmarks)
+        ? result.landmarks
+        : [];
+      const poseLandmarks = bundleLandmarks.length > 0
+        ? bundleLandmarks
+        : topLevelLandmarks;
+      const firstPose = Array.isArray(poseLandmarks[0]) ? poseLandmarks[0] : null;
 
-  const inputTensor =
-    model.state === "loaded" ? model.model.inputs?.[0] : undefined;
-  const parsedInputSize = resolveInputSizeFromShape(inputTensor?.shape);
-  const inputWidth = parsedInputSize?.width ?? 256;
-  const inputHeight = parsedInputSize?.height ?? 256;
-  const isSupportedInputType =
-    inputTensor == null ||
-    inputTensor.dataType === "float32" ||
-    inputTensor.dataType === "uint8";
-  const inputDataType = inputTensor?.dataType === "float32" ? "float32" : "uint8";
+      if (!loggedNativeResultsRef.current) {
+        loggedNativeResultsRef.current = true;
+        console.log(
+          "Native pose result received.",
+          {
+            poseCount: poseLandmarks.length,
+            firstPoseLandmarkCount: Array.isArray(firstPose)
+              ? firstPose.length
+              : 0,
+            hasResultsBundle: resultEntries.length > 0,
+          },
+        );
+      }
 
-  // Wrap sendLandmarks in a Worklet-safe wrapper if possible,
-  // but usually we need to call it via runOnJS.
-  // Since sendLandmarks is a JS function, we need to create a wrapper that the worklet can call.
-  // Ideally, we pass a function that explicitly calls runOnJS.
+      if (!Array.isArray(firstPose) || firstPose.length === 0) {
+        emptyResultCountRef.current += 1;
+        if (emptyResultCountRef.current % 60 === 0) {
+          console.log("Native pose still empty after frames:", emptyResultCountRef.current);
+        }
+        setNativeLandmarks([]);
+        return;
+      }
+      emptyResultCountRef.current = 0;
 
-  const handlePoseDetectedJs = useCallback(
-    (landmarks: any[]) => {
-      setNativeLandmarks(landmarks);
-      sendLandmarks(landmarks);
+      const parserLandmarks: PoseLandmarkPayload[] = firstPose
+        .map((landmark: any) => {
+          const x = Number(landmark?.x);
+          const y = Number(landmark?.y);
+          const z = Number(landmark?.z);
+          const visibility = Number(landmark?.visibility);
+          const presence = Number(landmark?.presence);
+
+          return {
+            x,
+            y,
+            z: Number.isFinite(z) ? z : undefined,
+            visibility: Number.isFinite(visibility) ? visibility : undefined,
+            presence: Number.isFinite(presence) ? presence : undefined,
+          };
+        })
+        .filter(
+          (landmark) => Number.isFinite(landmark.x) && Number.isFinite(landmark.y),
+        );
+
+      if (parserLandmarks.length < 33) {
+        setNativeLandmarks([]);
+        return;
+      }
+
+      let overlayLandmarks = parserLandmarks;
+      if (
+        typeof viewCoordinator?.convertPoint === "function" &&
+        typeof viewCoordinator?.getFrameDims === "function" &&
+        previewSize.width > 0 &&
+        previewSize.height > 0
+      ) {
+        const frameDims = viewCoordinator.getFrameDims(result);
+        overlayLandmarks = parserLandmarks.map((landmark) => {
+          const point = viewCoordinator.convertPoint(frameDims, {
+            x: landmark.x,
+            y: landmark.y,
+          });
+
+          return {
+            ...landmark,
+            x: point.x / previewSize.width,
+            y: point.y / previewSize.height,
+          };
+        });
+      }
+
+      setNativeLandmarks(overlayLandmarks);
+      sendLandmarks(parserLandmarks);
     },
-    [sendLandmarks],
+    [previewSize.height, previewSize.width, sendLandmarks],
   );
 
-  const handlePoseDetected =
-    Worklets && typeof Worklets.createRunOnJS === "function"
-      ? Worklets.createRunOnJS(handlePoseDetectedJs)
-      : null;
+  const onPoseError = useCallback((error: any) => {
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? (error as { message?: string }).message
+        : String(error);
+    console.error("MediaPipe native detection error:", message, error);
+  }, []);
 
-  useEffect(() => {
-    if (!handlePoseDetected) {
-      console.warn(
-        "Worklets bridge is unavailable, pose landmarks will not be sent to websocket.",
-      );
-    }
-  }, [handlePoseDetected]);
+  const poseCallbacks = useMemo(
+    () => ({ onResults: onPoseResults, onError: onPoseError }),
+    [onPoseResults, onPoseError],
+  );
+
+  const poseSolution =
+    usePoseDetection(
+      poseCallbacks,
+      runningMode,
+      "pose_landmarker_lite.task",
+      {
+        numPoses: 1,
+        minPoseDetectionConfidence: 0.5,
+        minPosePresenceConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+        shouldOutputSegmentationMasks: false,
+        delegate,
+        mirrorMode: "mirror-front-only",
+        fpsMode: VIDEO_FPS,
+      },
+    ) || FALLBACK_POSE_SOLUTION;
 
   useEffect(() => {
     (async () => {
@@ -282,111 +320,16 @@ function NativePoseView({
   }, []);
 
   useEffect(() => {
-    if (model.state !== "loaded" || modelLoggedRef.current) return;
-    modelLoggedRef.current = true;
+    if (poseSolution?.cameraDeviceChangeHandler) {
+      poseSolution.cameraDeviceChangeHandler(device ?? undefined);
+    }
+  }, [poseSolution, device]);
 
-    console.log("TFLite input tensors:", model.model.inputs);
-    console.log("TFLite output tensors:", model.model.outputs);
-    console.log("Using inference input:", {
-      width: inputWidth,
-      height: inputHeight,
-      dataType: inputDataType,
-    });
-  }, [model, inputWidth, inputHeight, inputDataType]);
+  useEffect(() => {
+    poseSolution?.resizeModeChangeHandler?.("cover");
+  }, [poseSolution]);
 
-  const frameProcessor = useFrameProcessor(
-    (frame: any) => {
-      "worklet";
-      if (model.state !== "loaded" || !model.model || !resize) return;
-      if (!isSupportedInputType) {
-        if (!unsupportedInputTypeLoggedRef.current) {
-          unsupportedInputTypeLoggedRef.current = true;
-          console.error(
-            "Unsupported model input type for resize plugin:",
-            inputTensor?.dataType,
-          );
-        }
-        return;
-      }
-
-      try {
-        const resized = resize(frame, {
-          scale: {
-            width: inputWidth,
-            height: inputHeight,
-          },
-          pixelFormat: "rgb",
-          dataType: inputDataType,
-        });
-        const outputs = model.model.runSync([resized]);
-
-        const decodeTensorLandmarks = (tensor: any, stride: number) => {
-          "worklet";
-          if (!tensor || typeof tensor.length !== "number") return null;
-
-          const length = tensor.length;
-          if (length < 33 * stride || length > 1024) return null;
-
-          const landmarkCount = Math.min(33, Math.floor(length / stride));
-          if (landmarkCount < 33) return null;
-
-          const landmarks = [];
-          for (let i = 0; i < landmarkCount; i += 1) {
-            const base = i * stride;
-            const x = Number(tensor[base]);
-            const y = Number(tensor[base + 1]);
-            const z = stride > 2 ? Number(tensor[base + 2]) : 0;
-            const visibility = stride > 3 ? Number(tensor[base + 3]) : 1;
-            const presence = stride > 4 ? Number(tensor[base + 4]) : undefined;
-
-            if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
-              return null;
-            }
-
-            const normalizedX =
-              x < 0 || x > 1.2 ? x / inputWidth : x;
-            const normalizedY =
-              y < 0 || y > 1.2 ? y / inputHeight : y;
-
-            landmarks.push({
-              x: normalizedX,
-              y: normalizedY,
-              z,
-              visibility: Number.isFinite(visibility) ? visibility : undefined,
-              presence: Number.isFinite(presence) ? presence : undefined,
-            });
-          }
-
-          return landmarks;
-        };
-
-        let parsedLandmarks = null;
-        for (let i = 0; i < outputs.length; i += 1) {
-          const tensor = outputs[i];
-          parsedLandmarks =
-            decodeTensorLandmarks(tensor, 5) ??
-            decodeTensorLandmarks(tensor, 4) ??
-            decodeTensorLandmarks(tensor, 3);
-          if (parsedLandmarks) break;
-        }
-
-        if (parsedLandmarks && handlePoseDetected) {
-          handlePoseDetected(parsedLandmarks);
-        }
-
-        console.log(`Model ran! Output count: ${outputs.length}`);
-      } catch (e) {
-        const message =
-          e && typeof e === "object" && "message" in e
-            ? (e as { message?: string }).message
-            : String(e);
-        console.error("Model run failed:", message, e);
-      }
-    },
-    [model, handlePoseDetected, inputWidth, inputHeight, inputDataType, isSupportedInputType, inputTensor?.dataType],
-  );
-
-  if (!VisionCamera) {
+  if (!VisionCamera || !MediaPipePoseDetection) {
     const runningInExpoGo = Constants.appOwnership === "expo";
     return (
       <ThemedView style={styles.container}>
@@ -425,21 +368,27 @@ function NativePoseView({
       <ThemedText style={{ color: wsConnected ? "green" : "red" }}>
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
       </ThemedText>
-      <ThemedText>Model State: {model.state}</ThemedText>
+      <ThemedText>
+        Pose landmarks: {nativeLandmarks.length > 0 ? nativeLandmarks.length : 0}
+      </ThemedText>
 
       <View
         style={styles.cameraContainer}
         onLayout={(event) => {
           const { width, height } = event.nativeEvent.layout;
           setPreviewSize({ width, height });
+          poseSolution.cameraViewLayoutChangeHandler?.(event);
         }}
       >
         <VisionCamera.Camera
           style={styles.camera}
           device={device}
+          resizeMode="cover"
           isActive={true}
-          frameProcessor={frameProcessor}
-          pixelFormat="yuv"
+          frameProcessor={poseSolution.frameProcessor}
+          onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
+          pixelFormat="rgb"
+          photo={true}
         />
         {nativeLandmarks.length > 0 &&
         previewSize.width > 0 &&
