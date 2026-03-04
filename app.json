@@ -42,9 +42,15 @@
         }
       ],
       [
+        "react-native-fast-tflite",
+        {
+          "enableCoreMLDelegate": true
+        }
+      ],
+      [
         "react-native-mediapipe-posedetection",
         {
-          "assetsPaths": ["./assets/models/"]
+          "assetsPaths": ["./src/assets/models/"]
         }
       ],
       [

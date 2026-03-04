@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { Canvas, Line, Circle, vec, Paint } from '@shopify/react-native-skia';
+import { Canvas, Line, Circle, vec } from '@shopify/react-native-skia';
 import { SKELETON_CONNECTIONS, Landmark } from '@/utils/skeleton-renderer';
 
 const VISIBILITY_THRESHOLD = 0.5;
