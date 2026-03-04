@@ -1,4 +1,11 @@
-import { SKELETON_CONNECTIONS, drawSkeleton, Landmark, DrawOptions } from '../skeleton-renderer';
+import { vi } from 'vitest';
+
+import {
+  SKELETON_CONNECTIONS,
+  drawSkeleton,
+  Landmark,
+  DrawOptions,
+} from '../../src/utils/skeleton-renderer';
 
 describe('SKELETON_CONNECTIONS', () => {
   it('is a non-empty array of pairs', () => {
@@ -32,12 +39,12 @@ describe('drawSkeleton', () => {
 
   beforeEach(() => {
     ctx = {
-      beginPath: jest.fn(),
-      moveTo: jest.fn(),
-      lineTo: jest.fn(),
-      stroke: jest.fn(),
-      arc: jest.fn(),
-      fill: jest.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
       strokeStyle: '',
       lineWidth: 0,
       fillStyle: '',

@@ -88,4 +88,6 @@ Frontend:
 ```bash
 npm run lint
 npm run test
+npm run test:coverage
+npm run workflow:test
 ```

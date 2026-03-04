@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   getScoreColor,
   getScoreLabel,
@@ -10,7 +12,7 @@ import {
 } from '../video-parser-api';
 
 // Mock react-native Platform
-jest.mock('react-native', () => ({
+vi.mock('react-native', () => ({
   Platform: { select: (opts: Record<string, string>) => opts.default },
 }));
 
@@ -94,7 +96,7 @@ describe('COMPARISON_PRESETS', () => {
 
 // ---- API function tests (mock fetch) ----
 
-const mockFetch = jest.fn();
+const mockFetch = vi.fn();
 (global as any).fetch = mockFetch;
 
 afterEach(() => {
