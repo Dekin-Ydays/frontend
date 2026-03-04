@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "dekin",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0E0E0E",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -17,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0E0E0E",
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "backgroundImage": "./src/assets/images/android-icon-background.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
@@ -28,17 +29,12 @@
       "permissions": ["android.permission.CAMERA"]
     },
     "web": {
+      "bundler": "metro",
       "output": "static",
       "favicon": "./src/assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for pose tracking."
-        }
-      ],
       [
         "react-native-vision-camera",
         {
@@ -57,12 +53,10 @@
           "image": "./src/assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "backgroundColor": "#0E0E0E"
         }
       ],
+      "expo-font",
       "expo-asset"
     ],
     "experiments": {

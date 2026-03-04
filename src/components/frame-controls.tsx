@@ -1,7 +1,11 @@
-import React from 'react';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import React from "react";
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+} from "react-native";
 
 interface FrameControlsProps {
   isPlaying: boolean;
@@ -31,7 +35,7 @@ export function FrameControls({
   const atEnd = currentFrame >= maxFrame;
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       {/* Navigation Buttons */}
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -40,7 +44,7 @@ export function FrameControls({
           disabled={atStart}
           accessibilityLabel="Jump to start"
         >
-          <ThemedText style={styles.buttonText}>⏮</ThemedText>
+          <Text style={styles.buttonText}>⏮</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, atStart && styles.buttonDisabled]}
@@ -48,17 +52,15 @@ export function FrameControls({
           disabled={atStart}
           accessibilityLabel="Previous frame"
         >
-          <ThemedText style={styles.buttonText}>◄</ThemedText>
+          <Text style={styles.buttonText}>◄</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.playButton}
           onPress={onPlayPause}
           disabled={totalFrames === 0}
-          accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
+          accessibilityLabel={isPlaying ? "Pause" : "Play"}
         >
-          <ThemedText style={styles.playButtonText}>
-            {isPlaying ? '⏸' : '▶'}
-          </ThemedText>
+          <Text style={styles.playButtonText}>{isPlaying ? "⏸" : "▶"}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, atEnd && styles.buttonDisabled]}
@@ -66,7 +68,7 @@ export function FrameControls({
           disabled={atEnd}
           accessibilityLabel="Next frame"
         >
-          <ThemedText style={styles.buttonText}>►</ThemedText>
+          <Text style={styles.buttonText}>►</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, atEnd && styles.buttonDisabled]}
@@ -74,13 +76,13 @@ export function FrameControls({
           disabled={atEnd}
           accessibilityLabel="Jump to end"
         >
-          <ThemedText style={styles.buttonText}>⏭</ThemedText>
+          <Text style={styles.buttonText}>⏭</Text>
         </TouchableOpacity>
       </View>
 
       {/* Timeline Slider */}
       <View style={styles.sliderContainer}>
-        {Platform.OS === 'web' ? (
+        {Platform.OS === "web" ? (
           <input
             aria-label="Frame timeline"
             type="range"
@@ -89,23 +91,23 @@ export function FrameControls({
             step={1}
             value={Math.max(0, Math.min(currentFrame, maxFrame))}
             onChange={(e) => onSeek(Number(e.target.value))}
-            style={{ width: '100%', height: 40, accentColor: '#007AFF' } as any}
+            style={{ width: "100%", height: 40, accentColor: "#007AFF" } as any}
             disabled={totalFrames === 0}
           />
         ) : (
-          <ThemedText style={styles.nativeSliderHint}>
+          <Text style={styles.nativeSliderHint}>
             Timeline scrubbing is currently available on web.
-          </ThemedText>
+          </Text>
         )}
       </View>
 
       {/* Frame Counter */}
       <View style={styles.infoRow}>
-        <ThemedText style={styles.infoText}>
+        <Text style={styles.infoText}>
           Frame: {currentFrame + 1} / {totalFrames}
-        </ThemedText>
+        </Text>
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -114,21 +116,21 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(128, 128, 128, 0.2)',
+    borderTopColor: "rgba(128, 128, 128, 0.2)",
   },
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 12,
   },
   button: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(128, 128, 128, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonDisabled: {
     opacity: 0.4,
@@ -140,26 +142,26 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#007AFF",
+    alignItems: "center",
+    justifyContent: "center",
   },
   playButtonText: {
     fontSize: 24,
-    color: '#fff',
+    color: "#fff",
   },
   sliderContainer: {
     paddingHorizontal: 8,
   },
   nativeSliderHint: {
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.6,
     paddingVertical: 10,
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   infoText: {
     fontSize: 14,
