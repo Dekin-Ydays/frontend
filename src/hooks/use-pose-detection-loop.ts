@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useRef } from "react";
 
-interface PoseLoopResult {
-  landmarks?: unknown[];
+interface DetectForVideoRunner<TResult> {
+  detectForVideo: (video: HTMLVideoElement, timestampMs: number) => TResult;
 }
 
-interface UsePoseDetectionLoopParams {
+interface UsePoseDetectionLoopParams<TResult> {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  poseLandmarkerRef: React.RefObject<{
-    detectForVideo: (video: HTMLVideoElement, timestampMs: number) => PoseLoopResult;
-  } | null>;
+  poseLandmarkerRef: React.RefObject<DetectForVideoRunner<TResult> | null>;
   onResults: (params: {
     ctx: CanvasRenderingContext2D;
-    results: PoseLoopResult;
+    results: TResult;
     width: number;
     height: number;
   }) => void;
@@ -24,12 +22,12 @@ interface UsePoseDetectionLoopResult {
   resetTimestamp: () => void;
 }
 
-export function usePoseDetectionLoop({
+export function usePoseDetectionLoop<TResult>({
   videoRef,
   canvasRef,
   poseLandmarkerRef,
   onResults,
-}: UsePoseDetectionLoopParams): UsePoseDetectionLoopResult {
+}: UsePoseDetectionLoopParams<TResult>): UsePoseDetectionLoopResult {
   const animationIdRef = useRef<number | null>(null);
   const lastTimestampMsRef = useRef<number>(-Infinity);
   const onResultsRef = useRef(onResults);
