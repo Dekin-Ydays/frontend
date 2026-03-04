@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import Constants from "expo-constants";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
@@ -9,14 +10,54 @@ import { getVideoParserWsUrl } from "@/services/video-parser-endpoints";
 let VisionCamera: any = null;
 let FastTflite: any = null;
 let Worklets: any = null;
+let VisionCameraResizePlugin: any = null;
+let nativeModulesLoadError: string | null = null;
 
 if (Platform.OS !== "web") {
   try {
     VisionCamera = require("react-native-vision-camera");
+  } catch (error) {
+    if (!nativeModulesLoadError) {
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      nativeModulesLoadError = `react-native-vision-camera: ${message}`;
+    }
+  }
+
+  try {
     FastTflite = require("react-native-fast-tflite");
-    Worklets = require("react-native-worklets-core");
-  } catch (e) {
-    console.warn("Failed to load native modules:", e);
+  } catch (error) {
+    if (!nativeModulesLoadError) {
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      nativeModulesLoadError = `react-native-fast-tflite: ${message}`;
+    }
+  }
+
+  let workletsModule: any = null;
+  try {
+    workletsModule = require("react-native-worklets-core");
+  } catch (error) {
+    if (!nativeModulesLoadError) {
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      nativeModulesLoadError = `react-native-worklets-core: ${message}`;
+    }
+  }
+  Worklets = workletsModule?.Worklets ?? (global as any).Worklets ?? null;
+
+  try {
+    VisionCameraResizePlugin = require("vision-camera-resize-plugin");
+  } catch (error) {
+    if (!nativeModulesLoadError) {
+      const message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      nativeModulesLoadError = `vision-camera-resize-plugin: ${message}`;
+    }
+  }
+
+  if (!VisionCamera || !FastTflite || !VisionCameraResizePlugin) {
+    console.warn("Failed to load native modules:", nativeModulesLoadError);
   }
 }
 
@@ -26,10 +67,36 @@ interface HeadOrientation {
   roll: number;
 }
 
+function resolveInputSizeFromShape(
+  shape: number[] | undefined,
+): { width: number; height: number } | null {
+  if (!shape || shape.length < 3) return null;
+
+  // Common formats:
+  // NHWC: [1, H, W, C]
+  // NCHW: [1, C, H, W]
+  // HWC: [H, W, C]
+  // CHW: [C, H, W]
+  if (shape.length === 4) {
+    const [, a, b, c] = shape;
+    if (c === 3 || c === 4) return { width: b, height: a };
+    if (a === 3 || a === 4) return { width: c, height: b };
+  }
+
+  if (shape.length === 3) {
+    const [a, b, c] = shape;
+    if (c === 3 || c === 4) return { width: b, height: a };
+    if (a === 3 || a === 4) return { width: c, height: b };
+  }
+
+  return null;
+}
+
 // WebSocket Configuration
 const WS_URL = getVideoParserWsUrl("/ws");
 
 const VIDEO_FPS = 10; // Limit sending to 5 FPS
+const FALLBACK_TFLITE_STATE = { state: "error", model: undefined } as const;
 
 export default function MediaPipeDemo() {
   // Shared WebSocket logic could go here, but for simplicity/separation,
@@ -38,6 +105,7 @@ export default function MediaPipeDemo() {
 
   const wsRef = useRef<WebSocket | null>(null);
   const lastSendTimeRef = useRef<number>(0);
+  const receivedAckRef = useRef(false);
   const [wsConnected, setWsConnected] = useState(false);
 
   useEffect(() => {
@@ -61,6 +129,39 @@ export default function MediaPipeDemo() {
 
       ws.onerror = (e) => {
         console.error("WebSocket error:", e);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const payload =
+            typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+
+          if (
+            payload &&
+            typeof payload === "object" &&
+            (payload as any).type === "error"
+          ) {
+            console.error(
+              "Video parser rejected payload:",
+              (payload as any).message,
+            );
+          }
+
+          if (
+            payload &&
+            typeof payload === "object" &&
+            (payload as any).type === "ack" &&
+            !receivedAckRef.current
+          ) {
+            receivedAckRef.current = true;
+            console.log(
+              "Video parser acknowledged pose frames.",
+              (payload as any),
+            );
+          }
+        } catch {
+          // Ignore non-JSON messages
+        }
       };
 
       wsRef.current = ws;
@@ -111,29 +212,54 @@ function NativePoseView({
   const [hasPermission, setHasPermission] = useState(false);
   const useCameraDevice =
     VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
-  const device = useCameraDevice("front");
+  const frontDevice = useCameraDevice("front");
+  const backDevice = useCameraDevice("back");
+  const device = frontDevice ?? backDevice;
   const { useTensorflowModel } = FastTflite || {
     useTensorflowModel: () => ({ state: "error" }),
   };
   const { useFrameProcessor } = VisionCamera || {
     useFrameProcessor: () => null,
   };
+  const useResizePlugin = VisionCameraResizePlugin?.useResizePlugin ?? (() => ({ resize: null }));
+  const { resize } = useResizePlugin();
 
-  // Note: For native, you would need to:
-  // 1. Download the model from https://www.tensorflow.org/lite/models/pose_estimation
-  // 2. Add it to assets/models/ directory
-  // 3. Then require it: const modelAsset = require('../assets/models/pose_landmark_lite.tflite');
-  const modelAsset = null;
-  const model = useTensorflowModel(modelAsset) || { state: "error" };
+  const modelAsset =
+    Platform.OS === "web"
+      ? null
+      : require("../assets/models/pose_landmark_lite.tflite");
+  const model = useTensorflowModel(modelAsset) || FALLBACK_TFLITE_STATE;
+  const modelLoggedRef = useRef(false);
+  const unsupportedInputTypeLoggedRef = useRef(false);
+
+  const inputTensor =
+    model.state === "loaded" ? model.model.inputs?.[0] : undefined;
+  const parsedInputSize = resolveInputSizeFromShape(inputTensor?.shape);
+  const inputWidth = parsedInputSize?.width ?? 256;
+  const inputHeight = parsedInputSize?.height ?? 256;
+  const isSupportedInputType =
+    inputTensor == null ||
+    inputTensor.dataType === "float32" ||
+    inputTensor.dataType === "uint8";
+  const inputDataType = inputTensor?.dataType === "float32" ? "float32" : "uint8";
 
   // Wrap sendLandmarks in a Worklet-safe wrapper if possible,
   // but usually we need to call it via runOnJS.
   // Since sendLandmarks is a JS function, we need to create a wrapper that the worklet can call.
   // Ideally, we pass a function that explicitly calls runOnJS.
 
-  const handlePoseDetected = Worklets
-    ? Worklets.createRunOnJS(sendLandmarks)
-    : sendLandmarks;
+  const handlePoseDetected =
+    Worklets && typeof Worklets.createRunOnJS === "function"
+      ? Worklets.createRunOnJS(sendLandmarks)
+      : null;
+
+  useEffect(() => {
+    if (!handlePoseDetected) {
+      console.warn(
+        "Worklets bridge is unavailable, pose landmarks will not be sent to websocket.",
+      );
+    }
+  }, [handlePoseDetected]);
 
   useEffect(() => {
     (async () => {
@@ -144,39 +270,118 @@ function NativePoseView({
     })();
   }, []);
 
+  useEffect(() => {
+    if (model.state !== "loaded" || modelLoggedRef.current) return;
+    modelLoggedRef.current = true;
+
+    console.log("TFLite input tensors:", model.model.inputs);
+    console.log("TFLite output tensors:", model.model.outputs);
+    console.log("Using inference input:", {
+      width: inputWidth,
+      height: inputHeight,
+      dataType: inputDataType,
+    });
+  }, [model, inputWidth, inputHeight, inputDataType]);
+
   const frameProcessor = useFrameProcessor(
     (frame: any) => {
       "worklet";
-      if (model.state !== "loaded" || !model.model) return;
+      if (model.state !== "loaded" || !model.model || !resize) return;
+      if (!isSupportedInputType) {
+        if (!unsupportedInputTypeLoggedRef.current) {
+          unsupportedInputTypeLoggedRef.current = true;
+          console.error(
+            "Unsupported model input type for resize plugin:",
+            inputTensor?.dataType,
+          );
+        }
+        return;
+      }
 
       try {
-        const outputs = model.model.runSync([frame]);
+        const resized = resize(frame, {
+          scale: {
+            width: inputWidth,
+            height: inputHeight,
+          },
+          pixelFormat: "rgb",
+          dataType: inputDataType,
+        });
+        const outputs = model.model.runSync([resized]);
 
-        // For demonstration, we are just sending the raw output count or basic info
-        // In a real app, you would parse 'outputs' into a landmark object here.
-        // Parsing tensors is complex and model-specific.
-        // We'll simulate sending data structure for now or send raw if small.
+        const decodeTensorLandmarks = (tensor: any, stride: number) => {
+          "worklet";
+          if (!tensor || typeof tensor.length !== "number") return null;
 
-        // Example: Assuming outputs[0] is landmarks
-        const rawData =
-          outputs.length > 0 ? "Pose Detected (Raw Tensor)" : null;
+          const length = tensor.length;
+          if (length < 33 * stride || length > 1024) return null;
 
-        if (rawData) {
-          handlePoseDetected(rawData);
+          const landmarkCount = Math.min(33, Math.floor(length / stride));
+          if (landmarkCount < 33) return null;
+
+          const landmarks = [];
+          for (let i = 0; i < landmarkCount; i += 1) {
+            const base = i * stride;
+            const x = Number(tensor[base]);
+            const y = Number(tensor[base + 1]);
+            const z = stride > 2 ? Number(tensor[base + 2]) : 0;
+            const visibility = stride > 3 ? Number(tensor[base + 3]) : 1;
+            const presence = stride > 4 ? Number(tensor[base + 4]) : undefined;
+
+            if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+              return null;
+            }
+
+            landmarks.push({
+              x,
+              y,
+              z,
+              visibility: Number.isFinite(visibility) ? visibility : undefined,
+              presence: Number.isFinite(presence) ? presence : undefined,
+            });
+          }
+
+          return landmarks;
+        };
+
+        let parsedLandmarks = null;
+        for (let i = 0; i < outputs.length; i += 1) {
+          const tensor = outputs[i];
+          parsedLandmarks =
+            decodeTensorLandmarks(tensor, 5) ??
+            decodeTensorLandmarks(tensor, 4) ??
+            decodeTensorLandmarks(tensor, 3);
+          if (parsedLandmarks) break;
+        }
+
+        if (parsedLandmarks && handlePoseDetected) {
+          handlePoseDetected(parsedLandmarks);
         }
 
         console.log(`Model ran! Output count: ${outputs.length}`);
       } catch (e) {
-        console.error("Model run failed:", e);
+        const message =
+          e && typeof e === "object" && "message" in e
+            ? (e as { message?: string }).message
+            : String(e);
+        console.error("Model run failed:", message, e);
       }
     },
-    [model, handlePoseDetected],
+    [model, handlePoseDetected, inputWidth, inputHeight, inputDataType, isSupportedInputType, inputTensor?.dataType],
   );
 
   if (!VisionCamera) {
+    const runningInExpoGo = Constants.appOwnership === "expo";
     return (
       <ThemedView style={styles.container}>
-        <ThemedText style={styles.error}>Native modules not loaded.</ThemedText>
+        <ThemedText style={styles.error}>
+          {runningInExpoGo
+            ? "Native modules are unavailable in Expo Go. Open this app in the iOS development build."
+            : "Native modules not loaded."}
+        </ThemedText>
+        {nativeModulesLoadError ? (
+          <ThemedText style={styles.error}>{nativeModulesLoadError}</ThemedText>
+        ) : null}
       </ThemedView>
     );
   }
@@ -190,7 +395,11 @@ function NativePoseView({
   if (device == null)
     return (
       <ThemedView style={styles.container}>
-        <ThemedText>No camera found</ThemedText>
+        <ThemedText>
+          {Platform.OS === "ios" && !Constants.isDevice
+            ? "No camera found in iOS Simulator. Run this on a physical iPhone (development build)."
+            : "No camera found"}
+        </ThemedText>
       </ThemedView>
     );
 

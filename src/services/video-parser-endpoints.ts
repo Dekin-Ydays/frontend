@@ -5,15 +5,25 @@ const DEFAULT_PORT = '3000';
 const LOCALHOST_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
+function tryParseUrl(value: string): URL | null {
+  try {
+    return new URL(value);
+  } catch {
+    return null;
+  }
+}
+
 function parseHostname(value: string | null | undefined): string | null {
   if (!value) return null;
 
   const trimmed = value.trim();
   if (!trimmed) return null;
 
-  // Accept either full URL (exp://, http://, ws://) or raw host:port.
-  const withoutScheme = trimmed.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
-  const authority = withoutScheme.split('/')[0];
+  const parsedUrl = tryParseUrl(trimmed);
+  if (parsedUrl?.hostname) return parsedUrl.hostname;
+
+  // Accept raw host:port values (without a URL scheme).
+  const authority = trimmed.split('/')[0];
   if (!authority) return null;
 
   const ipv6Match = authority.match(/^\[([^\]]+)\]/);
@@ -22,11 +32,39 @@ function parseHostname(value: string | null | undefined): string | null {
   return authority.split(':')[0] || null;
 }
 
+function parseExpoDevClientHost(value: string | null | undefined): string | null {
+  if (!value) return null;
+
+  const parsed = tryParseUrl(value);
+  if (!parsed) return null;
+
+  // Expo dev client deep-links can look like:
+  // dekin://expo-development-client/?url=http%3A%2F%2F10.0.0.15%3A8081
+  const nestedBundleUrl = parsed.searchParams.get('url');
+  if (nestedBundleUrl) {
+    return parseHostname(decodeURIComponent(nestedBundleUrl));
+  }
+
+  return null;
+}
+
 function resolveRuntimeHost(): string | null {
+  const constantsWithManifest = Constants as typeof Constants & {
+    manifest2?: {
+      extra?: {
+        expoClient?: {
+          hostUri?: string | null;
+        };
+      };
+    };
+  };
+
   const candidates = [
     Constants.expoConfig?.hostUri,
     Constants.expoGoConfig?.debuggerHost,
+    constantsWithManifest.manifest2?.extra?.expoClient?.hostUri,
     Constants.linkingUri,
+    parseExpoDevClientHost(Constants.linkingUri),
   ];
 
   for (const candidate of candidates) {
@@ -73,4 +111,3 @@ export function getVideoParserWsUrl(path = '/ws'): string {
   const port = resolvePort();
   return `ws://${host}:${port}${normalizedPath}`;
 }
-
