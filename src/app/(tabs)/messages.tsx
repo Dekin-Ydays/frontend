@@ -3,7 +3,6 @@ import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { RoundedButton } from "@/components/ui/rounded-button";
 import { AppText } from "@/components/ui/app-text";
-import { Home } from "iconoir-react-native";
 import { UserItem } from "@/components/user-item";
 
 const AVATAR_URI =
@@ -73,19 +72,15 @@ export default function MessagesScreen() {
         />
       )}
       ListHeaderComponent={
-        <View className="gap-2">
-          <AppText variant="title">Messages</AppText>
-          <AppText className="mt-2">Vos conversations apparaîtront ici</AppText>
-          <Button Icon={Home} label="primary" variant="primary" />
-          <Button Icon={Home} label="secondary" variant="secondary" />
-          <RoundedButton Icon={Home} label="primaryrounded" variant="primary" />
-          <RoundedButton
-            Icon={Home}
-            label="secondaryrounded"
-            variant="secondary"
-          />
-        </View>
-      }
+          <View className="gap-2">
+            <AppText variant="title">Messages</AppText>
+            <AppText className="mt-2">Vos conversations apparaîtront ici</AppText>
+            <Button label="primary" variant="primary" />
+            <Button label="secondary" variant="secondary" />
+            <RoundedButton label="primaryrounded" variant="primary" />
+            <RoundedButton label="secondaryrounded" variant="secondary" />
+          </View>
+        }
       ListFooterComponent={
         isLoadingMore ? (
           <View className="items-center py-4">
