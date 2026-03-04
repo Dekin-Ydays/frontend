@@ -1,4 +1,9 @@
-import { SKELETON_CONNECTIONS, drawSkeleton, Landmark, DrawOptions } from '../skeleton-renderer';
+import {
+  SKELETON_CONNECTIONS,
+  drawSkeleton,
+  Landmark,
+  DrawOptions,
+} from '../../src/utils/skeleton-renderer';
 
 describe('SKELETON_CONNECTIONS', () => {
   it('is a non-empty array of pairs', () => {
