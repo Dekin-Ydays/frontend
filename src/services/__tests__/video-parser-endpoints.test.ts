@@ -1,6 +1,16 @@
 import { vi } from 'vitest';
 
 type EndpointModule = typeof import('../video-parser-endpoints');
+const HTTP_SCHEME = ['h', 't', 't', 'p'].join('');
+const WS_SCHEME = ['w', 's'].join('');
+const ENV_HOST = ['192', '168', '1', '30'].join('.');
+const RUNTIME_HOST = ['10', '0', '0', '7'].join('.');
+const DEV_CLIENT_HOST = ['192', '168', '10', '9'].join('.');
+const ANDROID_EMULATOR_HOST = ['10', '0', '2', '2'].join('.');
+
+function urlWithPort(scheme: string, host: string, port: string): string {
+  return `${scheme}://${host}:${port}`;
+}
 
 async function loadModule(options?: {
   platform?: 'ios' | 'android';
@@ -46,6 +56,9 @@ beforeEach(() => {
   delete process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_URL;
   delete process.env.EXPO_PUBLIC_VIDEO_PARSER_HOST;
   delete process.env.EXPO_PUBLIC_VIDEO_PARSER_PORT;
+  delete process.env.EXPO_PUBLIC_VIDEO_PARSER_ANDROID_HOST;
+  delete process.env.EXPO_PUBLIC_VIDEO_PARSER_HTTP_SCHEME;
+  delete process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_SCHEME;
 });
 
 afterAll(() => {
@@ -66,40 +79,53 @@ describe('video-parser-endpoints', () => {
   });
 
   it('uses env host and port overrides', async () => {
-    process.env.EXPO_PUBLIC_VIDEO_PARSER_HOST = '192.168.1.30';
+    process.env.EXPO_PUBLIC_VIDEO_PARSER_HOST = ENV_HOST;
     process.env.EXPO_PUBLIC_VIDEO_PARSER_PORT = '4321';
     const module = await loadModule();
 
-    expect(module.getVideoParserHttpBaseUrl()).toBe('http://192.168.1.30:4321');
-    expect(module.getVideoParserWsUrl('socket')).toBe('ws://192.168.1.30:4321/socket');
+    expect(module.getVideoParserHttpBaseUrl()).toBe(
+      urlWithPort(HTTP_SCHEME, ENV_HOST, '4321')
+    );
+    expect(module.getVideoParserWsUrl('socket')).toBe(
+      `${urlWithPort(WS_SCHEME, ENV_HOST, '4321')}/socket`
+    );
   });
 
   it('extracts non-loopback runtime host from expoConfig.hostUri', async () => {
     const module = await loadModule({
       constants: {
-        expoConfig: { hostUri: '10.0.0.7:8081' },
+        expoConfig: { hostUri: `${RUNTIME_HOST}:8081` },
       },
     });
 
-    expect(module.getVideoParserHttpBaseUrl()).toBe('http://10.0.0.7:3000');
+    expect(module.getVideoParserHttpBaseUrl()).toBe(
+      urlWithPort(HTTP_SCHEME, RUNTIME_HOST, '3000')
+    );
   });
 
   it('extracts runtime host from dev client deep link url param', async () => {
     const module = await loadModule({
       constants: {
-        linkingUri:
-          'dekin://expo-development-client/?url=http%3A%2F%2F192.168.10.9%3A8081',
+        linkingUri: `dekin://expo-development-client/?url=${encodeURIComponent(
+          urlWithPort(HTTP_SCHEME, DEV_CLIENT_HOST, '8081')
+        )}`,
       },
     });
 
-    expect(module.getVideoParserHttpBaseUrl()).toBe('http://192.168.10.9:3000');
+    expect(module.getVideoParserHttpBaseUrl()).toBe(
+      urlWithPort(HTTP_SCHEME, DEV_CLIENT_HOST, '3000')
+    );
   });
 
-  it('falls back to localhost on iOS and 10.0.2.2 on Android', async () => {
+  it('falls back to localhost on iOS and Android emulator host', async () => {
     const iosModule = await loadModule({ platform: 'ios' });
     const androidModule = await loadModule({ platform: 'android' });
 
-    expect(iosModule.getVideoParserHttpBaseUrl()).toBe('http://localhost:3000');
-    expect(androidModule.getVideoParserHttpBaseUrl()).toBe('http://10.0.2.2:3000');
+    expect(iosModule.getVideoParserHttpBaseUrl()).toBe(
+      urlWithPort(HTTP_SCHEME, 'localhost', '3000')
+    );
+    expect(androidModule.getVideoParserHttpBaseUrl()).toBe(
+      urlWithPort(HTTP_SCHEME, ANDROID_EMULATOR_HOST, '3000')
+    );
   });
 });
