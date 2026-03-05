@@ -6,6 +6,7 @@ import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
+import { useWebPoseSource } from "@/hooks/use-web-pose-source";
 
 interface HeadOrientation {
   pitch: number;
@@ -21,14 +22,8 @@ export function MediaPipeWebView({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const poseLandmarkerRef = useRef<any>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const objectUrlRef = useRef<string | null>(null);
-  const modeRef = useRef<"camera" | "file">("file");
-  const [mode, setMode] = useState<"camera" | "file">("file");
-  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [modelReady, setModelReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [modelError, setModelError] = useState<string | null>(null);
   const [poseDetected, setPoseDetected] = useState<boolean>(false);
   const [headOrientation, setHeadOrientation] = useState<HeadOrientation | null>(null);
   const lastOrientationUpdateRef = useRef<number>(0);
@@ -103,30 +98,31 @@ export function MediaPipeWebView({
     onResults: handleDetectionResults,
   });
 
+  const onSourceReset = useCallback(() => {
+    setPoseDetected(false);
+    setHeadOrientation(null);
+  }, []);
+
+  const {
+    mode,
+    selectedFileName,
+    isLoading: sourceLoading,
+    error: sourceError,
+    loadFile,
+    startCamera,
+    cleanupSource,
+  } = useWebPoseSource({
+    videoRef,
+    canvasRef,
+    poseLandmarkerRef,
+    startLoop,
+    stopLoop,
+    resetTimestamp,
+    onSourceReset,
+  });
+
   useEffect(() => {
     let cancelled = false;
-
-    const stopActiveSource = () => {
-      stopLoop();
-
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
-
-      const video = videoRef.current;
-      if (video) {
-        video.pause();
-        video.srcObject = null;
-        video.removeAttribute("src");
-        video.load();
-      }
-    };
 
     const initialize = async () => {
       try {
@@ -150,11 +146,9 @@ export function MediaPipeWebView({
 
         if (cancelled) return;
         setModelReady(true);
-        setIsLoading(false);
       } catch (err) {
         console.error("Error initializing MediaPipe Web:", err);
-        setError(err instanceof Error ? err.message : "Failed to initialize MediaPipe");
-        setIsLoading(false);
+        setModelError(err instanceof Error ? err.message : "Failed to initialize MediaPipe");
       }
     };
 
@@ -162,11 +156,11 @@ export function MediaPipeWebView({
 
     return () => {
       cancelled = true;
-      stopActiveSource();
+      cleanupSource();
       if (poseLandmarkerRef.current) poseLandmarkerRef.current.close();
       poseLandmarkerRef.current = null;
     };
-  }, [stopLoop]);
+  }, [cleanupSource]);
 
   const handleUploadPress = () => {
     fileInputRef.current?.click();
@@ -176,119 +170,15 @@ export function MediaPipeWebView({
     const file = event.target.files?.[0] ?? null;
     if (!file) return;
 
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (!poseLandmarkerRef.current) {
-      setError("Pose model is not ready yet");
-      return;
-    }
-
     event.target.value = "";
-
-    stopLoop();
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-    resetTimestamp();
-
-    modeRef.current = "file";
-    setMode("file");
-    setSelectedFileName(file.name);
-    setError(null);
-    setIsLoading(true);
-    setPoseDetected(false);
-    setHeadOrientation(null);
-
-    const url = URL.createObjectURL(file);
-    objectUrlRef.current = url;
-    video.srcObject = null;
-    video.src = url;
-    video.playsInline = true;
-    video.loop = true;
-    video.muted = true;
-
-    const onLoadedData = async () => {
-      setIsLoading(false);
-      try {
-        await video.play();
-      } catch {
-        // Autoplay can be blocked; detection continues once user interacts.
-      }
-
-      if (canvasRef.current) {
-        canvasRef.current.width = video.videoWidth;
-        canvasRef.current.height = video.videoHeight;
-      }
-
-      resetTimestamp();
-      startLoop();
-    };
-
-    video.addEventListener("loadeddata", onLoadedData, { once: true });
-    video.load();
+    await loadFile(file);
   };
 
   const handleUseCameraPress = async () => {
-    if (modeRef.current === "camera") return;
-
-    const video = videoRef.current;
-    if (!video) return;
-    if (!poseLandmarkerRef.current) {
-      setError("Pose model is not ready yet");
-      return;
-    }
-
-    stopLoop();
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-
-    modeRef.current = "camera";
-    setMode("camera");
-    setSelectedFileName(null);
-    setError(null);
-    setIsLoading(true);
-    resetTimestamp();
-    setPoseDetected(false);
-    setHeadOrientation(null);
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: "user" },
-      });
-      streamRef.current = stream;
-      video.srcObject = stream;
-      const onLoadedData = () => {
-        setIsLoading(false);
-        if (!videoRef.current || !canvasRef.current) return;
-        if (!poseLandmarkerRef.current) return;
-
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        resetTimestamp();
-        startLoop();
-      };
-
-      video.addEventListener("loadeddata", onLoadedData, { once: true });
-    } catch (err) {
-      console.error("Error starting camera:", err);
-      setError(err instanceof Error ? err.message : "Failed to start camera");
-      setIsLoading(false);
-    }
+    await startCamera();
   };
+
+  const error = modelError ?? sourceError;
 
   return (
     <ThemedView style={styles.container}>
@@ -327,7 +217,7 @@ export function MediaPipeWebView({
       <ThemedText>
         {!modelReady
           ? "Loading MediaPipe..."
-          : isLoading
+          : sourceLoading
             ? "Preparing video..."
             : mode === "file" && !selectedFileName
               ? "Upload a video to start"
