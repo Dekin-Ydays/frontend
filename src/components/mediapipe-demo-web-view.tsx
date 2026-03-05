@@ -5,6 +5,7 @@ import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
+import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
 
 interface HeadOrientation {
   pitch: number;
@@ -20,11 +21,9 @@ export function MediaPipeWebView({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const poseLandmarkerRef = useRef<any>(null);
-  const animationIdRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const objectUrlRef = useRef<string | null>(null);
   const modeRef = useRef<"camera" | "file">("file");
-  const lastTimestampMsRef = useRef<number>(-Infinity);
   const [mode, setMode] = useState<"camera" | "file">("file");
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,12 +38,76 @@ export function MediaPipeWebView({
     sendLandmarksRef.current = sendLandmarks;
   }, [sendLandmarks]);
 
+  const drawLandmarks = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      landmarksList: any[],
+      width: number,
+      height: number,
+    ) => {
+      for (const landmarks of landmarksList) {
+        const nose = landmarks[0];
+        const leftEye = landmarks[2];
+        const rightEye = landmarks[5];
+
+        if (nose && leftEye && rightEye) {
+          const now = Date.now();
+          if (now - lastOrientationUpdateRef.current > 200) {
+            lastOrientationUpdateRef.current = now;
+
+            const eyeCenterX = (leftEye.x + rightEye.x) / 2;
+            const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
+            const eyeCenterY = (leftEye.y + rightEye.y) / 2;
+            const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
+            const roll =
+              Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) *
+              (180 / Math.PI);
+            setHeadOrientation({ pitch, yaw, roll });
+          }
+        }
+
+        drawSkeleton(ctx, landmarks, { width, height });
+      }
+    },
+    [],
+  );
+
+  const handleDetectionResults = useCallback(
+    ({
+      ctx,
+      results,
+      width,
+      height,
+    }: {
+      ctx: CanvasRenderingContext2D;
+      results: { landmarks?: unknown[] };
+      width: number;
+      height: number;
+    }) => {
+      if (results.landmarks && results.landmarks.length > 0) {
+        setPoseDetected(true);
+        drawLandmarks(ctx, results.landmarks as any[], width, height);
+        sendLandmarksRef.current(results.landmarks);
+      } else {
+        setPoseDetected(false);
+        setHeadOrientation(null);
+      }
+    },
+    [drawLandmarks],
+  );
+
+  const { startLoop, stopLoop, resetTimestamp } = usePoseDetectionLoop({
+    videoRef,
+    canvasRef,
+    poseLandmarkerRef,
+    onResults: handleDetectionResults,
+  });
+
   useEffect(() => {
     let cancelled = false;
 
     const stopActiveSource = () => {
-      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
-      animationIdRef.current = null;
+      stopLoop();
 
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
@@ -103,36 +166,7 @@ export function MediaPipeWebView({
       if (poseLandmarkerRef.current) poseLandmarkerRef.current.close();
       poseLandmarkerRef.current = null;
     };
-  }, []);
-
-  function drawLandmarks(
-    ctx: CanvasRenderingContext2D,
-    landmarksList: any[],
-    width: number,
-    height: number,
-  ) {
-    for (const landmarks of landmarksList) {
-      const nose = landmarks[0];
-      const leftEye = landmarks[2];
-      const rightEye = landmarks[5];
-
-      if (nose && leftEye && rightEye) {
-        const now = Date.now();
-        if (now - lastOrientationUpdateRef.current > 200) {
-          lastOrientationUpdateRef.current = now;
-
-          const eyeCenterX = (leftEye.x + rightEye.x) / 2;
-          const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
-          const eyeCenterY = (leftEye.y + rightEye.y) / 2;
-          const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
-          const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) * (180 / Math.PI);
-          setHeadOrientation({ pitch, yaw, roll });
-        }
-      }
-
-      drawSkeleton(ctx, landmarks, { width, height });
-    }
-  }
+  }, [stopLoop]);
 
   const handleUploadPress = () => {
     fileInputRef.current?.click();
@@ -152,14 +186,13 @@ export function MediaPipeWebView({
 
     event.target.value = "";
 
-    if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
-    animationIdRef.current = null;
+    stopLoop();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-    lastTimestampMsRef.current = -Infinity;
+    resetTimestamp();
 
     modeRef.current = "file";
     setMode("file");
@@ -190,45 +223,8 @@ export function MediaPipeWebView({
         canvasRef.current.height = video.videoHeight;
       }
 
-      const start = () => {
-        if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current) return;
-        const ctx = canvasRef.current.getContext("2d");
-        if (!ctx) return;
-
-        lastTimestampMsRef.current = -Infinity;
-
-        const detect = () => {
-          const currentVideo = videoRef.current;
-          const currentCanvas = canvasRef.current;
-          const currentCtx = currentCanvas?.getContext("2d");
-          const currentLandmarker = poseLandmarkerRef.current;
-          if (!currentVideo || !currentCanvas || !currentCtx || !currentLandmarker) return;
-
-          const proposed = performance.now();
-          const last = lastTimestampMsRef.current;
-          const timestampMs = proposed > last ? proposed : last + 1;
-          lastTimestampMsRef.current = timestampMs;
-          const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
-
-          currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
-          currentCtx.drawImage(currentVideo, 0, 0, currentCanvas.width, currentCanvas.height);
-
-          if (results.landmarks && results.landmarks.length > 0) {
-            setPoseDetected(true);
-            drawLandmarks(currentCtx, results.landmarks, currentCanvas.width, currentCanvas.height);
-            sendLandmarksRef.current(results.landmarks);
-          } else {
-            setPoseDetected(false);
-            setHeadOrientation(null);
-          }
-
-          animationIdRef.current = requestAnimationFrame(detect);
-        };
-
-        detect();
-      };
-
-      start();
+      resetTimestamp();
+      startLoop();
     };
 
     video.addEventListener("loadeddata", onLoadedData, { once: true });
@@ -245,8 +241,7 @@ export function MediaPipeWebView({
       return;
     }
 
-    if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
-    animationIdRef.current = null;
+    stopLoop();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
@@ -261,7 +256,7 @@ export function MediaPipeWebView({
     setSelectedFileName(null);
     setError(null);
     setIsLoading(true);
-    lastTimestampMsRef.current = -Infinity;
+    resetTimestamp();
     setPoseDetected(false);
     setHeadOrientation(null);
 
@@ -283,37 +278,8 @@ export function MediaPipeWebView({
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        lastTimestampMsRef.current = -Infinity;
-
-        const detect = () => {
-          const currentVideo = videoRef.current;
-          const currentCanvas = canvasRef.current;
-          const currentCtx = currentCanvas?.getContext("2d");
-          const currentLandmarker = poseLandmarkerRef.current;
-          if (!currentVideo || !currentCanvas || !currentCtx || !currentLandmarker) return;
-
-          const proposed = performance.now();
-          const last = lastTimestampMsRef.current;
-          const timestampMs = proposed > last ? proposed : last + 1;
-          lastTimestampMsRef.current = timestampMs;
-          const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
-
-          currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
-          currentCtx.drawImage(currentVideo, 0, 0, currentCanvas.width, currentCanvas.height);
-
-          if (results.landmarks && results.landmarks.length > 0) {
-            setPoseDetected(true);
-            drawLandmarks(currentCtx, results.landmarks, currentCanvas.width, currentCanvas.height);
-            sendLandmarksRef.current(results.landmarks);
-          } else {
-            setPoseDetected(false);
-            setHeadOrientation(null);
-          }
-
-          animationIdRef.current = requestAnimationFrame(detect);
-        };
-
-        detect();
+        resetTimestamp();
+        startLoop();
       };
 
       video.addEventListener("loadeddata", onLoadedData, { once: true });
