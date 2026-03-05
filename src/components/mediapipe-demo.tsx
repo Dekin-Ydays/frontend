@@ -6,6 +6,7 @@ import { ThemedView } from "./themed-view";
 import SkeletonOverlay from "./skeleton-overlay";
 import { drawSkeleton, type Landmark } from "@/utils/skeleton-renderer";
 import { getVideoParserWsUrl } from "@/services/video-parser-endpoints";
+import { useReconnectingWebSocket } from "@/hooks/use-reconnecting-websocket";
 
 // Dynamic imports handling for Web vs Native
 let VisionCamera: any = null;
@@ -59,80 +60,62 @@ const FALLBACK_POSE_SOLUTION = {
 } as const;
 
 export default function MediaPipeDemo() {
-  // Shared WebSocket logic could go here, but for simplicity/separation,
-  // I'll implement it inside each view or pass it down.
-  // Passing it down is cleaner.
-
-  const wsRef = useRef<WebSocket | null>(null);
   const lastSendTimeRef = useRef<number>(0);
   const receivedAckRef = useRef(false);
-  const [wsConnected, setWsConnected] = useState(false);
+  const handleServerMessage = useCallback((data: unknown) => {
+    try {
+      const payload = typeof data === "string" ? JSON.parse(data) : data;
+
+      if (
+        payload &&
+        typeof payload === "object" &&
+        (payload as any).type === "error"
+      ) {
+        console.error("Video parser rejected payload:", (payload as any).message);
+      }
+
+      if (
+        payload &&
+        typeof payload === "object" &&
+        (payload as any).type === "ack" &&
+        !receivedAckRef.current
+      ) {
+        receivedAckRef.current = true;
+        console.log("Video parser acknowledged pose frames.", payload as any);
+      }
+    } catch {
+      // Ignore non-JSON messages
+    }
+  }, []);
+
+  const { connectionState, isConnected: wsConnected, sendJson } =
+    useReconnectingWebSocket({
+      url: WS_URL,
+      reconnectBaseDelayMs: 3000,
+      reconnectMaxDelayMs: 20000,
+      reconnectBackoffFactor: 1.5,
+      onOpen: () => {
+        receivedAckRef.current = false;
+        console.log("Connected to WebSocket server");
+      },
+      onClose: () => {
+        console.log("Disconnected from WebSocket server");
+      },
+      onError: (event) => {
+        console.error("WebSocket error:", event);
+      },
+      onMessage: handleServerMessage,
+    });
 
   useEffect(() => {
-    let ws: WebSocket;
-
-    const connect = () => {
+    if (connectionState === "connecting") {
       console.log("Connecting to WebSocket server:", WS_URL);
-      ws = new WebSocket(WS_URL);
+    }
 
-      ws.onopen = () => {
-        console.log("Connected to WebSocket server");
-        setWsConnected(true);
-      };
-
-      ws.onclose = () => {
-        console.log("Disconnected from WebSocket server");
-        setWsConnected(false);
-        // Simple reconnect logic (optional, keeping it simple for now)
-        setTimeout(connect, 3000);
-      };
-
-      ws.onerror = (e) => {
-        console.error("WebSocket error:", e);
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const payload =
-            typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-
-          if (
-            payload &&
-            typeof payload === "object" &&
-            (payload as any).type === "error"
-          ) {
-            console.error(
-              "Video parser rejected payload:",
-              (payload as any).message,
-            );
-          }
-
-          if (
-            payload &&
-            typeof payload === "object" &&
-            (payload as any).type === "ack" &&
-            !receivedAckRef.current
-          ) {
-            receivedAckRef.current = true;
-            console.log(
-              "Video parser acknowledged pose frames.",
-              (payload as any),
-            );
-          }
-        } catch {
-          // Ignore non-JSON messages
-        }
-      };
-
-      wsRef.current = ws;
-    };
-
-    connect();
-
-    return () => {
-      if (ws) ws.close();
-    };
-  }, []);
+    if (connectionState === "reconnecting") {
+      console.log("Reconnecting to WebSocket server:", WS_URL);
+    }
+  }, [connectionState]);
 
   const sendLandmarks = useCallback((landmarks: any) => {
     const now = Date.now();
@@ -140,13 +123,11 @@ export default function MediaPipeDemo() {
       return;
     }
 
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(
-        JSON.stringify({ type: "pose-landmarks", data: landmarks }),
-      );
+    const sent = sendJson({ type: "pose-landmarks", data: landmarks });
+    if (sent) {
       lastSendTimeRef.current = now;
     }
-  }, []);
+  }, [sendJson]);
 
   if (Platform.OS === "web") {
     return (
