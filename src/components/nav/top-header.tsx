@@ -1,9 +1,10 @@
-import type { ComponentProps } from "react";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import type { AppIconComponent } from "@/components/ui/icon";
+import { EditPencil, MoreHoriz, NavArrowLeft } from "iconoir-react-native";
 import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "../ui/app-text";
+import { Icon } from "../ui/icon";
 import { UserItem, type UserItemProps } from "../user-item";
 
 /*
@@ -20,19 +21,19 @@ const styles = {
 // Secondary components
 */
 type IconButtonProps = {
-  iconName: ComponentProps<typeof MaterialIcons>["name"];
+  icon: AppIconComponent;
   onPress?: () => void;
   label: string;
 };
 
-function IconButton({ iconName, onPress, label }: IconButtonProps) {
+function IconButton({ icon, onPress, label }: IconButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
     >
-      <MaterialIcons name={iconName} size={32} color="#FFFFFF" />
+      <Icon icon={icon} size={32} color="#FFFFFF" />
     </Pressable>
   );
 }
@@ -72,7 +73,7 @@ export function TopHeader({
     <View className={styles.bar} style={{ paddingTop: insets.top }}>
       <View className={styles.row}>
         {backButton && (
-          <IconButton iconName="arrow-back" onPress={handleBack} label="Retour" />
+          <IconButton icon={NavArrowLeft} onPress={handleBack} label="Retour" />
         )}
         {userItem && <UserItem {...userItem} />}
         {title && <AppText variant="title">{title}</AppText>}
@@ -80,10 +81,10 @@ export function TopHeader({
       {(editButton || moreButton || avatarUri) && (
         <View className={styles.row}>
           {editButton && (
-            <IconButton iconName="edit" onPress={onEdit} label="Modifier" />
+            <IconButton icon={EditPencil} onPress={onEdit} label="Modifier" />
           )}
           {moreButton && (
-            <IconButton iconName="more-horiz" onPress={onMore} label="Plus" />
+            <IconButton icon={MoreHoriz} onPress={onMore} label="Plus" />
           )}
           {avatarUri && (
             <Image source={{ uri: avatarUri }} className={styles.avatar} />

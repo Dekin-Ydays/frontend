@@ -1,9 +1,10 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import type { ComponentProps } from "react";
+import type { AppIconComponent } from "@/components/ui/icon";
 import { useEffect, useRef } from "react";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { HomeSimple, Search, Send, User } from "iconoir-react-native";
 import { Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Icon } from "../ui/icon";
 
 /*
 // Tailwind styles
@@ -27,10 +28,10 @@ type MenuButtonProps = {
   label: string;
   isActive: boolean;
   onPress: () => void;
-  iconName: ComponentProps<typeof MaterialIcons>["name"];
+  icon: AppIconComponent;
 };
 
-function MenuButton({ label, isActive, onPress, iconName }: MenuButtonProps) {
+function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -38,11 +39,7 @@ function MenuButton({ label, isActive, onPress, iconName }: MenuButtonProps) {
       onPress={onPress}
       className={`${styles.pressable} ${isActive ? styles.pressableActive : ""} ${styles.transition}`}
     >
-      <MaterialIcons
-        name={iconName}
-        size={28}
-        color={isActive ? "#3CFFD0" : "#FFFFFF"}
-      />
+      <Icon icon={icon} size={32} color={isActive ? "#3CFFD0" : "#FFFFFF"} />
     </Pressable>
   );
 }
@@ -86,19 +83,19 @@ export function BottomMenu({
               label={descriptors.index?.options?.title ?? "Home"}
               isActive={isFocused("index")}
               onPress={() => navigation.navigate("index")}
-              iconName="home"
+              icon={HomeSimple}
             />
             <MenuButton
               label={descriptors.messages?.options?.title ?? "Messages"}
               isActive={isFocused("messages")}
               onPress={() => navigation.navigate("messages")}
-              iconName="send"
+              icon={Send}
             />
             <MenuButton
               label={descriptors.profile?.options?.title ?? "Profil"}
               isActive={isFocused("profile")}
               onPress={() => navigation.navigate("profile")}
-              iconName="person"
+              icon={User}
             />
           </View>
         )}
@@ -113,7 +110,7 @@ export function BottomMenu({
               }
               navigation.navigate("search");
             }}
-            iconName="search"
+            icon={Search}
           />
         </View>
         {isSearchActive && <SearchBar />}

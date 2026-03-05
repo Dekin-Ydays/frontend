@@ -8,10 +8,11 @@ import {
   Platform,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
+import { Copy } from "iconoir-react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { listVideos, VideoMetadata } from "@/services/video-parser-api";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Icon } from "@/components/ui/icon";
 
 interface VideoSelectorProps {
   selectedVideoId: string | null;
@@ -101,9 +102,9 @@ export function VideoSelector({
               <ThemedText style={styles.selectedVideoId} numberOfLines={1}>
                 ID: {selectedVideo.id}
               </ThemedText>
-              <IconSymbol
-                name="doc.on.doc.fill"
-                size={14}
+              <Icon
+                icon={Copy}
+                size={18}
                 color={copiedId === selectedVideo.id ? "#34C759" : "#808080"}
               />
               {copiedId === selectedVideo.id && (
@@ -181,9 +182,9 @@ export function VideoSelector({
                     }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
-                    <IconSymbol
-                      name="doc.on.doc.fill"
-                      size={12}
+                    <Icon
+                      icon={Copy}
+                      size={18}
                       color={copiedId === video.id ? "#34C759" : "#808080"}
                     />
                   </TouchableOpacity>
