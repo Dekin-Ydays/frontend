@@ -7,7 +7,6 @@ type WebSocketConnectionState =
   | "reconnecting";
 
 type SocketEvent = unknown;
-type SocketMessageData = unknown;
 
 interface UseReconnectingWebSocketOptions {
   url: string;
@@ -18,13 +17,12 @@ interface UseReconnectingWebSocketOptions {
   onOpen?: () => void;
   onClose?: (event: SocketEvent) => void;
   onError?: (event: SocketEvent) => void;
-  onMessage?: (data: SocketMessageData) => void;
 }
 
 interface UseReconnectingWebSocketResult {
   connectionState: WebSocketConnectionState;
   isConnected: boolean;
-  sendJson: (payload: unknown) => boolean;
+  sendBinary: (payload: ArrayBuffer | ArrayBufferView) => boolean;
 }
 
 export function useReconnectingWebSocket({
@@ -36,33 +34,27 @@ export function useReconnectingWebSocket({
   onOpen,
   onClose,
   onError,
-  onMessage,
 }: UseReconnectingWebSocketOptions): UseReconnectingWebSocketResult {
+  // Live socket instance used by connect/reconnect logic and send API.
   const socketRef = useRef<WebSocket | null>(null);
-  const onOpenRef = useRef(onOpen);
-  const onCloseRef = useRef(onClose);
-  const onErrorRef = useRef(onError);
-  const onMessageRef = useRef(onMessage);
+  // Keep latest callbacks without re-creating the socket lifecycle effect.
+  const callbacksRef = useRef({
+    onOpen,
+    onClose,
+    onError,
+  });
+  callbacksRef.current = {
+    onOpen,
+    onClose,
+    onError,
+  };
+
   const [connectionState, setConnectionState] =
     useState<WebSocketConnectionState>("idle");
 
+  // Single lifecycle effect: open socket, handle reconnects, and cleanup.
   useEffect(() => {
-    onOpenRef.current = onOpen;
-  }, [onOpen]);
-
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
-
-  useEffect(() => {
-    onErrorRef.current = onError;
-  }, [onError]);
-
-  useEffect(() => {
-    onMessageRef.current = onMessage;
-  }, [onMessage]);
-
-  useEffect(() => {
+    // Fast path for disabled mode: close any active/connecting socket.
     if (!enabled) {
       const socket = socketRef.current;
       socketRef.current = null;
@@ -89,6 +81,7 @@ export function useReconnectingWebSocket({
     let reconnectAttempt = 0;
     let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    // Prevent stale scheduled reconnects when state changes/unmounts.
     const clearReconnectTimer = () => {
       if (reconnectTimeout !== null) {
         clearTimeout(reconnectTimeout);
@@ -99,6 +92,7 @@ export function useReconnectingWebSocket({
     const connect = () => {
       if (disposed) return;
 
+      // First attempt is "connecting", following attempts are "reconnecting".
       setConnectionState(
         reconnectAttempt === 0 ? "connecting" : "reconnecting",
       );
@@ -111,20 +105,15 @@ export function useReconnectingWebSocket({
 
         reconnectAttempt = 0;
         setConnectionState("connected");
-        onOpenRef.current?.();
-      };
-
-      socket.onmessage = (event) => {
-        const data = (event as { data?: unknown }).data;
-        onMessageRef.current?.(data);
+        callbacksRef.current.onOpen?.();
       };
 
       socket.onerror = (event) => {
-        onErrorRef.current?.(event);
+        callbacksRef.current.onError?.(event);
       };
 
       socket.onclose = (event) => {
-        onCloseRef.current?.(event);
+        callbacksRef.current.onClose?.(event);
 
         if (socketRef.current === socket) {
           socketRef.current = null;
@@ -134,6 +123,7 @@ export function useReconnectingWebSocket({
           return;
         }
 
+        // Exponential backoff capped by reconnectMaxDelayMs.
         setConnectionState("reconnecting");
 
         const delay = Math.min(
@@ -153,6 +143,7 @@ export function useReconnectingWebSocket({
     connect();
 
     return () => {
+      // Full teardown to avoid orphan listeners and duplicate sockets.
       disposed = true;
       clearReconnectTimer();
 
@@ -181,19 +172,23 @@ export function useReconnectingWebSocket({
     url,
   ]);
 
-  const sendJson = useCallback((payload: unknown): boolean => {
-    const socket = socketRef.current;
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-      return false;
-    }
+  // Binary-only send path for protobuf frames.
+  const sendBinary = useCallback(
+    (payload: ArrayBuffer | ArrayBufferView): boolean => {
+      const socket = socketRef.current;
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
 
-    socket.send(JSON.stringify(payload));
-    return true;
-  }, []);
+      socket.send(payload);
+      return true;
+    },
+    [],
+  );
 
   return {
     connectionState,
     isConnected: connectionState === "connected",
-    sendJson,
+    sendBinary,
   };
 }

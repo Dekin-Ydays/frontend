@@ -1,21 +1,14 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { Platform } from "react-native";
 
+import { encodePoseLandmarksPacket } from "@/services/pose-landmarks-protobuf";
 import { getVideoParserWsUrl } from "@/services/video-parser-endpoints";
 import { useReconnectingWebSocket } from "@/hooks/use-reconnecting-websocket";
+import type { PoseLandmarksPayload } from "@/types/pose-landmarks";
 import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 
 const WS_URL = getVideoParserWsUrl("/ws");
 const VIDEO_FPS = 10;
-
-type WsPayload = {
-  type?: unknown;
-  message?: unknown;
-};
-
-function isWsPayload(value: unknown): value is WsPayload {
-  return typeof value === "object" && value !== null;
-}
 
 function resolvePlatformView(): React.ComponentType<MediaPipePlatformViewProps> {
   if (Platform.OS === "web") {
@@ -29,38 +22,14 @@ const PlatformMediaPipeView = resolvePlatformView();
 
 export default function MediaPipeDemo() {
   const lastSendTimeRef = useRef<number>(0);
-  const receivedAckRef = useRef(false);
 
-  const handleServerMessage = useCallback((data: unknown) => {
-    try {
-      const payload = typeof data === "string" ? JSON.parse(data) : data;
-      if (!isWsPayload(payload)) {
-        return;
-      }
-
-      if (payload.type === "error") {
-        const message =
-          typeof payload.message === "string" ? payload.message : "Unknown error";
-        console.error("Video parser rejected payload:", message);
-      }
-
-      if (payload.type === "ack" && !receivedAckRef.current) {
-        receivedAckRef.current = true;
-        console.log("Video parser acknowledged pose frames.", payload);
-      }
-    } catch {
-      // Ignore non-JSON messages
-    }
-  }, []);
-
-  const { connectionState, isConnected: wsConnected, sendJson } =
+  const { connectionState, isConnected: wsConnected, sendBinary } =
     useReconnectingWebSocket({
       url: WS_URL,
       reconnectBaseDelayMs: 3000,
       reconnectMaxDelayMs: 20000,
       reconnectBackoffFactor: 1.5,
       onOpen: () => {
-        receivedAckRef.current = false;
         console.log("Connected to WebSocket server");
       },
       onClose: () => {
@@ -69,7 +38,6 @@ export default function MediaPipeDemo() {
       onError: (event) => {
         console.error("WebSocket error:", event);
       },
-      onMessage: handleServerMessage,
     });
 
   useEffect(() => {
@@ -83,18 +51,23 @@ export default function MediaPipeDemo() {
   }, [connectionState]);
 
   const sendLandmarks = useCallback(
-    (landmarks: unknown) => {
+    (landmarks: PoseLandmarksPayload) => {
       const now = Date.now();
       if (now - lastSendTimeRef.current < 1000 / VIDEO_FPS) {
         return;
       }
 
-      const sent = sendJson({ type: "pose-landmarks", data: landmarks });
+      const packet = encodePoseLandmarksPacket(landmarks, now);
+      if (!packet) {
+        return;
+      }
+
+      const sent = sendBinary(packet);
       if (sent) {
         lastSendTimeRef.current = now;
       }
     },
-    [sendJson],
+    [sendBinary],
   );
 
   return (

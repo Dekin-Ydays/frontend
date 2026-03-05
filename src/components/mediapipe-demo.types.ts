@@ -1,4 +1,6 @@
-export type SendLandmarks = (data: unknown) => void;
+import type { PoseLandmarksPayload } from "@/types/pose-landmarks";
+
+export type SendLandmarks = (data: PoseLandmarksPayload) => void;
 
 export interface MediaPipePlatformViewProps {
   sendLandmarks: SendLandmarks;
