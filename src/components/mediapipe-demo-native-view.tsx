@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
 import type { CameraPosition } from "react-native-vision-camera";
@@ -21,7 +27,8 @@ import SkeletonOverlay from "./skeleton-overlay";
 import { type Landmark } from "@/utils/skeleton-renderer";
 
 type VisionCameraModule = typeof import("react-native-vision-camera");
-type MediaPipePoseDetectionModule = typeof import("react-native-mediapipe-posedetection");
+type MediaPipePoseDetectionModule =
+  typeof import("react-native-mediapipe-posedetection");
 type UsePoseDetectionHook = (
   callbacks: DetectionCallbacks<PoseDetectionResultBundle>,
   runningMode: RunningMode,
@@ -37,7 +44,8 @@ try {
   VisionCamera = require("react-native-vision-camera");
 } catch (error) {
   if (!nativeModulesLoadError) {
-    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    const message =
+      error instanceof Error ? error.message : JSON.stringify(error);
     nativeModulesLoadError = `react-native-vision-camera: ${message}`;
   }
 }
@@ -46,7 +54,8 @@ try {
   MediaPipePoseDetection = require("react-native-mediapipe-posedetection");
 } catch (error) {
   if (!nativeModulesLoadError) {
-    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    const message =
+      error instanceof Error ? error.message : JSON.stringify(error);
     nativeModulesLoadError = `react-native-mediapipe-posedetection: ${message}`;
   }
 }
@@ -71,7 +80,8 @@ const FALLBACK_POSE_SOLUTION: PoseSolutionLike = {
 const FALLBACK_RUNNING_MODE = 2 as RunningMode;
 const FALLBACK_DELEGATE = 1 as Delegate;
 
-const useFallbackPoseDetection: UsePoseDetectionHook = () => FALLBACK_POSE_SOLUTION;
+const useFallbackPoseDetection: UsePoseDetectionHook = () =>
+  FALLBACK_POSE_SOLUTION;
 
 export function MediaPipeNativeView({
   sendLandmarks,
@@ -79,21 +89,23 @@ export function MediaPipeNativeView({
   videoFps,
 }: MediaPipePlatformViewProps) {
   const [hasPermission, setHasPermission] = useState(false);
-  const [nativeLandmarks, setNativeLandmarks] = useState<PoseLandmarkPayload[]>([]);
+  const [nativeLandmarks, setNativeLandmarks] = useState<PoseLandmarkPayload[]>(
+    [],
+  );
   const [previewSize, setPreviewSize] = useState({ width: 0, height: 0 });
   const loggedNativeResultsRef = useRef(false);
   const emptyResultCountRef = useRef(0);
 
   const useCameraDevice =
-    VisionCamera?.useCameraDevice ??
-    ((_position: CameraPosition) => undefined);
+    VisionCamera?.useCameraDevice ?? ((_position: CameraPosition) => undefined);
   const frontDevice = useCameraDevice("front");
   const backDevice = useCameraDevice("back");
   const device = frontDevice ?? backDevice;
 
   const usePoseDetection =
-    (MediaPipePoseDetection?.usePoseDetection as UsePoseDetectionHook | undefined) ??
-    useFallbackPoseDetection;
+    (MediaPipePoseDetection?.usePoseDetection as
+      | UsePoseDetectionHook
+      | undefined) ?? useFallbackPoseDetection;
   const runningMode =
     MediaPipePoseDetection?.RunningMode?.LIVE_STREAM ?? FALLBACK_RUNNING_MODE;
   const delegate = MediaPipePoseDetection?.Delegate?.GPU ?? FALLBACK_DELEGATE;
@@ -115,9 +127,14 @@ export function MediaPipeNativeView({
       if (!firstPose || firstPose.length === 0) {
         emptyResultCountRef.current += 1;
         if (emptyResultCountRef.current % 60 === 0) {
-          console.log("Native pose still empty after frames:", emptyResultCountRef.current);
+          console.log(
+            "Native pose still empty after frames:",
+            emptyResultCountRef.current,
+          );
         }
-        setNativeLandmarks((previous) => (previous.length === 0 ? previous : []));
+        setNativeLandmarks((previous) =>
+          previous.length === 0 ? previous : [],
+        );
         return;
       }
       emptyResultCountRef.current = 0;
@@ -138,10 +155,15 @@ export function MediaPipeNativeView({
             presence: Number.isFinite(presence) ? presence : undefined,
           };
         })
-        .filter((landmark) => Number.isFinite(landmark.x) && Number.isFinite(landmark.y));
+        .filter(
+          (landmark) =>
+            Number.isFinite(landmark.x) && Number.isFinite(landmark.y),
+        );
 
       if (parserLandmarks.length < 33) {
-        setNativeLandmarks((previous) => (previous.length === 0 ? previous : []));
+        setNativeLandmarks((previous) =>
+          previous.length === 0 ? previous : [],
+        );
         return;
       }
 
@@ -265,7 +287,8 @@ export function MediaPipeNativeView({
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
       </ThemedText>
       <ThemedText>
-        Pose landmarks: {nativeLandmarks.length > 0 ? nativeLandmarks.length : 0}
+        Pose landmarks:{" "}
+        {nativeLandmarks.length > 0 ? nativeLandmarks.length : 0}
       </ThemedText>
 
       <View
@@ -282,11 +305,15 @@ export function MediaPipeNativeView({
           resizeMode="cover"
           isActive={true}
           frameProcessor={poseSolution.frameProcessor}
-          onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
+          onOutputOrientationChanged={
+            poseSolution.cameraOrientationChangedHandler
+          }
           pixelFormat="rgb"
           photo={true}
         />
-        {nativeLandmarks.length > 0 && previewSize.width > 0 && previewSize.height > 0 ? (
+        {nativeLandmarks.length > 0 &&
+        previewSize.width > 0 &&
+        previewSize.height > 0 ? (
           <SkeletonOverlay
             landmarks={nativeLandmarks}
             width={previewSize.width}
