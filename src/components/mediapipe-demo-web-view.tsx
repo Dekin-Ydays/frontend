@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type {
   NormalizedLandmark,
   PoseLandmarker,
@@ -7,8 +7,7 @@ import type {
 } from "@mediapipe/tasks-vision";
 
 import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import { AppText } from "./ui/app-text";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
 import { useWebPoseSource } from "@/hooks/use-web-pose-source";
@@ -30,7 +29,8 @@ export function MediaPipeWebView({
   const [modelReady, setModelReady] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
   const [poseDetected, setPoseDetected] = useState<boolean>(false);
-  const [headOrientation, setHeadOrientation] = useState<HeadOrientation | null>(null);
+  const [headOrientation, setHeadOrientation] =
+    useState<HeadOrientation | null>(null);
   const lastOrientationUpdateRef = useRef<number>(0);
 
   const sendLandmarksRef = useRef(sendLandmarks);
@@ -58,7 +58,8 @@ export function MediaPipeWebView({
             const eyeCenterX = (leftEye.x + rightEye.x) / 2;
             const yaw = Math.atan2(nose.x - eyeCenterX, 0.1) * (180 / Math.PI);
             const eyeCenterY = (leftEye.y + rightEye.y) / 2;
-            const pitch = Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
+            const pitch =
+              Math.atan2(nose.y - eyeCenterY, 0.1) * (180 / Math.PI);
             const roll =
               Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) *
               (180 / Math.PI);
@@ -131,7 +132,8 @@ export function MediaPipeWebView({
 
     const initialize = async () => {
       try {
-        const { PoseLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
+        const { PoseLandmarker, FilesetResolver } =
+          await import("@mediapipe/tasks-vision");
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm",
         );
@@ -153,7 +155,9 @@ export function MediaPipeWebView({
         setModelReady(true);
       } catch (err) {
         console.error("Error initializing MediaPipe Web:", err);
-        setModelError(err instanceof Error ? err.message : "Failed to initialize MediaPipe");
+        setModelError(
+          err instanceof Error ? err.message : "Failed to initialize MediaPipe",
+        );
       }
     };
 
@@ -171,7 +175,9 @@ export function MediaPipeWebView({
     fileInputRef.current?.click();
   };
 
-  const handleFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelected = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0] ?? null;
     if (!file) return;
 
@@ -186,25 +192,31 @@ export function MediaPipeWebView({
   const error = modelError ?? sourceError;
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">Body Pose Tracking (Web)</ThemedText>
-      <ThemedText style={{ color: wsConnected ? "green" : "red" }}>
+    <View style={styles.container}>
+      <AppText variant="bolderBaseText">Body Pose Tracking (Web)</AppText>
+      <Text style={{ color: wsConnected ? "green" : "red" }}>
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
-      </ThemedText>
+      </Text>
       <View style={styles.sourceRow}>
         <TouchableOpacity
-          style={[styles.sourceButton, mode === "camera" && styles.sourceButtonActive]}
+          style={[
+            styles.sourceButton,
+            mode === "camera" && styles.sourceButtonActive,
+          ]}
           onPress={handleUseCameraPress}
           accessibilityLabel="Use camera"
         >
-          <ThemedText style={styles.sourceButtonText}>Camera</ThemedText>
+          <AppText variant="baseText">Camera</AppText>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.sourceButton, mode === "file" && styles.sourceButtonActive]}
+          style={[
+            styles.sourceButton,
+            mode === "file" && styles.sourceButtonActive,
+          ]}
           onPress={handleUploadPress}
           accessibilityLabel="Upload video"
         >
-          <ThemedText style={styles.sourceButtonText}>Upload video</ThemedText>
+          <AppText variant="baseText">Upload video</AppText>
         </TouchableOpacity>
         <input
           ref={fileInputRef}
@@ -215,11 +227,11 @@ export function MediaPipeWebView({
         />
       </View>
       {selectedFileName && (
-        <ThemedText style={styles.fileHint} numberOfLines={1}>
+        <AppText variant="baseText" numberOfLines={1}>
           Using: {selectedFileName}
-        </ThemedText>
+        </AppText>
       )}
-      <ThemedText>
+      <AppText variant="baseText">
         {!modelReady
           ? "Loading MediaPipe..."
           : sourceLoading
@@ -229,21 +241,32 @@ export function MediaPipeWebView({
               : poseDetected
                 ? "Pose detected!"
                 : "No pose detected"}
-      </ThemedText>
+      </AppText>
       {headOrientation && (
-        <ThemedView style={styles.orientationContainer}>
-          <ThemedText type="defaultSemiBold">Head Orientation:</ThemedText>
-          <ThemedText>Pitch: {headOrientation.pitch.toFixed(1)}°</ThemedText>
-          <ThemedText>Yaw: {headOrientation.yaw.toFixed(1)}°</ThemedText>
-          <ThemedText>Roll: {headOrientation.roll.toFixed(1)}°</ThemedText>
-        </ThemedView>
+        <View style={styles.orientationContainer}>
+          <AppText variant="bolderBaseText">Head Orientation:</AppText>
+          <AppText variant="baseText">
+            Pitch: {headOrientation.pitch.toFixed(1)}°
+          </AppText>
+          <AppText variant="baseText">
+            Yaw: {headOrientation.yaw.toFixed(1)}°
+          </AppText>
+          <AppText variant="baseText">
+            Roll: {headOrientation.roll.toFixed(1)}°
+          </AppText>
+        </View>
       )}
-      {error && <ThemedText style={styles.error}>{error}</ThemedText>}
+      {error && <AppText variant="baseText">{error}</AppText>}
       <View style={styles.videoContainer}>
-        <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          style={{ display: "none" }}
+        />
         <canvas ref={canvasRef} style={styles.canvas} />
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
