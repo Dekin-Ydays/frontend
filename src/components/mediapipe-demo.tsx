@@ -8,6 +8,15 @@ import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 const WS_URL = getVideoParserWsUrl("/ws");
 const VIDEO_FPS = 10;
 
+type WsPayload = {
+  type?: unknown;
+  message?: unknown;
+};
+
+function isWsPayload(value: unknown): value is WsPayload {
+  return typeof value === "object" && value !== null;
+}
+
 function resolvePlatformView(): React.ComponentType<MediaPipePlatformViewProps> {
   if (Platform.OS === "web") {
     return require("./mediapipe-demo-web-view").MediaPipeWebView;
@@ -25,23 +34,19 @@ export default function MediaPipeDemo() {
   const handleServerMessage = useCallback((data: unknown) => {
     try {
       const payload = typeof data === "string" ? JSON.parse(data) : data;
-
-      if (
-        payload &&
-        typeof payload === "object" &&
-        (payload as any).type === "error"
-      ) {
-        console.error("Video parser rejected payload:", (payload as any).message);
+      if (!isWsPayload(payload)) {
+        return;
       }
 
-      if (
-        payload &&
-        typeof payload === "object" &&
-        (payload as any).type === "ack" &&
-        !receivedAckRef.current
-      ) {
+      if (payload.type === "error") {
+        const message =
+          typeof payload.message === "string" ? payload.message : "Unknown error";
+        console.error("Video parser rejected payload:", message);
+      }
+
+      if (payload.type === "ack" && !receivedAckRef.current) {
         receivedAckRef.current = true;
-        console.log("Video parser acknowledged pose frames.", payload as any);
+        console.log("Video parser acknowledged pose frames.", payload);
       }
     } catch {
       // Ignore non-JSON messages

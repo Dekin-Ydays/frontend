@@ -1,6 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
+import type { CameraPosition } from "react-native-vision-camera";
+import type {
+  Delegate,
+  DetectionCallbacks,
+  DetectionError,
+  Landmark as NativePoseLandmark,
+  MediaPipeSolution,
+  PoseDetectionOptions,
+  PoseDetectionResultBundle,
+  RunningMode,
+  ViewCoordinator,
+} from "react-native-mediapipe-posedetection";
 
 import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 import { ThemedText } from "./themed-text";
@@ -8,8 +20,11 @@ import { ThemedView } from "./themed-view";
 import SkeletonOverlay from "./skeleton-overlay";
 import { type Landmark } from "@/utils/skeleton-renderer";
 
-let VisionCamera: any = null;
-let MediaPipePoseDetection: any = null;
+type VisionCameraModule = typeof import("react-native-vision-camera");
+type MediaPipePoseDetectionModule = typeof import("react-native-mediapipe-posedetection");
+
+let VisionCamera: VisionCameraModule | null = null;
+let MediaPipePoseDetection: MediaPipePoseDetectionModule | null = null;
 let nativeModulesLoadError: string | null = null;
 
 try {
@@ -36,14 +51,19 @@ if (!VisionCamera || !MediaPipePoseDetection) {
 
 type PoseLandmarkPayload = Landmark & { presence?: number };
 
-const FALLBACK_POSE_SOLUTION = {
+type PoseSolutionLike = Partial<MediaPipeSolution>;
+
+const FALLBACK_POSE_SOLUTION: PoseSolutionLike = {
   frameProcessor: undefined,
   cameraViewLayoutChangeHandler: () => {},
   cameraDeviceChangeHandler: () => {},
   cameraOrientationChangedHandler: () => {},
   resizeModeChangeHandler: () => {},
   cameraViewDimensions: { width: 0, height: 0 },
-} as const;
+};
+
+const FALLBACK_RUNNING_MODE = 2 as RunningMode;
+const FALLBACK_DELEGATE = 1 as Delegate;
 
 export function MediaPipeNativeView({
   sendLandmarks,
@@ -56,40 +76,33 @@ export function MediaPipeNativeView({
   const loggedNativeResultsRef = useRef(false);
   const emptyResultCountRef = useRef(0);
 
-  const useCameraDevice = VisionCamera?.useCameraDevice ?? ((..._args: any[]) => null);
+  const useCameraDevice =
+    VisionCamera?.useCameraDevice ??
+    ((_position: CameraPosition) => undefined);
   const frontDevice = useCameraDevice("front");
   const backDevice = useCameraDevice("back");
   const device = frontDevice ?? backDevice;
 
-  const usePoseDetection =
-    MediaPipePoseDetection?.usePoseDetection ??
-    ((_callbacks: any, _runningMode: any, _model: string, _options: any) =>
-      FALLBACK_POSE_SOLUTION);
-  const runningMode = MediaPipePoseDetection?.RunningMode?.LIVE_STREAM ?? "LIVE_STREAM";
-  const delegate = MediaPipePoseDetection?.Delegate?.GPU ?? "GPU";
+  const usePoseDetection = MediaPipePoseDetection?.usePoseDetection;
+  const runningMode =
+    MediaPipePoseDetection?.RunningMode?.LIVE_STREAM ?? FALLBACK_RUNNING_MODE;
+  const delegate = MediaPipePoseDetection?.Delegate?.GPU ?? FALLBACK_DELEGATE;
 
   const onPoseResults = useCallback(
-    (result: any, viewCoordinator?: any) => {
-      const resultEntries = Array.isArray(result?.results) ? result.results : [];
-      const bundleLandmarks = resultEntries.flatMap((entry: any) =>
-        Array.isArray(entry?.landmarks) ? entry.landmarks : [],
-      );
-      const topLevelLandmarks = Array.isArray(result?.landmarks)
-        ? result.landmarks
-        : [];
-      const poseLandmarks = bundleLandmarks.length > 0 ? bundleLandmarks : topLevelLandmarks;
-      const firstPose = Array.isArray(poseLandmarks[0]) ? poseLandmarks[0] : null;
+    (result: PoseDetectionResultBundle, viewCoordinator: ViewCoordinator) => {
+      const poseLandmarks = result.results.flatMap((entry) => entry.landmarks);
+      const firstPose = poseLandmarks[0];
 
       if (!loggedNativeResultsRef.current) {
         loggedNativeResultsRef.current = true;
         console.log("Native pose result received.", {
           poseCount: poseLandmarks.length,
-          firstPoseLandmarkCount: Array.isArray(firstPose) ? firstPose.length : 0,
-          hasResultsBundle: resultEntries.length > 0,
+          firstPoseLandmarkCount: firstPose?.length ?? 0,
+          hasResultsBundle: result.results.length > 0,
         });
       }
 
-      if (!Array.isArray(firstPose) || firstPose.length === 0) {
+      if (!firstPose || firstPose.length === 0) {
         emptyResultCountRef.current += 1;
         if (emptyResultCountRef.current % 60 === 0) {
           console.log("Native pose still empty after frames:", emptyResultCountRef.current);
@@ -100,12 +113,12 @@ export function MediaPipeNativeView({
       emptyResultCountRef.current = 0;
 
       const parserLandmarks: PoseLandmarkPayload[] = firstPose
-        .map((landmark: any) => {
-          const x = Number(landmark?.x);
-          const y = Number(landmark?.y);
-          const z = Number(landmark?.z);
-          const visibility = Number(landmark?.visibility);
-          const presence = Number(landmark?.presence);
+        .map((landmark: NativePoseLandmark) => {
+          const x = Number(landmark.x);
+          const y = Number(landmark.y);
+          const z = Number(landmark.z);
+          const visibility = Number(landmark.visibility);
+          const presence = Number(landmark.presence);
 
           return {
             x,
@@ -150,35 +163,41 @@ export function MediaPipeNativeView({
     [previewSize.height, previewSize.width, sendLandmarks],
   );
 
-  const onPoseError = useCallback((error: any) => {
-    const message =
-      error && typeof error === "object" && "message" in error
-        ? (error as { message?: string }).message
-        : String(error);
-    console.error("MediaPipe native detection error:", message, error);
+  const onPoseError = useCallback((error: DetectionError) => {
+    console.error("MediaPipe native detection error:", error.message, error);
   }, []);
 
-  const poseCallbacks = useMemo(
+  const poseCallbacks = useMemo<DetectionCallbacks<PoseDetectionResultBundle>>(
     () => ({ onResults: onPoseResults, onError: onPoseError }),
     [onPoseResults, onPoseError],
   );
 
-  const poseSolution =
-    usePoseDetection(
+  const poseOptions: Partial<PoseDetectionOptions> = useMemo(
+    () => ({
+      numPoses: 1,
+      minPoseDetectionConfidence: 0.5,
+      minPosePresenceConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+      shouldOutputSegmentationMasks: false,
+      delegate,
+      mirrorMode: "mirror-front-only",
+      fpsMode: videoFps,
+    }),
+    [delegate, videoFps],
+  );
+
+  const poseSolution: PoseSolutionLike = useMemo(() => {
+    if (!usePoseDetection) {
+      return FALLBACK_POSE_SOLUTION;
+    }
+
+    return usePoseDetection(
       poseCallbacks,
       runningMode,
       "pose_landmarker_lite.task",
-      {
-        numPoses: 1,
-        minPoseDetectionConfidence: 0.5,
-        minPosePresenceConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-        shouldOutputSegmentationMasks: false,
-        delegate,
-        mirrorMode: "mirror-front-only",
-        fpsMode: videoFps,
-      },
-    ) || FALLBACK_POSE_SOLUTION;
+      poseOptions,
+    );
+  }, [poseCallbacks, poseOptions, runningMode, usePoseDetection]);
 
   useEffect(() => {
     (async () => {

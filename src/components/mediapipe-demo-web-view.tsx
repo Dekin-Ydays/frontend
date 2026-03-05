@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import type {
+  NormalizedLandmark,
+  PoseLandmarker,
+  PoseLandmarkerResult,
+} from "@mediapipe/tasks-vision";
 
 import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 import { ThemedText } from "./themed-text";
@@ -21,7 +26,7 @@ export function MediaPipeWebView({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const poseLandmarkerRef = useRef<any>(null);
+  const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
   const [modelReady, setModelReady] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
   const [poseDetected, setPoseDetected] = useState<boolean>(false);
@@ -36,7 +41,7 @@ export function MediaPipeWebView({
   const drawLandmarks = useCallback(
     (
       ctx: CanvasRenderingContext2D,
-      landmarksList: any[],
+      landmarksList: NormalizedLandmark[][],
       width: number,
       height: number,
     ) => {
@@ -75,13 +80,13 @@ export function MediaPipeWebView({
       height,
     }: {
       ctx: CanvasRenderingContext2D;
-      results: { landmarks?: unknown[] };
+      results: PoseLandmarkerResult;
       width: number;
       height: number;
     }) => {
       if (results.landmarks && results.landmarks.length > 0) {
         setPoseDetected(true);
-        drawLandmarks(ctx, results.landmarks as any[], width, height);
+        drawLandmarks(ctx, results.landmarks, width, height);
         sendLandmarksRef.current(results.landmarks);
       } else {
         setPoseDetected(false);
@@ -111,7 +116,7 @@ export function MediaPipeWebView({
     loadFile,
     startCamera,
     cleanupSource,
-  } = useWebPoseSource({
+  } = useWebPoseSource<PoseLandmarkerResult>({
     videoRef,
     canvasRef,
     poseLandmarkerRef,
@@ -202,11 +207,11 @@ export function MediaPipeWebView({
           <ThemedText style={styles.sourceButtonText}>Upload video</ThemedText>
         </TouchableOpacity>
         <input
-          ref={fileInputRef as any}
+          ref={fileInputRef}
           type="file"
           accept="video/*"
           onChange={handleFileSelected}
-          style={{ display: "none" } as any}
+          style={{ display: "none" }}
         />
       </View>
       {selectedFileName && (
@@ -235,8 +240,8 @@ export function MediaPipeWebView({
       )}
       {error && <ThemedText style={styles.error}>{error}</ThemedText>}
       <View style={styles.videoContainer}>
-        <video ref={videoRef as any} autoPlay playsInline style={{ display: "none" }} />
-        <canvas ref={canvasRef as any} style={styles.canvas} />
+        <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
+        <canvas ref={canvasRef} style={styles.canvas} />
       </View>
     </ThemedView>
   );

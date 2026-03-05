@@ -2,14 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type SourceMode = "camera" | "file";
 
-interface PoseLandmarkerLike {
-  detectForVideo: (video: HTMLVideoElement, timestampMs: number) => unknown;
+interface PoseLandmarkerLike<TResult> {
+  detectForVideo: (video: HTMLVideoElement, timestampMs: number) => TResult;
 }
 
-interface UseWebPoseSourceParams {
+interface UseWebPoseSourceParams<TResult> {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  poseLandmarkerRef: React.RefObject<PoseLandmarkerLike | null>;
+  poseLandmarkerRef: React.RefObject<PoseLandmarkerLike<TResult> | null>;
   startLoop: () => void;
   stopLoop: () => void;
   resetTimestamp: () => void;
@@ -26,11 +26,13 @@ interface UseWebPoseSourceResult {
   cleanupSource: () => void;
 }
 
-function canRunDetection(poseLandmarkerRef: React.RefObject<PoseLandmarkerLike | null>) {
+function canRunDetection<TResult>(
+  poseLandmarkerRef: React.RefObject<PoseLandmarkerLike<TResult> | null>,
+) {
   return poseLandmarkerRef.current !== null;
 }
 
-export function useWebPoseSource({
+export function useWebPoseSource<TResult>({
   videoRef,
   canvasRef,
   poseLandmarkerRef,
@@ -38,7 +40,7 @@ export function useWebPoseSource({
   stopLoop,
   resetTimestamp,
   onSourceReset,
-}: UseWebPoseSourceParams): UseWebPoseSourceResult {
+}: UseWebPoseSourceParams<TResult>): UseWebPoseSourceResult {
   const streamRef = useRef<MediaStream | null>(null);
   const objectUrlRef = useRef<string | null>(null);
   const modeRef = useRef<SourceMode>("file");
