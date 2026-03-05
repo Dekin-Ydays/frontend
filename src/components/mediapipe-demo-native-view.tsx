@@ -27,18 +27,14 @@ import SkeletonOverlay from "./skeleton-overlay";
 import { type Landmark } from "@/utils/skeleton-renderer";
 
 type VisionCameraModule = typeof import("react-native-vision-camera");
-<<<<<<< replace-iconoir
 type MediaPipePoseDetectionModule =
   typeof import("react-native-mediapipe-posedetection");
-=======
-type MediaPipePoseDetectionModule = typeof import("react-native-mediapipe-posedetection");
 type UsePoseDetectionHook = (
   callbacks: DetectionCallbacks<PoseDetectionResultBundle>,
   runningMode: RunningMode,
   modelAssetPath: string,
   options?: Partial<PoseDetectionOptions>,
 ) => PoseSolutionLike;
->>>>>>> main
 
 let VisionCamera: VisionCameraModule | null = null;
 let MediaPipePoseDetection: MediaPipePoseDetectionModule | null = null;
@@ -84,7 +80,8 @@ const FALLBACK_POSE_SOLUTION: PoseSolutionLike = {
 const FALLBACK_RUNNING_MODE = 2 as RunningMode;
 const FALLBACK_DELEGATE = 1 as Delegate;
 
-const useFallbackPoseDetection: UsePoseDetectionHook = () => FALLBACK_POSE_SOLUTION;
+const useFallbackPoseDetection: UsePoseDetectionHook = () =>
+  FALLBACK_POSE_SOLUTION;
 
 export function MediaPipeNativeView({
   sendLandmarks,
@@ -106,8 +103,9 @@ export function MediaPipeNativeView({
   const device = frontDevice ?? backDevice;
 
   const usePoseDetection =
-    (MediaPipePoseDetection?.usePoseDetection as UsePoseDetectionHook | undefined) ??
-    useFallbackPoseDetection;
+    (MediaPipePoseDetection?.usePoseDetection as
+      | UsePoseDetectionHook
+      | undefined) ?? useFallbackPoseDetection;
   const runningMode =
     MediaPipePoseDetection?.RunningMode?.LIVE_STREAM ?? FALLBACK_RUNNING_MODE;
   const delegate = MediaPipePoseDetection?.Delegate?.GPU ?? FALLBACK_DELEGATE;
@@ -220,20 +218,7 @@ export function MediaPipeNativeView({
     [delegate, videoFps],
   );
 
-<<<<<<< replace-iconoir
-  const buildPoseSolution =
-    usePoseDetection ??
-    ((
-      _callbacks: DetectionCallbacks<PoseDetectionResultBundle>,
-      _runningMode: RunningMode,
-      _modelAssetName: string,
-      _options: Partial<PoseDetectionOptions>,
-    ): PoseSolutionLike => FALLBACK_POSE_SOLUTION);
-
-  const poseSolution: PoseSolutionLike = buildPoseSolution(
-=======
   const poseSolution = usePoseDetection(
->>>>>>> main
     poseCallbacks,
     runningMode,
     "pose_landmarker_lite.task",
