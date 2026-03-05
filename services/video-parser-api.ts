@@ -2,18 +2,13 @@
  * Video Parser API Service
  *
  * Service for interacting with the Video Parser API endpoints.
- * Base URL: http://localhost:3000
+ * Base URL is resolved at runtime from Expo host or EXPO_PUBLIC_* overrides.
  */
 
-import { Platform } from 'react-native';
+import { getVideoParserHttpBaseUrl } from '../src/services/video-parser-endpoints';
 
-// API Base URL - override with EXPO_PUBLIC_API_URL env variable for deployment
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ??
-  Platform.select({
-    android: 'http://10.0.2.2:3000', // Android Emulator localhost
-    default: 'http://localhost:3000',
-  });
+// API Base URL
+const API_BASE_URL = getVideoParserHttpBaseUrl();
 
 // Type definitions matching the API documentation
 export interface Landmark {
