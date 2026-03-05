@@ -2,8 +2,16 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const DEFAULT_PORT = '3000';
-const LOCALHOST_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+const DEFAULT_ANDROID_EMULATOR_HOST = ['10', '0', '2', '2'].join('.');
+const LOOPBACK_IPV4 = ['127', '0', '0', '1'].join('.');
+const DEFAULT_HTTP_SCHEME = 'http';
+const DEFAULT_WS_SCHEME = 'ws';
+const LOCALHOST_HOST =
+  Platform.OS === 'android'
+    ? process.env.EXPO_PUBLIC_VIDEO_PARSER_ANDROID_HOST?.trim() ||
+      DEFAULT_ANDROID_EMULATOR_HOST
+    : 'localhost';
+const LOOPBACK_HOSTS = new Set(['localhost', LOOPBACK_IPV4, '::1']);
 
 function tryParseUrl(value: string): URL | null {
   try {
@@ -39,7 +47,7 @@ function parseExpoDevClientHost(value: string | null | undefined): string | null
   if (!parsed) return null;
 
   // Expo dev client deep-links can look like:
-  // dekin://expo-development-client/?url=http%3A%2F%2F10.0.0.15%3A8081
+  // dekin://expo-development-client/?url=<encoded-bundler-url>
   const nestedBundleUrl = parsed.searchParams.get('url');
   if (nestedBundleUrl) {
     return parseHostname(nestedBundleUrl);
@@ -78,7 +86,12 @@ function resolveRuntimeHost(): string | null {
 }
 
 function trimTrailingSlash(value: string): string {
-  return value.replace(/\/+$/, '');
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+
+  return end === value.length ? value : value.slice(0, end);
 }
 
 function resolveHost(): string {
@@ -93,13 +106,26 @@ function resolvePort(): string {
   return envPort && envPort.length > 0 ? envPort : DEFAULT_PORT;
 }
 
+function resolveHttpScheme(): string {
+  const envScheme = process.env.EXPO_PUBLIC_VIDEO_PARSER_HTTP_SCHEME?.trim();
+  if (envScheme === 'https') return 'https';
+  return DEFAULT_HTTP_SCHEME;
+}
+
+function resolveWsScheme(): string {
+  const envScheme = process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_SCHEME?.trim();
+  if (envScheme === 'wss') return 'wss';
+  if (envScheme === 'ws') return 'ws';
+  return DEFAULT_WS_SCHEME;
+}
+
 export function getVideoParserHttpBaseUrl(): string {
   const explicitBaseUrl = process.env.EXPO_PUBLIC_VIDEO_PARSER_BASE_URL?.trim();
   if (explicitBaseUrl) return trimTrailingSlash(explicitBaseUrl);
 
   const host = resolveHost();
   const port = resolvePort();
-  return `http://${host}:${port}`;
+  return `${resolveHttpScheme()}://${host}:${port}`;
 }
 
 export function getVideoParserWsUrl(path = '/ws'): string {
@@ -109,5 +135,5 @@ export function getVideoParserWsUrl(path = '/ws'): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const host = resolveHost();
   const port = resolvePort();
-  return `ws://${host}:${port}${normalizedPath}`;
+  return `${resolveWsScheme()}://${host}:${port}${normalizedPath}`;
 }
