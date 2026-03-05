@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import { AppText } from "./ui/app-text";
 import { getVideo, VideoFrame } from "@/services/video-parser-api";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { VideoSelector } from "./video-selector";
@@ -30,7 +29,7 @@ const VideoSelectorSection = ({
   onSelectVideo,
 }: VideoSelectorSectionProps) => (
   <View style={styles.selectorWrapper}>
-    <ThemedText style={styles.selectorLabel}>{label}</ThemedText>
+    <AppText variant="baseText">{label}</AppText>
     <VideoSelector
       selectedVideoId={selectedVideoId}
       onSelectVideo={onSelectVideo}
@@ -147,16 +146,16 @@ export function FrameComparator() {
 
   if (Platform.OS !== "web") {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.platformWarning}>
+      <View style={styles.container}>
+        <AppText variant="baseText">
           Frame comparator is currently only supported on web.
-        </ThemedText>
-      </ThemedView>
+        </AppText>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.selectorsContainer}>
         <VideoSelectorSection
           label="Reference (Green)"
@@ -173,13 +172,13 @@ export function FrameComparator() {
       {(state.loading1 || state.loading2) && (
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <ThemedText style={styles.loadingText}>Loading videos...</ThemedText>
+          <AppText variant="baseText">Loading videos...</AppText>
         </View>
       )}
 
       {state.error && (
         <View style={styles.errorContainer}>
-          <ThemedText style={styles.errorText}>{state.error}</ThemedText>
+          <AppText variant="baseText">{state.error}</AppText>
         </View>
       )}
 
@@ -217,12 +216,10 @@ export function FrameComparator() {
         state.frames1.length === 0 &&
         state.frames2.length === 0 && (
           <View style={styles.centerContent}>
-            <ThemedText style={styles.emptySubtext}>
-              Select videos to compare them
-            </ThemedText>
+            <AppText variant="baseText">Select videos to compare them</AppText>
           </View>
         )}
-    </ThemedView>
+    </View>
   );
 }
 

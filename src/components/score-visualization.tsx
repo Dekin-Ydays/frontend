@@ -1,7 +1,6 @@
 import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import { View, StyleSheet, ScrollView, Text } from "react-native";
+import { AppText } from "./ui/app-text";
 import {
   ScoringResult,
   getScoreColor,
@@ -14,36 +13,32 @@ interface ScoreVisualizationProps {
 
 export function ScoreVisualization({ result }: ScoreVisualizationProps) {
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView>
         {/* Overall Score */}
-        <ThemedView style={styles.overallScoreContainer}>
-          <ThemedText type="title" style={styles.overallScoreTitle}>
-            Overall Score
-          </ThemedText>
-          <ThemedText
+        <View style={styles.overallScoreContainer}>
+          <AppText variant="title">Overall Score</AppText>
+          <Text
             style={[
               styles.overallScoreValue,
               { color: getScoreColor(result.overallScore) },
             ]}
           >
             {result.overallScore.toFixed(1)}%
-          </ThemedText>
-          <ThemedText
+          </Text>
+          <Text
             style={[
               styles.scoreLabel,
               { color: getScoreColor(result.overallScore) },
             ]}
           >
             {getScoreLabel(result.overallScore)}
-          </ThemedText>
-        </ThemedView>
+          </Text>
+        </View>
 
         {/* Breakdown Scores */}
-        <ThemedView style={styles.breakdownContainer}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Score Breakdown
-          </ThemedText>
+        <View style={styles.breakdownContainer}>
+          <AppText variant="bolderBaseText">Score Breakdown</AppText>
 
           <ScoreItem
             label="Position"
@@ -60,13 +55,11 @@ export function ScoreVisualization({ result }: ScoreVisualizationProps) {
             score={result.breakdown.timingScore}
             description="Video length matching"
           />
-        </ThemedView>
+        </View>
 
         {/* Statistics */}
-        <ThemedView style={styles.statisticsContainer}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Statistics
-          </ThemedText>
+        <View style={styles.statisticsContainer}>
+          <AppText variant="bolderBaseText">Statistics</AppText>
 
           <View style={styles.statsRow}>
             <StatItem
@@ -88,16 +81,14 @@ export function ScoreVisualization({ result }: ScoreVisualizationProps) {
               value={result.breakdown.statistics.variance.toFixed(1)}
             />
           </View>
-        </ThemedView>
+        </View>
 
         {/* Frame Scores Chart */}
-        <ThemedView style={styles.frameScoresContainer}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Frame-by-Frame Analysis
-          </ThemedText>
-          <ThemedText style={styles.frameScoresSubtitle}>
+        <View style={styles.frameScoresContainer}>
+          <AppText variant="bolderBaseText">Frame-by-Frame Analysis</AppText>
+          <AppText variant="baseText">
             {result.frameScores.length} frames analyzed
-          </ThemedText>
+          </AppText>
 
           <ScrollView
             horizontal
@@ -117,15 +108,15 @@ export function ScoreVisualization({ result }: ScoreVisualizationProps) {
                     ]}
                   />
                   {index % 5 === 0 && (
-                    <ThemedText style={styles.barLabel}>{index + 1}</ThemedText>
+                    <AppText variant="baseText">{index + 1}</AppText>
                   )}
                 </View>
               ))}
             </View>
           </ScrollView>
-        </ThemedView>
+        </View>
       </ScrollView>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -139,12 +130,10 @@ function ScoreItem({ label, score, description }: ScoreItemProps) {
   return (
     <View style={styles.scoreItem}>
       <View style={styles.scoreItemHeader}>
-        <ThemedText type="defaultSemiBold">{label}</ThemedText>
-        <ThemedText style={{ color: getScoreColor(score) }}>
-          {score.toFixed(1)}%
-        </ThemedText>
+        <AppText variant="bolderBaseText">{label}</AppText>
+        <Text style={{ color: getScoreColor(score) }}>{score.toFixed(1)}%</Text>
       </View>
-      <ThemedText style={styles.scoreItemDescription}>{description}</ThemedText>
+      <AppText variant="baseText">{description}</AppText>
       <View style={styles.progressBarContainer}>
         <View
           style={[
@@ -168,10 +157,8 @@ interface StatItemProps {
 function StatItem({ label, value }: StatItemProps) {
   return (
     <View style={styles.statItem}>
-      <ThemedText style={styles.statLabel}>{label}</ThemedText>
-      <ThemedText type="defaultSemiBold" style={styles.statValue}>
-        {value}%
-      </ThemedText>
+      <AppText variant="baseText">{label}</AppText>
+      <AppText variant="bolderBaseText">{value}%</AppText>
     </View>
   );
 }

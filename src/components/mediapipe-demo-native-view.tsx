@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import type { CameraPosition } from "react-native-vision-camera";
 import type {
@@ -21,8 +21,7 @@ import type {
 } from "react-native-mediapipe-posedetection";
 
 import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import { AppText } from "./ui/app-text";
 import SkeletonOverlay from "./skeleton-overlay";
 import { type Landmark } from "@/utils/skeleton-renderer";
 
@@ -247,49 +246,49 @@ export function MediaPipeNativeView({
   if (!VisionCamera || !MediaPipePoseDetection) {
     const runningInExpoGo = Constants.appOwnership === "expo";
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.error}>
+      <View style={styles.container}>
+        <AppText variant="baseText">
           {runningInExpoGo
             ? "Native modules are unavailable in Expo Go. Open this app in the iOS development build."
             : "Native modules not loaded."}
-        </ThemedText>
+        </AppText>
         {nativeModulesLoadError ? (
-          <ThemedText style={styles.error}>{nativeModulesLoadError}</ThemedText>
+          <AppText variant="baseText">{nativeModulesLoadError}</AppText>
         ) : null}
-      </ThemedView>
+      </View>
     );
   }
 
   if (!hasPermission) {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText>Requesting permission...</ThemedText>
-      </ThemedView>
+      <View style={styles.container}>
+        <AppText variant="baseText">Requesting permission...</AppText>
+      </View>
     );
   }
 
   if (device == null) {
     return (
-      <ThemedView style={styles.container}>
-        <ThemedText>
+      <View style={styles.container}>
+        <AppText variant="baseText">
           {Platform.OS === "ios" && !Constants.isDevice
             ? "No camera found in iOS Simulator. Run this on a physical iPhone (development build)."
             : "No camera found"}
-        </ThemedText>
-      </ThemedView>
+        </AppText>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">Native Pose Detection</ThemedText>
-      <ThemedText style={{ color: wsConnected ? "green" : "red" }}>
+    <View style={styles.container}>
+      <AppText variant="bolderBaseText">Native Pose Detection</AppText>
+      <Text style={{ color: wsConnected ? "green" : "red" }}>
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
-      </ThemedText>
-      <ThemedText>
+      </Text>
+      <AppText variant="baseText">
         Pose landmarks:{" "}
         {nativeLandmarks.length > 0 ? nativeLandmarks.length : 0}
-      </ThemedText>
+      </AppText>
 
       <View
         style={styles.cameraContainer}
@@ -322,7 +321,7 @@ export function MediaPipeNativeView({
           />
         ) : null}
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
