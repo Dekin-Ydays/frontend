@@ -71,10 +71,10 @@ function decodePacket(buffer: Uint8Array): DecodedPacket {
     const tag = reader.uint32();
     switch (tag >>> 3) {
       case 1:
-        packet.type = reader.string();
+        packet.timestamp = decodeInt64(reader.int64());
         break;
       case 2:
-        packet.timestamp = decodeInt64(reader.int64());
+        packet.type = reader.string();
         break;
       case 3: {
         const end = reader.uint32() + reader.pos;

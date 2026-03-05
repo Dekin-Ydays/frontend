@@ -130,8 +130,8 @@ export function encodePoseLandmarksPacket(
   }
 
   const writer = Writer.create();
-  writer.uint32(10).string('pose-landmarks');
-  writer.uint32(16).int64(Math.trunc(timestamp));
+  writer.uint32(8).int64(Math.trunc(timestamp));
+  writer.uint32(18).string('pose-landmarks');
 
   for (const landmark of landmarks) {
     encodeLandmark(landmark, writer.uint32(26).fork()).ldelim();
