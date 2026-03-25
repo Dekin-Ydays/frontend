@@ -1,5 +1,5 @@
 import type { AppIconComponent } from "@/components/ui/icon";
-import { EditPencil, MoreHoriz, NavArrowLeft } from "iconoir-react-native";
+import { EditPencil, MoreHoriz, ArrowLeft } from "iconoir-react-native";
 import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -73,7 +73,7 @@ export function TopHeader({
     <View className={styles.bar} style={{ paddingTop: insets.top }}>
       <View className={styles.row}>
         {backButton && (
-          <IconButton icon={NavArrowLeft} onPress={handleBack} label="Retour" />
+          <IconButton icon={ArrowLeft} onPress={handleBack} label="Retour" />
         )}
         {userItem && <UserItem {...userItem} />}
         {title && <AppText variant="title">{title}</AppText>}

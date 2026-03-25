@@ -16,9 +16,9 @@ export default function ProfileScreen() {
           Test AppInput
         </AppText>
 
-        <View className="gap-3 mb-4">
-          <AppText className="text-lightgray">Nom complet (text)</AppText>
+        <View className="mb-4">
           <AppInput
+            label="Nom complet (text)"
             type="text"
             value={fullName}
             onChangeText={setFullName}
@@ -26,9 +26,9 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <View className="gap-3 mb-4">
-          <AppText className="text-lightgray">Email (email)</AppText>
+        <View className="mb-4">
           <AppInput
+            label="Email (email)"
             type="email"
             value={email}
             onChangeText={setEmail}
@@ -36,9 +36,9 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <View className="gap-3 mb-4">
-          <AppText className="text-lightgray">Mot de passe (password)</AppText>
+        <View className="mb-4">
           <AppInput
+            label="Mot de passe (password)"
             type="password"
             value={password}
             onChangeText={setPassword}
@@ -46,9 +46,9 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <View className="gap-3">
-          <AppText className="text-lightgray">Âge (number)</AppText>
+        <View>
           <AppInput
+            label="Âge (number)"
             type="number"
             value={age}
             onChangeText={setAge}

@@ -1,5 +1,9 @@
 import type { TextInputProps } from "react-native";
-import { TextInput } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
+import { useState } from "react";
+import { Eye, EyeClosed } from "iconoir-react-native";
+import { AppText } from "@/components/ui/app-text";
+import { Icon } from "@/components/ui/icon";
 
 /*
 // Tailwind styles
@@ -17,6 +21,9 @@ type AppInputType = "text" | "password" | "email" | "number" | "phone" | "url";
 
 type AppInputProps = Omit<TextInputProps, "className"> & {
   type?: AppInputType;
+  label?: string;
+  labelClassName?: string;
+  containerClassName?: string;
   className?: string;
 };
 
@@ -55,14 +62,51 @@ const typeProps: Record<AppInputType, Partial<TextInputProps>> = {
 
 export function AppInput({
   type = "text",
+  label,
+  labelClassName,
+  containerClassName,
   className,
   ...props
 }: AppInputProps) {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const isPasswordType = type === "password";
+
+  const input = (
+    <View className="relative">
+      <TextInput
+        {...typeProps[type]}
+        {...props}
+        secureTextEntry={isPasswordType ? !isPasswordVisible : props.secureTextEntry}
+        className={`${styles.baseInput} ${styles.transition} ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
+      />
+
+      {isPasswordType ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={isPasswordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          onPress={() => setIsPasswordVisible((visible) => !visible)}
+          className="absolute right-4 h-16 justify-center"
+        >
+          <Icon
+            icon={isPasswordVisible ? Eye : EyeClosed}
+            size={32}
+            color="#FFFFFF"
+          />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+
+  if (!label) {
+    return input;
+  }
+
   return (
-    <TextInput
-      {...typeProps[type]}
-      {...props}
-      className={`${styles.baseInput} ${styles.transition} ${className ?? ""}`}
-    />
+    <View className={containerClassName}>
+      <AppText className={`mb-3 text-lightgray ${labelClassName ?? ""}`}>
+        {label}
+      </AppText>
+      {input}
+    </View>
   );
 }
