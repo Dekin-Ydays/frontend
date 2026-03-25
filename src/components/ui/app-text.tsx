@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Text } from "react-native";
 
 /*
-// Tailwind variants
+// Tailwind styles
 */
 const styles = {
   title: "text-2xl font-bebas text-white",
