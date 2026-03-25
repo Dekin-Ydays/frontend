@@ -76,14 +76,20 @@ export function AppInput({
       <TextInput
         {...typeProps[type]}
         {...props}
-        secureTextEntry={isPasswordType ? !isPasswordVisible : props.secureTextEntry}
+        secureTextEntry={
+          isPasswordType ? !isPasswordVisible : props.secureTextEntry
+        }
         className={`${styles.baseInput} ${styles.transition} ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
       />
 
       {isPasswordType ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={isPasswordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          accessibilityLabel={
+            isPasswordVisible
+              ? "Masquer le mot de passe"
+              : "Afficher le mot de passe"
+          }
           onPress={() => setIsPasswordVisible((visible) => !visible)}
           className="absolute right-4 h-16 justify-center"
         >
