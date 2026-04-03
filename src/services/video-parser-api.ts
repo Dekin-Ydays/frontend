@@ -47,6 +47,15 @@ export interface Client {
   lastSeenAt: number | null;
 }
 
+export interface UploadedVideoFile {
+  id: string;
+  objectKey: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  uploadedAt: string;
+}
+
 export interface ComparisonConfig {
   normalization?: {
     center?: boolean;
@@ -127,6 +136,25 @@ export async function getVideo(videoId: string): Promise<Video> {
     }
     throw new Error('Failed to fetch video');
   }
+  return response.json();
+}
+
+/**
+ * Upload an original source video file to the parser.
+ */
+export async function uploadVideoFile(file: File): Promise<UploadedVideoFile> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE_URL}/pose/video`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to upload video file');
+  }
+
   return response.json();
 }
 

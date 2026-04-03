@@ -9,6 +9,7 @@ import {
   getVideo,
   listClients,
   listVideos,
+  uploadVideoFile,
 } from '../video-parser-api';
 
 vi.mock('@/services/video-parser-endpoints', () => ({
@@ -48,6 +49,36 @@ describe('video-parser-api', () => {
     await expect(getVideo('missing')).rejects.toThrow('Video not found');
   });
 
+  it('uploads a source video file with multipart form data', async () => {
+    const response = {
+      id: 'video-file-1',
+      objectKey: 'uploads/video-file-1/demo.mp4',
+      fileName: 'demo.mp4',
+      mimeType: 'video/mp4',
+      size: 5,
+      uploadedAt: '2026-03-25T10:00:00.000Z',
+    };
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => response });
+
+    const file = new File([new Uint8Array([1, 2, 3, 4, 5])], 'demo.mp4', {
+      type: 'video/mp4',
+    });
+
+    await expect(uploadVideoFile(file)).resolves.toEqual(response);
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://api.test/pose/video',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.any(FormData),
+      }),
+    );
+
+    const uploadRequest = mockFetch.mock.calls[0]?.[1] as {
+      body: FormData;
+    };
+    expect(uploadRequest.body.get('file')).toBe(file);
+  });
+
   it('sends compare request with JSON payload', async () => {
     const payload = {
       referenceVideoId: 'ref-1',
@@ -72,6 +103,18 @@ describe('video-parser-api', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+  });
+
+  it('throws when source video upload fails', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 500 });
+
+    const file = new File([new Uint8Array([1])], 'broken.mp4', {
+      type: 'video/mp4',
+    });
+
+    await expect(uploadVideoFile(file)).rejects.toThrow(
+      'Failed to upload video file',
+    );
   });
 });
 

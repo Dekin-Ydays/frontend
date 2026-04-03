@@ -1,7 +1,7 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import type { AppIconComponent } from "@/components/ui/icon";
 import { useEffect, useRef } from "react";
-import { HomeSimple, Search, Send, User } from "iconoir-react-native";
+import { Camera, HomeSimple, Search, Send, User } from "iconoir-react-native";
 import { Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "../ui/icon";
@@ -84,6 +84,12 @@ export function BottomMenu({
               isActive={isFocused("index")}
               onPress={() => navigation.navigate("index")}
               icon={HomeSimple}
+            />
+            <MenuButton
+              label={descriptors.camera?.options?.title ?? "Camera"}
+              isActive={isFocused("camera")}
+              onPress={() => navigation.navigate("camera")}
+              icon={Camera}
             />
             <MenuButton
               label={descriptors.messages?.options?.title ?? "Messages"}

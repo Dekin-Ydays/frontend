@@ -22,9 +22,11 @@ export default function TabLayout() {
           route.name === "favorites";
         const isProfileRoute = route.name === "profile";
         const isMessagesRoute = route.name === "messages";
+        const isCameraRoute = route.name === "camera";
 
         return {
           headerTransparent: true,
+          headerShown: !isCameraRoute,
           header: () =>
             isFeedRoute ? (
               <TopFeed />
@@ -40,6 +42,7 @@ export default function TabLayout() {
       tabBar={(props) => <BottomMenu {...props} />}
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="camera" options={{ title: "Camera" }} />
       <Tabs.Screen name="messages" options={{ title: "Messages" }} />
       <Tabs.Screen name="profile" options={{ title: "Profil" }} />
       <Tabs.Screen name="search" options={{ title: "Recherche" }} />

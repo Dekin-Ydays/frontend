@@ -8,6 +8,7 @@ import type {
 
 import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 import { AppText } from "./ui/app-text";
+import { uploadVideoFile } from "@/services/video-parser-api";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
 import { useWebPoseSource } from "@/hooks/use-web-pose-source";
@@ -17,6 +18,12 @@ interface HeadOrientation {
   yaw: number;
   roll: number;
 }
+
+type SourceVideoUploadState =
+  | { status: "idle" }
+  | { status: "uploading" }
+  | { status: "success"; fileId: string; fileName: string }
+  | { status: "error"; message: string };
 
 export function MediaPipeWebView({
   sendLandmarks,
@@ -31,6 +38,10 @@ export function MediaPipeWebView({
   const [poseDetected, setPoseDetected] = useState<boolean>(false);
   const [headOrientation, setHeadOrientation] =
     useState<HeadOrientation | null>(null);
+  const [shouldUploadOriginalVideo, setShouldUploadOriginalVideo] =
+    useState(false);
+  const [sourceVideoUploadState, setSourceVideoUploadState] =
+    useState<SourceVideoUploadState>({ status: "idle" });
   const lastOrientationUpdateRef = useRef<number>(0);
 
   const sendLandmarksRef = useRef(sendLandmarks);
@@ -175,6 +186,25 @@ export function MediaPipeWebView({
     fileInputRef.current?.click();
   };
 
+  const handleSourceVideoUpload = useCallback(async (file: File) => {
+    setSourceVideoUploadState({ status: "uploading" });
+
+    try {
+      const uploadedVideo = await uploadVideoFile(file);
+      setSourceVideoUploadState({
+        status: "success",
+        fileId: uploadedVideo.id,
+        fileName: uploadedVideo.fileName,
+      });
+    } catch (err) {
+      setSourceVideoUploadState({
+        status: "error",
+        message:
+          err instanceof Error ? err.message : "Failed to upload source video",
+      });
+    }
+  }, []);
+
   const handleFileSelected = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -182,6 +212,11 @@ export function MediaPipeWebView({
     if (!file) return;
 
     event.target.value = "";
+    if (shouldUploadOriginalVideo) {
+      void handleSourceVideoUpload(file);
+    } else {
+      setSourceVideoUploadState({ status: "idle" });
+    }
     await loadFile(file);
   };
 
@@ -197,6 +232,25 @@ export function MediaPipeWebView({
       <Text style={{ color: wsConnected ? "green" : "red" }}>
         WS Status: {wsConnected ? "Connected" : "Disconnected"}
       </Text>
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          color: "#ffffff",
+          fontSize: 14,
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={shouldUploadOriginalVideo}
+          onChange={(event) => {
+            setShouldUploadOriginalVideo(event.target.checked);
+            setSourceVideoUploadState({ status: "idle" });
+          }}
+        />
+        Send original video file to the parser
+      </label>
       <View style={styles.sourceRow}>
         <TouchableOpacity
           style={[
@@ -229,6 +283,20 @@ export function MediaPipeWebView({
       {selectedFileName && (
         <AppText variant="baseText" numberOfLines={1}>
           Using: {selectedFileName}
+        </AppText>
+      )}
+      {sourceVideoUploadState.status === "uploading" && (
+        <AppText variant="baseText">Uploading original video file...</AppText>
+      )}
+      {sourceVideoUploadState.status === "success" && (
+        <AppText variant="baseText">
+          Source file uploaded: {sourceVideoUploadState.fileName} (
+          {sourceVideoUploadState.fileId})
+        </AppText>
+      )}
+      {sourceVideoUploadState.status === "error" && (
+        <AppText variant="baseText">
+          Source upload failed: {sourceVideoUploadState.message}
         </AppText>
       )}
       <AppText variant="baseText">
