@@ -59,27 +59,23 @@ export function FrameComparator() {
       const ctx = canvasRef.current.getContext("2d");
       if (!ctx) return;
 
-      // Clear canvas
       ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      // Draw Video 1 (Reference) - Green
       if (frames1[frameIndex]) {
         drawSkeleton(ctx, frames1[frameIndex].landmarks, {
           width: CANVAS_WIDTH,
           height: CANVAS_HEIGHT,
-          lineColor: "#00FF00", // Green
+          lineColor: "#00FF00",
           pointColor: "#00CC00",
         });
       }
 
-      // Draw Video 2 (Comparison) - Red/Orange
-      // If frames2 is shorter, it just won't draw after its end
       if (frames2[frameIndex]) {
         drawSkeleton(ctx, frames2[frameIndex].landmarks, {
           width: CANVAS_WIDTH,
           height: CANVAS_HEIGHT,
-          lineColor: "#FF4500", // OrangeRed
+          lineColor: "#FF4500",
           pointColor: "#FF0000",
         });
       }
@@ -110,7 +106,6 @@ export function FrameComparator() {
       error: null,
     }));
 
-    // Stop playback and reset
     jumpToStart();
 
     try {
@@ -124,7 +119,6 @@ export function FrameComparator() {
           [isFirst ? "loading1" : "loading2"]: false,
         };
 
-        // Render initial frame with new data immediately
         renderFrame(0, nextState.frames1, nextState.frames2);
 
         return nextState;

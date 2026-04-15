@@ -66,7 +66,6 @@ export function drawSkeleton(
     pointColor,
   } = options;
 
-  // Draw connections
   ctx.strokeStyle = lineColor;
   ctx.lineWidth = lineWidth;
   for (const [start, end] of SKELETON_CONNECTIONS) {
@@ -78,11 +77,10 @@ export function drawSkeleton(
     }
   }
 
-  // Draw points
   if (showPoints) {
     for (let i = 0; i < landmarks.length; i++) {
       const landmark = landmarks[i];
-      // Color coding: cyan (face 0-10), red (torso 11-22), yellow (legs 23-32)
+      // Fallback color by landmark group: cyan (face 0-10), red (torso 11-22), yellow (legs 23-32)
       if (pointColor) {
         ctx.fillStyle = pointColor;
       } else {

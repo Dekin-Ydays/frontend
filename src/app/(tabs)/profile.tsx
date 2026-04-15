@@ -5,9 +5,6 @@ import { ProfilePicture } from "@/components/profile/profile-picture";
 import { ProfileTabButton } from "@/components/profile/profile-tab-button";
 import { MediaTileButton } from "@/components/media/media-tile-button";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   screen: "flex-1 bg-dark",
   content: "px-4 pb-32 pt-24",
@@ -78,9 +75,6 @@ const posts: ProfilePost[] = [
   },
 ];
 
-/*
-// Secondary components
-*/
 type ProfileHeaderProps = {
   activeTab: ProfileTabKey;
   onChangeTab: (tab: ProfileTabKey) => void;
@@ -127,9 +121,6 @@ function renderPostItem({ item }: { item: ProfilePost }) {
   );
 }
 
-/*
-// Main component
-*/
 export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("performances");
 

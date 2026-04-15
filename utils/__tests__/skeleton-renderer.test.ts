@@ -75,17 +75,14 @@ describe('drawSkeleton', () => {
     const options: DrawOptions = { width: 100, height: 100 };
     drawSkeleton(asCanvasCtx(ctx), landmarks, options);
 
-    // Should draw all connections
     expect(ctx.beginPath).toHaveBeenCalled();
     expect(ctx.moveTo).toHaveBeenCalled();
     expect(ctx.lineTo).toHaveBeenCalled();
     expect(ctx.stroke).toHaveBeenCalled();
 
-    // Should draw points (showPoints defaults to true)
     expect(ctx.arc).toHaveBeenCalled();
     expect(ctx.fill).toHaveBeenCalled();
 
-    // Default line color
     expect(ctx.strokeStyle).toBe('#00FF00');
     expect(ctx.lineWidth).toBe(3);
   });
@@ -98,15 +95,13 @@ describe('drawSkeleton', () => {
     const options: DrawOptions = { width: 200, height: 400 };
     drawSkeleton(asCanvasCtx(ctx), simpleLandmarks, options);
 
-    // Check that moveTo/lineTo are called with scaled values
-    expect(ctx.moveTo).toHaveBeenCalledWith(100, 100); // 0.5 * 200, 0.25 * 400
+    expect(ctx.moveTo).toHaveBeenCalledWith(100, 100);
   });
 
   it('does not draw points when showPoints is false', () => {
     const options: DrawOptions = { width: 100, height: 100, showPoints: false };
     drawSkeleton(asCanvasCtx(ctx), landmarks, options);
 
-    // arc should not be called since we're skipping points
     expect(ctx.arc).not.toHaveBeenCalled();
   });
 
@@ -122,11 +117,10 @@ describe('drawSkeleton', () => {
   });
 
   it('uses color coding when no pointColor is given', () => {
-    // Draw with a small set to check color coding logic
     const options: DrawOptions = { width: 100, height: 100 };
     drawSkeleton(asCanvasCtx(ctx), landmarks, options);
 
-    // The last landmark drawn is index 32 (leg range), so fillStyle should be yellow
+    // Last drawn landmark is index 32 (legs range → yellow).
     expect(ctx.fillStyle).toBe('#FFFF00');
   });
 

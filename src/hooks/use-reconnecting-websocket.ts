@@ -35,9 +35,8 @@ export function useReconnectingWebSocket({
   onClose,
   onError,
 }: UseReconnectingWebSocketOptions): UseReconnectingWebSocketResult {
-  // Live socket instance used by connect/reconnect logic and send API.
   const socketRef = useRef<WebSocket | null>(null);
-  // Keep latest callbacks without re-creating the socket lifecycle effect.
+  // Ref holds latest callbacks so the lifecycle effect doesn't re-run on each render.
   const callbacksRef = useRef({
     onOpen,
     onClose,
@@ -52,9 +51,7 @@ export function useReconnectingWebSocket({
   const [connectionState, setConnectionState] =
     useState<WebSocketConnectionState>("idle");
 
-  // Single lifecycle effect: open socket, handle reconnects, and cleanup.
   useEffect(() => {
-    // Fast path for disabled mode: close any active/connecting socket.
     if (!enabled) {
       const socket = socketRef.current;
       socketRef.current = null;
@@ -81,7 +78,6 @@ export function useReconnectingWebSocket({
     let reconnectAttempt = 0;
     let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Prevent stale scheduled reconnects when state changes/unmounts.
     const clearReconnectTimer = () => {
       if (reconnectTimeout !== null) {
         clearTimeout(reconnectTimeout);
@@ -92,7 +88,6 @@ export function useReconnectingWebSocket({
     const connect = () => {
       if (disposed) return;
 
-      // First attempt is "connecting", following attempts are "reconnecting".
       setConnectionState(
         reconnectAttempt === 0 ? "connecting" : "reconnecting",
       );
@@ -123,7 +118,6 @@ export function useReconnectingWebSocket({
           return;
         }
 
-        // Exponential backoff capped by reconnectMaxDelayMs.
         setConnectionState("reconnecting");
 
         const delay = Math.min(
@@ -143,7 +137,6 @@ export function useReconnectingWebSocket({
     connect();
 
     return () => {
-      // Full teardown to avoid orphan listeners and duplicate sockets.
       disposed = true;
       clearReconnectTimer();
 
@@ -172,7 +165,6 @@ export function useReconnectingWebSocket({
     url,
   ]);
 
-  // Binary-only send path for protobuf frames.
   const sendBinary = useCallback(
     (payload: ArrayBuffer | ArrayBufferView): boolean => {
       const socket = socketRef.current;

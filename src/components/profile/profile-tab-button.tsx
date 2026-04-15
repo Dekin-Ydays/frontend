@@ -1,9 +1,6 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   pressable: "flex-1",
   content: "items-start",
@@ -12,9 +9,6 @@ const styles = {
   inactiveUnderline: "mt-2 h-px w-full bg-white/10",
 } as const;
 
-/*
-// Main component
-*/
 type ProfileTabButtonProps = {
   label: string;
   isActive: boolean;

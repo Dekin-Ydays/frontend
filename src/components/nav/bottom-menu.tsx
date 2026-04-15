@@ -6,9 +6,6 @@ import { Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "../ui/icon";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   bar: "absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center",
   row: "flex-row items-center justify-center gap-3 px-4 w-full",
@@ -21,9 +18,6 @@ const styles = {
   transition: "transition-all duration-300",
 } as const;
 
-/*
-// Secondary components
-*/
 type MenuButtonProps = {
   label: string;
   isActive: boolean;
@@ -54,9 +48,6 @@ function SearchBar() {
   );
 }
 
-/*
-// Main component
-*/
 export function BottomMenu({
   state,
   descriptors,

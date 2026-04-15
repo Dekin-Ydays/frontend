@@ -26,7 +26,6 @@ export function VideoReplay() {
   const CANVAS_WIDTH = 640;
   const CANVAS_HEIGHT = 480;
 
-  // Render a specific frame
   const renderFrame = useCallback(
     (frameIndex: number, frames: VideoFrame[]) => {
       if (!canvasRef.current || !frames[frameIndex]) return;
@@ -34,11 +33,9 @@ export function VideoReplay() {
       const ctx = canvasRef.current.getContext("2d");
       if (!ctx) return;
 
-      // Clear canvas
       ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      // Draw skeleton
       drawSkeleton(ctx, frames[frameIndex].landmarks, {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
@@ -61,11 +58,9 @@ export function VideoReplay() {
     onFrameChange: (index) => renderFrame(index, state.frames),
   });
 
-  // Load video when selected
   const handleSelectVideo = async (videoId: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
-    // Stop playback and reset
     jumpToStart();
 
     try {
@@ -77,7 +72,6 @@ export function VideoReplay() {
         loading: false,
       }));
 
-      // Render first frame
       if (video.frames.length > 0) {
         renderFrame(0, video.frames);
       }

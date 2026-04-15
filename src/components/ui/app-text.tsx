@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
 import { Text } from "react-native";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   title: "text-2xl font-bebas text-white",
   baseText: "font-montserrat text-white",
@@ -13,9 +10,6 @@ const styles = {
   secondaryText: "font-montserrat text-sm text-gray",
 } as const;
 
-/*
-// Main component
-*/
 type AppTextProps = {
   children: ReactNode;
   variant?:

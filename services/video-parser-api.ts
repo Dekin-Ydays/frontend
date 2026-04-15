@@ -1,16 +1,7 @@
-/**
- * Video Parser API Service
- *
- * Service for interacting with the Video Parser API endpoints.
- * Base URL is resolved at runtime from Expo host or EXPO_PUBLIC_* overrides.
- */
-
 import { getVideoParserHttpBaseUrl } from '../src/services/video-parser-endpoints';
 
-// API Base URL
 const API_BASE_URL = getVideoParserHttpBaseUrl();
 
-// Type definitions matching the API documentation
 export interface Landmark {
   x: number;
   y: number;
@@ -80,9 +71,6 @@ export interface CompareVideosRequest {
   config?: ComparisonConfig;
 }
 
-/**
- * Get list of all connected WebSocket clients
- */
 export async function listClients(): Promise<Client[]> {
   const response = await fetch(`${API_BASE_URL}/pose/clients`);
   if (!response.ok) {
@@ -91,9 +79,6 @@ export async function listClients(): Promise<Client[]> {
   return response.json();
 }
 
-/**
- * Get list of all available videos
- */
 export async function listVideos(): Promise<VideoMetadata[]> {
   const response = await fetch(`${API_BASE_URL}/pose/videos`);
   if (!response.ok) {
@@ -102,9 +87,6 @@ export async function listVideos(): Promise<VideoMetadata[]> {
   return response.json();
 }
 
-/**
- * Get the latest pose frame for a specific client
- */
 export async function getLatestPose(clientId: string): Promise<PoseFrame> {
   const response = await fetch(`${API_BASE_URL}/pose/latest/${clientId}`);
   if (!response.ok) {
@@ -116,9 +98,6 @@ export async function getLatestPose(clientId: string): Promise<PoseFrame> {
   return response.json();
 }
 
-/**
- * Get a complete video with all frames by video ID
- */
 export async function getVideo(videoId: string): Promise<Video> {
   const response = await fetch(`${API_BASE_URL}/pose/video/${videoId}`);
   if (!response.ok) {
@@ -130,9 +109,6 @@ export async function getVideo(videoId: string): Promise<Video> {
   return response.json();
 }
 
-/**
- * Compare two videos and get scoring results
- */
 export async function compareVideos(request: CompareVideosRequest): Promise<ScoringResult> {
   const response = await fetch(`${API_BASE_URL}/pose/compare`, {
     method: 'POST',
@@ -152,9 +128,6 @@ export async function compareVideos(request: CompareVideosRequest): Promise<Scor
   return response.json();
 }
 
-/**
- * Get score color based on score value
- */
 export function getScoreColor(score: number): string {
   if (score >= 90) return '#22c55e'; // green
   if (score >= 70) return '#eab308'; // yellow
@@ -162,9 +135,6 @@ export function getScoreColor(score: number): string {
   return '#ef4444'; // red
 }
 
-/**
- * Get score label based on score value
- */
 export function getScoreLabel(score: number): string {
   if (score >= 90) return 'Excellent';
   if (score >= 70) return 'Good';
@@ -172,9 +142,6 @@ export function getScoreLabel(score: number): string {
   return 'Needs Improvement';
 }
 
-/**
- * Default comparison configuration for different use cases
- */
 export const COMPARISON_PRESETS = {
   dance: {
     normalization: {

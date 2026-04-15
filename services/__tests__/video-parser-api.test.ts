@@ -11,12 +11,9 @@ import {
   compareVideos,
 } from '../video-parser-api';
 
-// Mock react-native Platform
 vi.mock('react-native', () => ({
   Platform: { select: (opts: Record<string, string>) => opts.default },
 }));
-
-// ---- Pure function tests ----
 
 describe('getScoreColor', () => {
   it('returns green for scores >= 90', () => {
@@ -93,8 +90,6 @@ describe('COMPARISON_PRESETS', () => {
     expect(sports.visibilityThreshold).toBe(0.7);
   });
 });
-
-// ---- API function tests (mock fetch) ----
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch as unknown as typeof fetch;

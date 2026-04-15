@@ -23,8 +23,7 @@ export function useVideoPlayer({ totalFrames, fps = 30, onFrameChange }: UseVide
   const handleSeek = useCallback((frameIndex: number) => {
     const normalizedIndex = Math.floor(Math.max(0, Math.min(frameIndex, totalFrames - 1)));
     lastFrameTimeRef.current = 0;
-    
-    // Stop playing if we seek manually
+
     setIsPlaying(false);
     stopAnimation();
     
@@ -57,7 +56,6 @@ export function useVideoPlayer({ totalFrames, fps = 30, onFrameChange }: UseVide
         return false;
       }
 
-      // If we are at the end, restart from beginning
       if (currentFrameIndex >= totalFrames - 1 && totalFrames > 0) {
         setCurrentFrameIndex(0);
         onFrameChange?.(0);
@@ -68,7 +66,6 @@ export function useVideoPlayer({ totalFrames, fps = 30, onFrameChange }: UseVide
     });
   }, [currentFrameIndex, totalFrames, stopAnimation, onFrameChange]);
 
-  // Animation Loop
   useEffect(() => {
     if (!isPlaying || totalFrames === 0) {
       stopAnimation();
@@ -91,7 +88,6 @@ export function useVideoPlayer({ totalFrames, fps = 30, onFrameChange }: UseVide
           const nextIndex = prevIndex + 1;
           
           if (nextIndex >= totalFrames) {
-            // Reached end
             setIsPlaying(false);
             stopAnimation();
             const lastIndex = Math.max(0, totalFrames - 1);
