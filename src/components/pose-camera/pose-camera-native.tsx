@@ -88,12 +88,52 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
   const fpsFrameCountRef = useRef(0);
   const fpsLoggedRef = useRef(false);
 
+  const prevDetectionRef = useRef<{ t: number; landmarks: Landmark[] } | null>(
+    null,
+  );
+  const latestDetectionRef = useRef<{ t: number; landmarks: Landmark[] } | null>(
+    null,
+  );
+
   useEffect(() => {
     if (!isFocused) {
       fpsStartTimeRef.current = null;
       fpsFrameCountRef.current = 0;
       fpsLoggedRef.current = false;
+      prevDetectionRef.current = null;
+      latestDetectionRef.current = null;
     }
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (!isFocused) return;
+    let raf = 0;
+    const tick = () => {
+      const latest = latestDetectionRef.current;
+      const prev = prevDetectionRef.current;
+      if (latest) {
+        if (prev) {
+          const span = Math.max(1, latest.t - prev.t);
+          const now = performance.now();
+          const alpha = Math.min(1.5, (now - prev.t) / span);
+          const blended = latest.landmarks.map((l, i) => {
+            const p = prev.landmarks[i];
+            if (!p) return l;
+            return {
+              ...l,
+              x: p.x + (l.x - p.x) * alpha,
+              y: p.y + (l.y - p.y) * alpha,
+            };
+          });
+          setLandmarks(blended);
+        } else {
+          setLandmarks(latest.landmarks);
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [isFocused]);
 
   const useCameraDevice =
@@ -138,6 +178,8 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
       const firstPose = poseLandmarks[0];
 
       if (!firstPose || firstPose.length < 33) {
+        prevDetectionRef.current = null;
+        latestDetectionRef.current = null;
         setLandmarks((prev) => (prev.length === 0 ? prev : []));
         return;
       }
@@ -159,6 +201,8 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
         .filter((l) => Number.isFinite(l.x) && Number.isFinite(l.y));
 
       if (parserLandmarks.length < 33) {
+        prevDetectionRef.current = null;
+        latestDetectionRef.current = null;
         setLandmarks((prev) => (prev.length === 0 ? prev : []));
         return;
       }
@@ -184,7 +228,11 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
         });
       }
 
-      setLandmarks(overlayLandmarks);
+      prevDetectionRef.current = latestDetectionRef.current;
+      latestDetectionRef.current = {
+        t: performance.now(),
+        landmarks: overlayLandmarks,
+      };
       onLandmarksRef.current?.(parserLandmarks);
     },
     [previewSize.height, previewSize.width],
