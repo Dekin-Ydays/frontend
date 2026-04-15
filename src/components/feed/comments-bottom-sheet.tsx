@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -6,13 +6,14 @@ import {
   Modal,
   Platform,
   Pressable,
-  TextInput,
   View,
 } from "react-native";
 import { Send } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { Icon } from "@/components/ui/icon";
+import { MessageSender } from "@/components/messages/message-sender";
+import { useBottomBar } from "@/components/nav/bottom-bar-context";
 
 /*
 // Tailwind styles
@@ -21,7 +22,7 @@ const styles = {
   overlay: "flex-1 justify-end bg-black/50",
   backdrop: "absolute inset-0",
   sheet:
-    "bg-[rgba(14,14,14,0.95)] rounded-t-[40px] px-5 pt-5 pb-6 gap-5 max-h-[70%]",
+    "bg-[rgba(14,14,14,0.95)] rounded-t-[40px] px-5 pt-5 gap-5 max-h-[70%]",
   handle: "self-center w-10 h-1.5 bg-white/40 rounded-full mb-1",
   header: "border-b border-white/20 pb-3",
   commentRow: "flex-row gap-2.5",
@@ -33,11 +34,6 @@ const styles = {
   replyText: "!text-secondary text-sm",
   likeRow: "flex-row items-center gap-1",
   likeCount: "text-xs !text-[#bdbdbd]",
-  inputBar: "flex-row items-center gap-3",
-  textInput:
-    "flex-1 h-[60px] rounded-full bg-white/10 border border-white/5 px-5 text-white font-montserrat",
-  sendButton:
-    "h-[60px] w-[60px] rounded-full bg-white/10 border border-white/5 items-center justify-center",
 } as const;
 
 /*
@@ -109,7 +105,7 @@ function CommentItem({ item }: { item: CommentData }) {
             <AppText className={styles.replyText}>Répondre</AppText>
           </Pressable>
           <View className={styles.likeRow}>
-            <Icon icon={Send} size={16} color="#bdbdbd" />
+            <Icon icon={Send} size={18} color="#bdbdbd" />
             <AppText className={styles.likeCount}>{item.likes}</AppText>
           </View>
         </View>
@@ -135,6 +131,15 @@ export function CommentsBottomSheet({
   onClose,
 }: CommentsBottomSheetProps) {
   const [inputValue, setInputValue] = useState("");
+  const { hide, show } = useBottomBar();
+
+  useEffect(() => {
+    if (visible) {
+      hide();
+      return show;
+    }
+    show();
+  }, [visible, hide, show]);
 
   return (
     <Modal
@@ -164,22 +169,14 @@ export function CommentsBottomSheet({
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View className="h-5" />}
           />
-
-          {/* Input bar */}
-          <View className={styles.inputBar}>
-            <TextInput
-              value={inputValue}
-              onChangeText={setInputValue}
-              placeholder="Votre commentaire..."
-              placeholderTextColor="#919191"
-              className={styles.textInput}
-              underlineColorAndroid="transparent"
-            />
-            <Pressable className={styles.sendButton}>
-              <Icon icon={Send} size={22} color="#FFFFFF" />
-            </Pressable>
-          </View>
         </View>
+
+        <MessageSender
+          value={inputValue}
+          onChangeText={setInputValue}
+          onSend={() => setInputValue("")}
+          placeholder="Votre commentaire..."
+        />
       </KeyboardAvoidingView>
     </Modal>
   );

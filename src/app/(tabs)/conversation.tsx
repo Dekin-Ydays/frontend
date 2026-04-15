@@ -13,7 +13,7 @@ import {
   type ChatBubbleProps,
 } from "@/components/messages/chat-bubble";
 import { ChatDateSeparator } from "@/components/messages/chat-date-separator";
-import { ChatInput } from "@/components/messages/chat-input";
+import { MessageSender } from "@/components/messages/message-sender";
 
 /*
 // Tailwind styles
@@ -163,7 +163,7 @@ export default function ConversationScreen() {
           listRef.current?.scrollToEnd({ animated: false })
         }
       />
-      <ChatInput
+      <MessageSender
         value={inputValue}
         onChangeText={setInputValue}
         onSend={handleSend}

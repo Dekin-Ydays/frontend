@@ -8,9 +8,9 @@ import { Icon } from "@/components/ui/icon";
 */
 const styles = {
   container:
-    "flex-row items-center gap-3 px-5 pt-8 bg-gradient-to-b from-black/0 to-black/80",
+    "flex-row items-center justify-center gap-3 px-5 h-[100px] bg-gradient-to-b from-black/0 to-black/80",
   input:
-    "flex-1 h-[60px] rounded-full bg-white/10 border border-white/5 px-5 font-montserrat text-white",
+    "flex-1 h-[60px] rounded-full bg-white/10 border border-white/5 px-5 font-montserrat text-white focus:border-secondary",
   sendButton:
     "h-[60px] w-[60px] items-center justify-center rounded-full bg-white/10 border border-white/5",
 } as const;
@@ -18,35 +18,41 @@ const styles = {
 /*
 // Main component
 */
-type ChatInputProps = {
+type MessageSenderProps = {
   value: string;
   onChangeText: (text: string) => void;
   onSend: () => void;
+  placeholder?: string;
 };
 
-export function ChatInput({ value, onChangeText, onSend }: ChatInputProps) {
+export function MessageSender({
+  value,
+  onChangeText,
+  onSend,
+  placeholder = "Votre message...",
+}: MessageSenderProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View
       className={styles.container}
-      style={{ paddingBottom: insets.bottom + 12 }}
+      style={{ paddingBottom: insets.bottom }}
     >
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholder="Votre message..."
+        placeholder={placeholder}
         placeholderTextColor="#919191"
         underlineColorAndroid="transparent"
         className={styles.input}
       />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Envoyer le message"
+        accessibilityLabel="Envoyer"
         onPress={onSend}
         className={styles.sendButton}
       >
-        <Icon icon={SendDiagonal} size={18} color="#FFFFFF" />
+        <Icon icon={SendDiagonal} size={32} color="#FFFFFF" />
       </Pressable>
     </View>
   );

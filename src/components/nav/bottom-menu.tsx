@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 import { HomeSimple, Search, Send, User } from "iconoir-react-native";
 import { Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { Icon } from "../ui/icon";
+import { useBottomBar } from "./bottom-bar-context";
 
 /*
 // Tailwind styles
@@ -16,8 +18,8 @@ const styles = {
     "h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1",
   pressable: "flex items-center justify-center h-full w-16 rounded-full",
   pressableActive: "!bg-white/20",
-  textInput:
-    "h-16 w-full rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray outline-none focus:border-secondary",
+  searchInput:
+    "h-16 flex-1 rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray outline-none focus:border-secondary",
   transition: "transition-all duration-300",
 } as const;
 
@@ -44,12 +46,18 @@ function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
   );
 }
 
-function SearchBar() {
+type SearchBarProps = {
+  onSearch: (query: string) => void;
+};
+
+function SearchBar({ onSearch }: SearchBarProps) {
   return (
     <TextInput
-      placeholder="Rechercher une danse..."
+      placeholder="Rechercher..."
+      placeholderTextColor="#919191"
       underlineColorAndroid="transparent"
-      className={`${styles.textInput} ${styles.transition}`}
+      onChangeText={onSearch}
+      className={`${styles.searchInput} ${styles.transition}`}
     />
   );
 }
@@ -62,7 +70,9 @@ export function BottomMenu({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
+  const { isVisible } = useBottomBar();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const activeRoute = state.routes[state.index]?.name;
   const isFocused = (name: string) => activeRoute === name;
   const isSearchActive = activeRoute === "search";
@@ -82,16 +92,16 @@ export function BottomMenu({
     "video-form",
     "other-profile",
     "send",
-    "research-dances",
     "video-perform",
     "video-recording",
     "video-review",
   ];
-  if (routesWithoutMenu.includes(activeRoute)) return null;
+  if (!isVisible || routesWithoutMenu.includes(activeRoute)) return null;
 
   return (
     <View className={styles.bar} style={{ paddingBottom: insets.bottom }}>
       <View className={styles.row}>
+        {/* Main nav pills — hidden when search is active */}
         {!isSearchActive && (
           <View className={styles.container}>
             <MenuButton
@@ -114,6 +124,8 @@ export function BottomMenu({
             />
           </View>
         )}
+
+        {/* Search pill — always visible, acts as back button when search is active */}
         <View className={styles.container}>
           <MenuButton
             label={descriptors.search?.options?.title ?? "Recherche"}
@@ -128,7 +140,11 @@ export function BottomMenu({
             icon={Search}
           />
         </View>
-        {isSearchActive && <SearchBar />}
+
+        {/* Search input — appears when search is active, connects to search screen */}
+        {isSearchActive && (
+          <SearchBar onSearch={(q) => router.setParams({ q })} />
+        )}
       </View>
     </View>
   );
