@@ -20,3 +20,14 @@ export interface PoseLandmarksEnvelope {
 }
 
 export type PoseLandmarksPayload = PoseLandmarkCollection | PoseLandmarksEnvelope;
+
+/**
+ * Rendering-oriented landmark shape used by the skeleton renderer and overlay
+ * components. Compatible with MediaPipe's `NormalizedLandmark` output.
+ */
+export interface Landmark {
+  x: number;
+  y: number;
+  z?: number;
+  visibility?: number;
+}

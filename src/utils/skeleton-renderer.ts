@@ -1,3 +1,7 @@
+import type { Landmark } from "@/types/pose-landmarks";
+
+export type { Landmark };
+
 export const SKELETON_CONNECTIONS = [
   // Face
   [0, 1],
@@ -36,13 +40,6 @@ export const SKELETON_CONNECTIONS = [
   [30, 32],
   [28, 32],
 ] as const;
-
-export interface Landmark {
-  x: number;
-  y: number;
-  z?: number;
-  visibility?: number;
-}
 
 export interface DrawOptions {
   width: number;
