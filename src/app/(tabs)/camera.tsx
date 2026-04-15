@@ -17,6 +17,7 @@ import { AppText } from "@/components/ui/app-text";
 import { processVideo, ProcessedVideo } from "@/services/video-parser-api";
 
 type VisionCameraModule = typeof import("react-native-vision-camera");
+type CameraInstance = InstanceType<VisionCameraModule["Camera"]>;
 
 let VisionCamera: VisionCameraModule | null = null;
 try {
@@ -37,7 +38,7 @@ export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const cameraRef = useRef<any>(null);
+  const cameraRef = useRef<CameraInstance | null>(null);
 
   const useCameraDevice =
     VisionCamera?.useCameraDevice ?? ((_p: string) => undefined);

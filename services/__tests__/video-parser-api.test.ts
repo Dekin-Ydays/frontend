@@ -97,7 +97,7 @@ describe('COMPARISON_PRESETS', () => {
 // ---- API function tests (mock fetch) ----
 
 const mockFetch = vi.fn();
-(global as any).fetch = mockFetch;
+global.fetch = mockFetch as unknown as typeof fetch;
 
 afterEach(() => {
   mockFetch.mockReset();

@@ -91,7 +91,7 @@ export function FrameControls({
             step={1}
             value={Math.max(0, Math.min(currentFrame, maxFrame))}
             onChange={(e) => onSeek(Number(e.target.value))}
-            style={{ width: "100%", height: 40, accentColor: "#007AFF" } as any}
+            style={{ width: "100%", height: 40, accentColor: "#007AFF" } satisfies React.CSSProperties}
             disabled={totalFrames === 0}
           />
         ) : (

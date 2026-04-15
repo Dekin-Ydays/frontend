@@ -189,7 +189,7 @@ export function FrameComparator() {
           <>
             <View style={styles.canvasContainer}>
               <canvas
-                ref={canvasRef as any}
+                ref={canvasRef}
                 width={CANVAS_WIDTH}
                 height={CANVAS_HEIGHT}
                 style={styles.canvas}
