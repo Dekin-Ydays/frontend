@@ -20,11 +20,18 @@ export default function TabLayout() {
           route.name === "index" ||
           route.name === "following" ||
           route.name === "favorites";
+        const isProfileRoute = route.name === "profile";
+        const isMessagesRoute = route.name === "messages";
 
         return {
+          headerTransparent: true,
           header: () =>
             isFeedRoute ? (
               <TopFeed />
+            ) : isProfileRoute ? (
+              <TopHeader title="MON PROFIL" editButton />
+            ) : isMessagesRoute ? (
+              <TopHeader title="MESSAGES" avatarUri={user.avatarUri} />
             ) : (
               <TopHeader backButton userItem={user} />
             ),

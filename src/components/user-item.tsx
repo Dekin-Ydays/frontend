@@ -1,5 +1,6 @@
-import { View, Image, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { AppText } from "./ui/app-text";
+import { ProfilePicture } from "@/components/profile/profile-picture";
 
 /*
 // Tailwind styles
@@ -7,7 +8,6 @@ import { AppText } from "./ui/app-text";
 const styles = {
   container: "flex-row items-center gap-3",
   avatarContainer: "relative",
-  avatar: "h-12 w-12 rounded-full bg-secondary",
   onlineIndicator:
     "absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark",
   textContainer: "flex-1 gap-1",
@@ -39,7 +39,7 @@ export function UserItem({
       onPress={onPress}
     >
       <View className={styles.avatarContainer}>
-        <Image source={{ uri: avatarUri }} className={styles.avatar} />
+        <ProfilePicture uri={avatarUri} size={48} />
         {isOnline && <View className={styles.onlineIndicator} />}
       </View>
       <View className={styles.textContainer}>
