@@ -158,6 +158,38 @@ export async function uploadVideoFile(file: File): Promise<UploadedVideoFile> {
   return response.json();
 }
 
+export interface ProcessedVideo {
+  videoId: string;
+  frameCount: number;
+  fps: number;
+  width: number;
+  height: number;
+  sourceVideo: UploadedVideoFile;
+}
+
+/**
+ * Upload a video file and trigger server-side MediaPipe pose extraction.
+ * Accepts either a web File or a React Native file descriptor ({ uri, name, type }).
+ */
+export async function processVideo(
+  file: File | { uri: string; name: string; type: string },
+): Promise<ProcessedVideo> {
+  const formData = new FormData();
+  formData.append('file', file as unknown as Blob);
+
+  const response = await fetch(`${API_BASE_URL}/pose/video/process`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(`Failed to process video: ${response.status} ${text}`);
+  }
+
+  return response.json();
+}
+
 /**
  * Compare two videos and get scoring results
  */
