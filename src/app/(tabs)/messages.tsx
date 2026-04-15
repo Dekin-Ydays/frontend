@@ -11,7 +11,7 @@ import { MessagesSearchInput } from "@/components/messages/messages-search-input
 */
 const styles = {
   screen: "flex-1 bg-dark",
-  content: "gap-4 px-4 pb-24 pt-3",
+  content: "gap-4 px-4 pb-24 pt-24",
   listHeader: "mb-3",
   listHeaderSearch: "mt-2",
   itemSeparator: "h-4",

@@ -10,7 +10,7 @@ import { MediaTileButton } from "@/components/media/media-tile-button";
 */
 const styles = {
   screen: "flex-1 bg-dark",
-  content: "px-4 pb-32 pt-5",
+  content: "px-4 pb-32 pt-24",
   headerContainer: "mb-8 flex-row items-center gap-4",
   profileInfo: "flex-1",
   profileStats: "mt-2",

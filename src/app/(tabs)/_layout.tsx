@@ -24,6 +24,7 @@ export default function TabLayout() {
         const isMessagesRoute = route.name === "messages";
 
         return {
+          headerTransparent: true,
           header: () =>
             isFeedRoute ? (
               <TopFeed />
