@@ -102,6 +102,13 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
   const backDevice = useCameraDevice("back");
   const device = frontDevice ?? backDevice;
 
+  const useCameraFormat = VisionCamera?.useCameraFormat;
+  const format = useCameraFormat?.(device, [
+    { videoResolution: { width: 640, height: 480 } },
+    { fps: 60 },
+  ]);
+  const targetFps = Math.min(60, format?.maxFps ?? 30);
+
   const usePoseDetection =
     (MediaPipePoseDetection?.usePoseDetection as
       | UsePoseDetectionHook
@@ -278,12 +285,13 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
       <VisionCamera.Camera
         style={StyleSheet.absoluteFill}
         device={device}
+        format={format}
+        fps={targetFps}
         resizeMode="cover"
         isActive={isFocused}
         frameProcessor={poseSolution.frameProcessor}
         onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
         pixelFormat="rgb"
-        photo={true}
       />
       {landmarks.length > 0 &&
       previewSize.width > 0 &&
