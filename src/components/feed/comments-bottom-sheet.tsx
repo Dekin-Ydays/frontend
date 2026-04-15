@@ -21,7 +21,7 @@ const styles = {
   overlay: "flex-1 justify-end bg-black/50",
   backdrop: "absolute inset-0",
   sheet:
-    "bg-[rgba(14,14,14,0.97)] rounded-t-[40px] px-5 pt-5 pb-6 gap-5 max-h-[70%]",
+    "bg-[rgba(14,14,14,0.95)] rounded-t-[40px] px-5 pt-5 pb-6 gap-5 max-h-[70%]",
   handle: "self-center w-10 h-1.5 bg-white/40 rounded-full mb-1",
   header: "border-b border-white/20 pb-3",
   commentRow: "flex-row gap-2.5",
@@ -33,11 +33,11 @@ const styles = {
   replyText: "!text-secondary text-sm",
   likeRow: "flex-row items-center gap-1",
   likeCount: "text-xs !text-[#bdbdbd]",
-  inputBar: "flex-row items-center gap-2.5 mt-2",
+  inputBar: "flex-row items-center gap-3",
   textInput:
-    "flex-1 h-[52px] rounded-full bg-white/10 border border-white/5 px-5 text-white font-montserrat text-sm",
+    "flex-1 h-[60px] rounded-full bg-white/10 border border-white/5 px-5 text-white font-montserrat",
   sendButton:
-    "h-[52px] w-[52px] rounded-full bg-white/10 border border-white/5 items-center justify-center",
+    "h-[60px] w-[60px] rounded-full bg-white/10 border border-white/5 items-center justify-center",
 } as const;
 
 /*

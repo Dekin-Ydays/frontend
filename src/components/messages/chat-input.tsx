@@ -8,11 +8,11 @@ import { Icon } from "@/components/ui/icon";
 */
 const styles = {
   container:
-    "flex-row items-center gap-3 px-4 pt-8 bg-gradient-to-b from-black/0 to-black/80",
+    "flex-row items-center gap-3 px-5 pt-8 bg-gradient-to-b from-black/0 to-black/80",
   input:
     "flex-1 h-[60px] rounded-full bg-white/10 border border-white/5 px-5 font-montserrat text-white",
   sendButton:
-    "h-[60px] w-[60px] items-center justify-center rounded-full bg-white/10 border border-white/10",
+    "h-[60px] w-[60px] items-center justify-center rounded-full bg-white/10 border border-white/5",
 } as const;
 
 /*

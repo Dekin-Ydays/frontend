@@ -17,7 +17,7 @@ const styles = {
   pressable: "flex items-center justify-center h-full w-16 rounded-full",
   pressableActive: "!bg-white/20",
   textInput:
-    "h-16 w-full rounded-full bg-white/10 border border-white/5 px-4 text-white placeholder:text-gray outline-none focus:border-secondary",
+    "h-16 w-full rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray outline-none focus:border-secondary",
   transition: "transition-all duration-300",
 } as const;
 
@@ -74,7 +74,20 @@ export function BottomMenu({
     }
   }, [activeRoute]);
 
-  if (activeRoute === "conversation") return null;
+  const routesWithoutMenu = [
+    "conversation",
+    "edit-profile",
+    "score-result",
+    "video-creation",
+    "video-form",
+    "other-profile",
+    "send",
+    "research-dances",
+    "video-perform",
+    "video-recording",
+    "video-review",
+  ];
+  if (routesWithoutMenu.includes(activeRoute)) return null;
 
   return (
     <View className={styles.bar} style={{ paddingBottom: insets.bottom }}>

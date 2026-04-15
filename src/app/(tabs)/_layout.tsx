@@ -29,8 +29,17 @@ export default function TabLayout() {
         const isScoreResultRoute = route.name === "score-result";
         const isVideoFormRoute = route.name === "video-form";
         // Screens with their own inline header (no navigation header needed)
+        const isResearchDancesRoute = route.name === "research-dances";
+        const isVideoPerformRoute = route.name === "video-perform";
+        const isVideoRecordingRoute = route.name === "video-recording";
+        const isVideoReviewRoute = route.name === "video-review";
+        // Screens with their own inline header (no navigation header needed)
         const isFullscreenRoute =
-          route.name === "video-creation" || route.name === "send";
+          route.name === "video-creation" ||
+          route.name === "send" ||
+          isVideoPerformRoute ||
+          isVideoRecordingRoute ||
+          isVideoReviewRoute;
 
         const conversationParams = isConversationRoute
           ? (route.params as
@@ -80,6 +89,14 @@ export default function TabLayout() {
               return <TopHeader backButton title="RÉSULTAT" />;
             if (isVideoFormRoute)
               return <TopHeader backButton title="NOUVELLE VIDEO" />;
+            if (isResearchDancesRoute)
+              return (
+                <TopHeader
+                  backButton
+                  title="RECHERCHE"
+                  avatarUri={user.avatarUri}
+                />
+              );
             return <TopHeader backButton userItem={user} />;
           },
         };
@@ -97,6 +114,10 @@ export default function TabLayout() {
       <Tabs.Screen name="video-creation" options={{ href: null }} />
       <Tabs.Screen name="video-form" options={{ href: null }} />
       <Tabs.Screen name="send" options={{ href: null }} />
+      <Tabs.Screen name="research-dances" options={{ href: null }} />
+      <Tabs.Screen name="video-perform" options={{ href: null }} />
+      <Tabs.Screen name="video-recording" options={{ href: null }} />
+      <Tabs.Screen name="video-review" options={{ href: null }} />
     </Tabs>
   );
 }
