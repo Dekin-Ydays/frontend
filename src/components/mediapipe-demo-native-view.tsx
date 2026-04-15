@@ -9,14 +9,11 @@ import { Platform, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import type { CameraPosition } from "react-native-vision-camera";
 import type {
-  Delegate,
   DetectionCallbacks,
   DetectionError,
   Landmark as NativePoseLandmark,
-  MediaPipeSolution,
   PoseDetectionOptions,
   PoseDetectionResultBundle,
-  RunningMode,
   ViewCoordinator,
 } from "react-native-mediapipe-posedetection";
 
@@ -24,63 +21,21 @@ import type { MediaPipePlatformViewProps } from "./mediapipe-demo.types";
 import { AppText } from "./ui/app-text";
 import SkeletonOverlay from "./skeleton-overlay";
 import { type Landmark } from "@/utils/skeleton-renderer";
-
-type VisionCameraModule = typeof import("react-native-vision-camera");
-type MediaPipePoseDetectionModule =
-  typeof import("react-native-mediapipe-posedetection");
-type UsePoseDetectionHook = (
-  callbacks: DetectionCallbacks<PoseDetectionResultBundle>,
-  runningMode: RunningMode,
-  modelAssetPath: string,
-  options?: Partial<PoseDetectionOptions>,
-) => PoseSolutionLike;
-
-let VisionCamera: VisionCameraModule | null = null;
-let MediaPipePoseDetection: MediaPipePoseDetectionModule | null = null;
-let nativeModulesLoadError: string | null = null;
-
-try {
-  VisionCamera = require("react-native-vision-camera");
-} catch (error) {
-  if (!nativeModulesLoadError) {
-    const message =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    nativeModulesLoadError = `react-native-vision-camera: ${message}`;
-  }
-}
-
-try {
-  MediaPipePoseDetection = require("react-native-mediapipe-posedetection");
-} catch (error) {
-  if (!nativeModulesLoadError) {
-    const message =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    nativeModulesLoadError = `react-native-mediapipe-posedetection: ${message}`;
-  }
-}
+import {
+  FALLBACK_DELEGATE,
+  FALLBACK_RUNNING_MODE,
+  MediaPipePoseDetection,
+  VisionCamera,
+  nativeModulesLoadError,
+  useFallbackPoseDetection,
+  type UsePoseDetectionHook,
+} from "./native-pose-modules";
 
 if (!VisionCamera || !MediaPipePoseDetection) {
   console.warn("Failed to load native modules:", nativeModulesLoadError);
 }
 
 type PoseLandmarkPayload = Landmark & { presence?: number };
-
-type PoseSolutionLike = Partial<MediaPipeSolution>;
-
-const FALLBACK_POSE_SOLUTION: PoseSolutionLike = {
-  frameProcessor: undefined,
-  cameraViewLayoutChangeHandler: () => {},
-  cameraDeviceChangeHandler: () => {},
-  cameraOrientationChangedHandler: () => {},
-  resizeModeChangeHandler: () => {},
-  cameraViewDimensions: { width: 0, height: 0 },
-};
-
-const FALLBACK_RUNNING_MODE = 2 as RunningMode;
-const FALLBACK_DELEGATE = 1 as Delegate;
-
-const useFallbackPoseDetection: UsePoseDetectionHook = () =>
-  FALLBACK_POSE_SOLUTION;
 
 export function MediaPipeNativeView({
   sendLandmarks,

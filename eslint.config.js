@@ -20,7 +20,7 @@ module.exports = defineConfig([
   {
     files: [
       "src/components/mediapipe-demo.tsx",
-      "src/components/mediapipe-demo-native-view.tsx",
+      "src/components/native-pose-modules.ts",
     ],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
