@@ -8,7 +8,7 @@ const styles = {
   base: "relative overflow-hidden bg-white/5",
   image: "aspect-square w-full",
   overlay:
-    "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-2",
+    "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4",
 } as const;
 
 /*
