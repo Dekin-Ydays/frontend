@@ -22,7 +22,7 @@ let VisionCamera: VisionCameraModule | null = null;
 try {
   VisionCamera = require("react-native-vision-camera");
 } catch {
-  VisionCamera = null;
+  // Module not linked in this build; fall back to web/unsupported UI.
 }
 
 type Status =
