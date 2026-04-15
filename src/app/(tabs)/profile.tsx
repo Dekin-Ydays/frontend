@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { ProfileTabButton } from "@/components/profile/profile-tab-button";
@@ -11,9 +11,16 @@ import { MediaTileButton } from "@/components/media/media-tile-button";
 const styles = {
   screen: "flex-1 bg-dark",
   content: "px-4 pb-32 pt-24",
-  headerContainer: "mb-8 flex-row items-center gap-4",
+  headerContainer: "mb-5 flex-row items-center gap-4",
   profileInfo: "flex-1",
-  profileStats: "mt-2",
+  profileStats: "mt-1",
+  actionButtons: "mb-5 flex-row items-center gap-2.5",
+  subscribeButton:
+    "h-8 rounded-full bg-primary flex-row items-center px-5 gap-1",
+  subscribeButtonText: "!text-dark text-sm",
+  writeButton:
+    "h-8 rounded-full bg-white/10 flex-row items-center px-5 gap-1",
+  writeButtonText: "text-sm",
   tabsContainer: "mb-6 flex-row items-center gap-3",
   tile: "mb-3 w-[48.5%]",
 } as const;
@@ -50,7 +57,7 @@ const posts: ProfilePost[] = [
   },
   {
     id: "3",
-    title: "Nouvelle danse de...",
+    title: "Stray kids les goats...",
     category: "favorites",
     imageUri:
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
@@ -71,7 +78,7 @@ const posts: ProfilePost[] = [
   },
   {
     id: "6",
-    title: "Stray kids les goats...",
+    title: "DPR IAN concert...",
     category: "favorites",
     imageUri:
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
@@ -101,6 +108,16 @@ function ProfileHeader({ activeTab, onChangeTab }: ProfileHeaderProps) {
             7 suivis | 13 followers
           </AppText>
         </View>
+      </View>
+
+      {/* Action buttons */}
+      <View className={styles.actionButtons}>
+        <Pressable className={styles.subscribeButton}>
+          <AppText className={styles.subscribeButtonText}>S'abonner</AppText>
+        </Pressable>
+        <Pressable className={styles.writeButton}>
+          <AppText className={styles.writeButtonText}>Ecrire</AppText>
+        </Pressable>
       </View>
 
       <View className={styles.tabsContainer}>

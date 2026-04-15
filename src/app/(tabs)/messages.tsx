@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
+import { useRouter } from "expo-router";
 import {
   MessageListItem,
   type MessageListItemProps,
@@ -28,7 +29,7 @@ const avatarList = [
 
 type MessageRow = MessageListItemProps & { key: string };
 
-const messages: MessageRow[] = [
+const messageData: Omit<MessageRow, "key" | "onPress">[] = [
   {
     avatarUri: avatarList[0],
     userName: "Jean-Baptiste Sainte-Beuve",
@@ -76,11 +77,7 @@ const messages: MessageRow[] = [
     userName: "Quantix",
     messagePreview: "OUH OUH AHAH",
   },
-].map((item, index) => ({
-  ...item,
-  onPress: () => {},
-  key: `message-${index + 1}`,
-}));
+];
 
 /*
 // Secondary components
@@ -118,7 +115,26 @@ function renderItemSeparator() {
 // Main component
 */
 export default function MessagesScreen() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const messages = useMemo<MessageRow[]>(
+    () =>
+      messageData.map((item, index) => ({
+        ...item,
+        key: `message-${index + 1}`,
+        onPress: () =>
+          router.push({
+            pathname: "/conversation",
+            params: {
+              userName: item.userName,
+              avatarUri: item.avatarUri,
+              isOnline: item.isOnline ? "true" : "false",
+            },
+          }),
+      })),
+    [router],
+  );
 
   const filteredMessages = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -133,7 +149,7 @@ export default function MessagesScreen() {
         message.messagePreview.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [searchQuery]);
+  }, [searchQuery, messages]);
 
   return (
     <FlatList

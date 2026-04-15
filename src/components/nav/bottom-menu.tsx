@@ -74,6 +74,8 @@ export function BottomMenu({
     }
   }, [activeRoute]);
 
+  if (activeRoute === "conversation") return null;
+
   return (
     <View className={styles.bar} style={{ paddingBottom: insets.bottom }}>
       <View className={styles.row}>
