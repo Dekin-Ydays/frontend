@@ -84,6 +84,18 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
     onLandmarksRef.current = onLandmarks;
   }, [onLandmarks]);
 
+  const fpsStartTimeRef = useRef<number | null>(null);
+  const fpsFrameCountRef = useRef(0);
+  const fpsLoggedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isFocused) {
+      fpsStartTimeRef.current = null;
+      fpsFrameCountRef.current = 0;
+      fpsLoggedRef.current = false;
+    }
+  }, [isFocused]);
+
   const useCameraDevice =
     VisionCamera?.useCameraDevice ?? ((_position: CameraPosition) => undefined);
   const frontDevice = useCameraDevice("front");
@@ -100,6 +112,21 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
 
   const onPoseResults = useCallback(
     (result: PoseDetectionResultBundle, viewCoordinator: ViewCoordinator) => {
+      if (!fpsLoggedRef.current) {
+        const now = Date.now();
+        if (fpsStartTimeRef.current === null) {
+          fpsStartTimeRef.current = now;
+          fpsFrameCountRef.current = 0;
+        }
+        fpsFrameCountRef.current += 1;
+        const elapsed = now - fpsStartTimeRef.current;
+        if (elapsed >= 1000) {
+          const fps = (fpsFrameCountRef.current * 1000) / elapsed;
+          console.log(`[PoseCamera] measured FPS: ${fps.toFixed(1)}`);
+          fpsLoggedRef.current = true;
+        }
+      }
+
       const poseLandmarks = result.results.flatMap((entry) => entry.landmarks);
       const firstPose = poseLandmarks[0];
 
@@ -174,7 +201,7 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
       shouldOutputSegmentationMasks: false,
       delegate,
       mirrorMode: "mirror-front-only",
-      fpsMode: 30,
+      fpsMode: "none",
     }),
     [delegate],
   );

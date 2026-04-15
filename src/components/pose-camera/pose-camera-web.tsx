@@ -29,8 +29,35 @@ export function PoseCameraWeb({ onLandmarks }: PoseCameraProps) {
     onLandmarksRef.current = onLandmarks;
   }, [onLandmarks]);
 
+  const fpsStartTimeRef = useRef<number | null>(null);
+  const fpsFrameCountRef = useRef(0);
+  const fpsLoggedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isFocused) {
+      fpsStartTimeRef.current = null;
+      fpsFrameCountRef.current = 0;
+      fpsLoggedRef.current = false;
+    }
+  }, [isFocused]);
+
   const handleDetectionResults = useCallback(
     ({ results }: { results: PoseLandmarkerResult }) => {
+      if (!fpsLoggedRef.current) {
+        const now = performance.now();
+        if (fpsStartTimeRef.current === null) {
+          fpsStartTimeRef.current = now;
+          fpsFrameCountRef.current = 0;
+        }
+        fpsFrameCountRef.current += 1;
+        const elapsed = now - fpsStartTimeRef.current;
+        if (elapsed >= 1000) {
+          const fps = (fpsFrameCountRef.current * 1000) / elapsed;
+          console.log(`[PoseCamera] measured FPS: ${fps.toFixed(1)}`);
+          fpsLoggedRef.current = true;
+        }
+      }
+
       const first = results.landmarks?.[0];
       if (!first || first.length < 33) {
         setLandmarks((prev) => (prev.length === 0 ? prev : []));

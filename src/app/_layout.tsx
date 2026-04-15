@@ -1,4 +1,5 @@
 import "@/global.css";
+import "@/utils/suppress-noisy-logs";
 import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";

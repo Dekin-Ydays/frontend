@@ -4,7 +4,7 @@ import { PoseCamera } from "@/components/pose-camera";
 import { usePoseLandmarkStreaming } from "@/hooks/use-pose-landmark-streaming";
 
 export default function CameraScreen() {
-  const { sendLandmarks } = usePoseLandmarkStreaming({ fps: 10 });
+  const { sendLandmarks } = usePoseLandmarkStreaming({ fps: 60 });
 
   return (
     <View style={styles.container}>
