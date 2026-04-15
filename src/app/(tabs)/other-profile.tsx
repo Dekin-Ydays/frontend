@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
+import { ChatBubble, EditPencil } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
+import { RoundedButton } from "@/components/ui/rounded-button";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { ProfileTabButton } from "@/components/profile/profile-tab-button";
 import { MediaTileButton } from "@/components/media/media-tile-button";
@@ -8,7 +10,7 @@ import { MediaTileButton } from "@/components/media/media-tile-button";
 /*
 // Mock data
 */
-type ProfileTabKey = "performances" | "realisations" | "favorites";
+type ProfileTabKey = "performances" | "realisations";
 
 type ProfilePost = {
   id: string;
@@ -20,7 +22,6 @@ type ProfilePost = {
 const profileTabs: { key: ProfileTabKey; label: string }[] = [
   { key: "performances", label: "Performances" },
   { key: "realisations", label: "Réalisations" },
-  { key: "favorites", label: "Mes favoris" },
 ];
 
 const posts: ProfilePost[] = [
@@ -34,35 +35,21 @@ const posts: ProfilePost[] = [
   {
     id: "2",
     title: "Je teste mon...",
-    category: "realisations",
-    imageUri:
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "3",
-    title: "Stray kids les goats...",
-    category: "favorites",
-    imageUri:
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "4",
-    title: "DPR IAN concert...",
     category: "performances",
     imageUri:
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "5",
+    id: "3",
     title: "Nouvelle danse de...",
     category: "realisations",
     imageUri:
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "6",
+    id: "4",
     title: "DPR IAN concert...",
-    category: "favorites",
+    category: "realisations",
     imageUri:
       "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
   },
@@ -84,7 +71,6 @@ function ProfileHeader({ activeTab, onChangeTab }: ProfileHeaderProps) {
         <ProfilePicture
           uri="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80"
           size={96}
-          showAddButton
         />
         <View className="flex-1">
           <AppText variant="bolderLargeText">Juan-Bautista</AppText>
@@ -92,6 +78,12 @@ function ProfileHeader({ activeTab, onChangeTab }: ProfileHeaderProps) {
             7 suivis | 13 followers
           </AppText>
         </View>
+      </View>
+
+      {/* Action buttons */}
+      <View className="mb-5 flex-row items-center gap-2.5">
+        <RoundedButton variant="primary" label="S'abonner" Icon={EditPencil} />
+        <RoundedButton variant="secondary" label="Ecrire" Icon={ChatBubble} />
       </View>
 
       {/* Tabs */}
@@ -122,7 +114,7 @@ function renderPostItem({ item }: { item: ProfilePost }) {
 /*
 // Main component
 */
-export default function ProfileScreen() {
+export default function OtherProfileScreen() {
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("performances");
 
   const visiblePosts = useMemo(() => {

@@ -10,7 +10,7 @@ import { Icon } from "@/components/ui/icon";
 */
 const styles = {
   baseInput:
-    "h-16 w-full rounded-2xl bg-white/10 border border-white/5 px-4 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary",
+    "h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary",
   transition: "transition-all duration-300",
 } as const;
 
@@ -109,7 +109,7 @@ export function AppInput({
 
   return (
     <View className={containerClassName}>
-      <AppText className={`mb-3 text-lightgray ${labelClassName ?? ""}`}>
+      <AppText className={`mb-2.5 text-sm text-lightgray ${labelClassName ?? ""}`}>
         {label}
       </AppText>
       {input}

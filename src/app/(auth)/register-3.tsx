@@ -8,32 +8,22 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
+import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { TopHeader } from "@/components/nav/top-header";
 
 /*
 // Tailwind styles
 */
 const styles = {
-  screen: "flex-1 bg-dark",
   stepBadge:
     "flex-row items-center h-8 bg-secondary rounded-[10px] px-5 self-start",
   stepBadgeText: "!text-dark font-montserrat-bold text-sm",
-  instruction: "text-sm leading-5",
-  codeRow: "flex-row items-center justify-between py-5",
   codeInput:
     "h-[60px] w-[60px] rounded-[20px] bg-white/10 border border-white/5 items-center justify-center",
   codeInputActive: "border-primary",
   codeInputText: "font-montserrat text-white text-sm text-center",
-  resendSection: "items-center gap-y-2.5",
-  resendLink: "!text-secondary text-sm",
-  // Bottom action bar
-  bottomBar:
-    "absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/0 to-black/80 justify-center px-5",
-  primaryButton:
-    "h-[60px] w-full rounded-[20px] bg-primary items-center justify-center",
-  primaryButtonText: "!text-dark",
 } as const;
 
 /*
@@ -41,7 +31,6 @@ const styles = {
 */
 export default function RegisterStep3Screen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [code, setCode] = useState(["", "", "", ""]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const inputRefs = useRef<(TextInput | null)[]>([null, null, null, null]);
@@ -71,7 +60,7 @@ export default function RegisterStep3Screen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className={styles.screen}
+      className="flex-1 bg-dark"
     >
       <TopHeader title="S'INSCRIRE" backButton />
 
@@ -86,12 +75,12 @@ export default function RegisterStep3Screen() {
           </View>
 
           {/* Instruction */}
-          <AppText className={styles.instruction}>
+          <AppText className="text-sm leading-5">
             Vérifiez dans votre email et entrez le code à 4 chiffres ci-dessous
           </AppText>
 
           {/* Code inputs */}
-          <View className={styles.codeRow}>
+          <View className="flex-row items-center justify-between py-5">
             {code.map((digit, index) => (
               <View
                 key={index}
@@ -119,29 +108,24 @@ export default function RegisterStep3Screen() {
           </View>
 
           {/* Resend section */}
-          <View className={styles.resendSection}>
+          <View className="items-center gap-y-2.5">
             <AppText>Vous n'avez pas reçu le code ?</AppText>
             <Pressable>
-              <AppText className={styles.resendLink}>Renvoyer le code</AppText>
+              <AppText className="!text-secondary text-sm">
+                Renvoyer le code
+              </AppText>
             </Pressable>
           </View>
         </View>
       </ScrollView>
 
-      {/* Bottom action bar */}
-      <View
-        className={styles.bottomBar}
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        <Pressable
-          className={styles.primaryButton}
+      <BottomActionBar>
+        <Button
+          variant="primary"
+          label="S'inscrire"
           onPress={() => router.replace("/(tabs)")}
-        >
-          <AppText variant="title" className={styles.primaryButtonText}>
-            S'inscrire
-          </AppText>
-        </Pressable>
-      </View>
+        />
+      </BottomActionBar>
     </KeyboardAvoidingView>
   );
 }

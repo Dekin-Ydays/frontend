@@ -6,7 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 // Tailwind styles
 */
 const styles = {
-  base: "flex-row justify-center items-center gap-3 px-4 py-2 h-16 rounded-2xl w-full",
+  base: "flex-row justify-center items-center gap-3 px-5 h-[60px] rounded-[20px] w-full",
   primary: "bg-primary justify-between",
   secondary: "bg-white items-center",
   icon: "h-8 w-8 text-dark",

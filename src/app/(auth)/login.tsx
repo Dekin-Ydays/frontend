@@ -6,54 +6,23 @@ import {
   ScrollView,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
+import { Button } from "@/components/ui/button";
 import { TopHeader } from "@/components/nav/top-header";
-
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  logo: "gap-y-3",
-  logoText: "text-5xl",
-  subtitle: "!text-primary text-sm",
-  form: "gap-y-6",
-  forgotPassword: "!text-secondary text-sm mt-1",
-  primaryButton:
-    "h-[60px] w-full rounded-[20px] bg-primary items-center justify-center",
-  primaryButtonText: "!text-dark",
-  socialRow: "flex-row gap-2.5",
-  socialButton:
-    "flex-1 h-[60px] rounded-[20px] bg-white flex-row items-center justify-center",
-  socialButtonText: "!text-dark",
-  // Bottom connection menu
-  bottomMenu:
-    "absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/0 to-black/80 justify-center px-5",
-  menuPill:
-    "flex-row items-center gap-2.5 bg-white/10 rounded-full border border-white/5 p-1.5",
-  menuTabActive:
-    "flex-1 h-[50px] items-center justify-center rounded-full bg-white/5",
-  menuTabInactive: "flex-1 h-[50px] items-center justify-center rounded-full",
-  menuTabTextActive: "!text-secondary text-sm",
-  menuTabTextInactive: "text-sm",
-} as const;
+import { AuthConnectionMenu } from "@/components/auth/auth-connection-menu";
 
 /*
 // Main component
 */
 export default function LoginScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className={styles.screen}
+      className="flex-1 bg-dark"
     >
       <TopHeader title="SE CONNECTER" />
 
@@ -63,17 +32,17 @@ export default function LoginScreen() {
       >
         <View className="px-5 pt-24 pb-36 gap-y-12">
           {/* Logo + subtitle */}
-          <View className={styles.logo}>
-            <AppText variant="title" className={styles.logoText}>
+          <View className="gap-y-3">
+            <AppText variant="title" className="text-5xl">
               DEKIN
             </AppText>
-            <AppText className={styles.subtitle}>
+            <AppText className="!text-primary text-sm">
               Encore toi ! Prêt à danser ?
             </AppText>
           </View>
 
           {/* Form */}
-          <View className={styles.form}>
+          <View className="gap-y-6">
             <AppInput
               label="Email"
               labelClassName="!text-white"
@@ -94,52 +63,25 @@ export default function LoginScreen() {
                 placeholder="••••••••"
                 placeholderTextColor="#919191"
               />
-              <Pressable>
-                <AppText className={styles.forgotPassword}>
+              <Pressable className="mt-1">
+                <AppText className="!text-secondary text-sm">
                   Mot de passe oublié ?
                 </AppText>
               </Pressable>
             </View>
 
-            <Pressable className={styles.primaryButton}>
-              <AppText variant="title" className={styles.primaryButtonText}>
-                Se connecter
-              </AppText>
-            </Pressable>
+            <Button variant="primary" label="Se connecter" />
 
-            <View className={styles.socialRow}>
-              <Pressable className={styles.socialButton}>
-                <AppText variant="title" className={styles.socialButtonText}>
-                  Google
-                </AppText>
-              </Pressable>
-              <Pressable className={styles.socialButton}>
-                <AppText variant="title" className={styles.socialButtonText}>
-                  Apple
-                </AppText>
-              </Pressable>
+            {/* Social buttons */}
+            <View className="flex-row gap-2.5">
+              <Button variant="secondary" label="Google" className="flex-1" />
+              <Button variant="secondary" label="Apple" className="flex-1" />
             </View>
           </View>
         </View>
       </ScrollView>
 
-      {/* Bottom connection menu */}
-      <View
-        className={styles.bottomMenu}
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        <View className={styles.menuPill}>
-          <View className={styles.menuTabActive}>
-            <AppText className={styles.menuTabTextActive}>Se connecter</AppText>
-          </View>
-          <Pressable
-            className={styles.menuTabInactive}
-            onPress={() => router.replace("/(auth)/register-1")}
-          >
-            <AppText className={styles.menuTabTextInactive}>S'inscrire</AppText>
-          </Pressable>
-        </View>
-      </View>
+      <AuthConnectionMenu activeTab="login" />
     </KeyboardAvoidingView>
   );
 }
