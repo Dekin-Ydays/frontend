@@ -252,7 +252,7 @@ export function PoseCameraNative({ onLandmarks }: PoseCameraProps) {
         style={StyleSheet.absoluteFill}
         device={device}
         resizeMode="cover"
-        isActive={true}
+        isActive={isFocused}
         frameProcessor={poseSolution.frameProcessor}
         onOutputOrientationChanged={poseSolution.cameraOrientationChangedHandler}
         pixelFormat="rgb"

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import type {
   PoseLandmarker,
   PoseLandmarkerResult,
@@ -17,6 +18,7 @@ export function PoseCameraWeb({ onLandmarks }: PoseCameraProps) {
   const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const isFocused = useIsFocused();
   const [modelReady, setModelReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
@@ -107,6 +109,18 @@ export function PoseCameraWeb({ onLandmarks }: PoseCameraProps) {
 
   useEffect(() => {
     if (!modelReady) return;
+    if (!isFocused) {
+      stopLoop();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+      setLandmarks([]);
+      return;
+    }
 
     let cancelled = false;
 
@@ -153,7 +167,7 @@ export function PoseCameraWeb({ onLandmarks }: PoseCameraProps) {
     return () => {
       cancelled = true;
     };
-  }, [modelReady, resetTimestamp, startLoop]);
+  }, [modelReady, isFocused, resetTimestamp, startLoop, stopLoop]);
 
   return (
     <View style={styles.container}>
