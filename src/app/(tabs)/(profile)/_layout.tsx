@@ -12,11 +12,15 @@ export default function ProfileLayout() {
           header: () => (
             <TopHeader
               title="MON PROFIL"
-              editButton
-              onEdit={() => router.push("/(tabs)/(profile)/edit")}
+              moreButton
+              onMore={() => router.push("/(tabs)/(profile)/settings")}
             />
           ),
         }}
+      />
+      <Stack.Screen
+        name="settings"
+        options={{ header: () => <TopHeader backButton title="PARAMÈTRES" /> }}
       />
       <Stack.Screen
         name="edit"
