@@ -13,7 +13,13 @@ import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { TopHeader } from "@/components/nav/top-header";
 
+/*
+// Tailwind styles
+*/
 const styles = {
+  screen: "flex-1 bg-dark",
+  content: "px-5 pt-24 pb-36 gap-y-6",
+  formFields: "gap-y-6",
   stepBadge:
     "flex-row items-center h-8 bg-secondary rounded-[10px] px-5 self-start",
   stepBadgeText: "!text-dark font-montserrat-bold text-sm",
@@ -32,7 +38,7 @@ export default function RegisterStep2Screen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-dark"
+      className={styles.screen}
     >
       <TopHeader title="S'INSCRIRE" backButton />
 
@@ -40,12 +46,12 @@ export default function RegisterStep2Screen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pt-24 pb-36 gap-y-6">
+        <View className={styles.content}>
           <View className={styles.stepBadge}>
             <AppText className={styles.stepBadgeText}>Etape 2 ~ 3</AppText>
           </View>
 
-          <View className="gap-y-6">
+          <View className={styles.formFields}>
             <View className={styles.rowFields}>
               <View className="flex-1">
                 <AppInput

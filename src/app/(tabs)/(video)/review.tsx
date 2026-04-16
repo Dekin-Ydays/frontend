@@ -7,6 +7,9 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 
+/*
+// Tailwind styles
+*/
 const styles = {
   screen: "flex-1 bg-dark",
   header:

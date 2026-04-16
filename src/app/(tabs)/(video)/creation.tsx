@@ -15,6 +15,8 @@ import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
 import { Icon } from "@/components/ui/icon";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
+import type { MusicItem } from "@/types/video";
+import { MOCK_MUSIC_LIST, MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
 /*
 // Tailwind styles
@@ -44,27 +46,6 @@ const styles = {
   musicInfo: "flex-1 ml-2.5 gap-y-1",
 } as const;
 
-/*
-// Types & mock data
-*/
-type MusicItem = {
-  id: string;
-  title: string;
-  artist: string;
-  coverUri: string;
-};
-
-const MUSIC_LIST: MusicItem[] = [
-  { id: "1", title: "ONE MORE TIME", artist: "ALLDAY PROJECT", coverUri: "" },
-  { id: "2", title: "Silver Light", artist: "ATEEZ", coverUri: "" },
-  { id: "3", title: "Ride or Die", artist: "Jeff Satur", coverUri: "" },
-  { id: "4", title: "Tamed-Dashed", artist: "ENHYPEN", coverUri: "" },
-  { id: "5", title: "S-Class", artist: "Stray Kids", coverUri: "" },
-  { id: "6", title: "ONE MORE TIME", artist: "ALLDAY PROJECT", coverUri: "" },
-];
-
-const THUMBNAIL_URI =
-  "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=200&q=80";
 
 /*
 // Secondary components
@@ -108,7 +89,7 @@ export default function VideoCreationScreen() {
     return show;
   }, [hide, show]);
 
-  const filteredMusic = MUSIC_LIST.filter(
+  const filteredMusic = MOCK_MUSIC_LIST.filter(
     (m) =>
       m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.artist.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -147,7 +128,7 @@ export default function VideoCreationScreen() {
       >
         <View className={`${styles.thumbnailBorder} h-[60px] w-[60px]`}>
           <Image
-            source={{ uri: THUMBNAIL_URI }}
+            source={{ uri: MOCK_THUMBNAIL_URI }}
             className="h-full w-full"
             resizeMode="cover"
           />

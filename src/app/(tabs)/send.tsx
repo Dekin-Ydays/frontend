@@ -11,6 +11,7 @@ import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { ProfilePicture } from "@/components/profile/profile-picture";
+import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 
 /*
 // Tailwind styles
@@ -18,38 +19,12 @@ import { ProfilePicture } from "@/components/profile/profile-picture";
 const styles = {
   screen: "flex-1 bg-black/50",
   backdrop: "flex-1",
-  sheet:
-    "bg-[rgba(14,14,14,0.95)] rounded-t-[40px] px-5 pt-5 gap-5",
+  sheet: "bg-[rgba(14,14,14,0.95)] rounded-t-[40px] px-5 pt-5 gap-5",
   handle: "self-center w-10 h-1.5 bg-white/40 rounded-full mb-1",
   userCard: "flex-1 items-center gap-2.5 py-2",
   userName: "text-sm text-center",
   bottomBar: "border-t border-white/5 pt-4",
 } as const;
-
-/*
-// Mock data
-*/
-type ShareUser = {
-  id: string;
-  avatarUri: string;
-  userName: string;
-};
-
-const AVATARS = [
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
-  "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=200&q=80",
-  "https://images.unsplash.com/photo-1542206395-9feb3edaa68d?auto=format&fit=crop&w=200&q=80",
-] as const;
-
-const USERS: ShareUser[] = [
-  { id: "1", avatarUri: AVATARS[0], userName: "Jean-Baptiste Sainte-Beuve" },
-  { id: "2", avatarUri: AVATARS[1], userName: "adri1.cr" },
-  { id: "3", avatarUri: AVATARS[2], userName: "Quantix" },
-  { id: "4", avatarUri: AVATARS[3], userName: "Maxou le fou" },
-  { id: "5", avatarUri: AVATARS[0], userName: "Jean-Baptiste Sainte-Beuve" },
-  { id: "6", avatarUri: AVATARS[1], userName: "adri1.cr" },
-];
 
 /*
 // Secondary components
@@ -75,8 +50,8 @@ export default function SendScreen() {
 
   const filteredUsers = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return USERS;
-    return USERS.filter((u) => u.userName.toLowerCase().includes(q));
+    if (!q) return MOCK_SHARE_USERS;
+    return MOCK_SHARE_USERS.filter((u) => u.userName.toLowerCase().includes(q));
   }, [query]);
 
   return (

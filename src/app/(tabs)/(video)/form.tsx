@@ -12,15 +12,19 @@ import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Icon } from "@/components/ui/icon";
+import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
+/*
+// Tailwind styles
+*/
 const styles = {
   screen: "flex-1 bg-dark",
+  content: "px-5 pt-24 pb-36 gap-y-6",
+  thumbnailSection: "items-center gap-y-3",
   thumbnail: "h-[184px] w-[96px] rounded-[20px] bg-white/10",
   musicRow: "flex-row items-center gap-1.5",
+  formFields: "gap-y-6",
 } as const;
-
-const THUMBNAIL_URI =
-  "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=200&q=80";
 
 export default function VideoFormScreen() {
   const [title, setTitle] = useState("");
@@ -35,10 +39,10 @@ export default function VideoFormScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pt-24 pb-36 gap-y-6">
-          <View className="items-center gap-y-3">
+        <View className={styles.content}>
+          <View className={styles.thumbnailSection}>
             <Image
-              source={{ uri: THUMBNAIL_URI }}
+              source={{ uri: MOCK_THUMBNAIL_URI }}
               className={styles.thumbnail}
               resizeMode="cover"
             />
@@ -48,7 +52,7 @@ export default function VideoFormScreen() {
             </View>
           </View>
 
-          <View className="gap-y-6">
+          <View className={styles.formFields}>
             <AppInput
               label="Titre"
               labelClassName="!text-white"

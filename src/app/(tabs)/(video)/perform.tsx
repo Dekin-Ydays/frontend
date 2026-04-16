@@ -6,7 +6,11 @@ import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
+import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
+/*
+// Tailwind styles
+*/
 const styles = {
   screen: "flex-1 bg-dark",
   header:
@@ -21,8 +25,6 @@ const styles = {
     "h-[60px] w-[60px] rounded-full bg-white/10 border border-white/5 items-center justify-center",
 } as const;
 
-const THUMBNAIL_URI =
-  "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=200&q=80";
 
 export default function VideoPerformScreen() {
   const router = useRouter();
@@ -64,7 +66,7 @@ export default function VideoPerformScreen() {
       >
         <View className={`${styles.thumbnailBorder} h-[60px] w-[60px]`}>
           <Image
-            source={{ uri: THUMBNAIL_URI }}
+            source={{ uri: MOCK_THUMBNAIL_URI }}
             className="h-full w-full"
             resizeMode="cover"
           />

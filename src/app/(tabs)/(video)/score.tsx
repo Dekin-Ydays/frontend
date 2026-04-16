@@ -4,6 +4,9 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 
+/*
+// Tailwind styles
+*/
 const styles = {
   screen: "flex-1 bg-dark",
   content: "px-5 pt-24 gap-y-6",

@@ -12,6 +12,19 @@ import { MOCK_POSTS, OTHER_PROFILE_TABS } from "@/mocks/profiles";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
 /*
+// Tailwind styles
+*/
+const styles = {
+  screen: "flex-1 bg-dark",
+  content: "px-4 pb-32 pt-24",
+  headerAvatarRow: "mb-5 flex-row items-center gap-4",
+  headerStats: "mt-1",
+  headerActions: "mb-5 flex-row items-center gap-2.5",
+  headerTabs: "mb-6 flex-row items-center gap-3",
+  postItem: "mb-3 w-[48.5%]",
+} as const;
+
+/*
 // Secondary components
 */
 type ProfileHeaderProps = {
@@ -22,25 +35,22 @@ type ProfileHeaderProps = {
 function ProfileHeader({ activeTab, onChangeTab }: ProfileHeaderProps) {
   return (
     <>
-      {/* Avatar + stats */}
-      <View className="mb-5 flex-row items-center gap-4">
+      <View className={styles.headerAvatarRow}>
         <ProfilePicture uri={MOCK_AVATARS[0]} size={96} />
         <View className="flex-1">
           <AppText variant="bolderLargeText">Juan-Bautista</AppText>
-          <AppText variant="secondaryText" className="mt-1">
+          <AppText variant="secondaryText" className={styles.headerStats}>
             7 suivis | 13 followers
           </AppText>
         </View>
       </View>
 
-      {/* Action buttons */}
-      <View className="mb-5 flex-row items-center gap-2.5">
+      <View className={styles.headerActions}>
         <RoundedButton variant="primary" label="S'abonner" Icon={EditPencil} />
         <RoundedButton variant="secondary" label="Ecrire" Icon={ChatBubble} />
       </View>
 
-      {/* Tabs */}
-      <View className="mb-6 flex-row items-center gap-3">
+      <View className={styles.headerTabs}>
         {OTHER_PROFILE_TABS.map((tab) => (
           <ProfileTabButton
             key={tab.key}
@@ -59,7 +69,7 @@ function renderPostItem({ item }: { item: ProfilePost }) {
     <MediaTileButton
       imageUri={item.imageUri}
       title={item.title}
-      className="mb-3 w-[48.5%]"
+      className={styles.postItem}
     />
   );
 }
@@ -76,14 +86,15 @@ export default function OtherProfileScreen() {
     return show;
   }, [hide, show]);
 
-  const visiblePosts = useMemo(() => {
-    return MOCK_POSTS.filter((post) => post.category === activeTab);
-  }, [activeTab]);
+  const visiblePosts = useMemo(
+    () => MOCK_POSTS.filter((post) => post.category === activeTab),
+    [activeTab],
+  );
 
   return (
     <FlatList
-      className="flex-1 bg-dark"
-      contentContainerClassName="px-4 pb-32 pt-24"
+      className={styles.screen}
+      contentContainerClassName={styles.content}
       data={visiblePosts}
       keyExtractor={(item) => item.id}
       numColumns={2}

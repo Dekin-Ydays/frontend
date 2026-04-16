@@ -13,6 +13,18 @@ import { Button } from "@/components/ui/button";
 import { TopHeader } from "@/components/nav/top-header";
 import { AuthConnectionMenu } from "@/components/auth/auth-connection-menu";
 
+/*
+// Tailwind styles
+*/
+const styles = {
+  screen: "flex-1 bg-dark",
+  content: "px-5 pt-24 pb-36 gap-y-12",
+  logoSection: "gap-y-3",
+  subtitle: "!text-primary text-sm",
+  form: "gap-y-6",
+  socialRow: "flex-row gap-2.5",
+} as const;
+
 export default function RegisterStep1Screen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -20,7 +32,7 @@ export default function RegisterStep1Screen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-dark"
+      className={styles.screen}
     >
       <TopHeader title="S'INSCRIRE" />
 
@@ -28,17 +40,17 @@ export default function RegisterStep1Screen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pt-24 pb-36 gap-y-12">
-          <View className="gap-y-3">
+        <View className={styles.content}>
+          <View className={styles.logoSection}>
             <AppText variant="title" className="text-5xl">
               DEKIN
             </AppText>
-            <AppText className="!text-primary text-sm">
+            <AppText className={styles.subtitle}>
               Bienvenue ! Prêt à danser ?
             </AppText>
           </View>
 
-          <View className="gap-y-6">
+          <View className={styles.form}>
             <AppInput
               label="Email"
               labelClassName="!text-white"
@@ -56,7 +68,7 @@ export default function RegisterStep1Screen() {
               onPress={() => router.push("/(auth)/register/step-2")}
             />
 
-            <View className="flex-row gap-2.5">
+            <View className={styles.socialRow}>
               <Button variant="secondary" label="Google" className="flex-1" />
               <Button variant="secondary" label="Apple" className="flex-1" />
             </View>

@@ -76,7 +76,7 @@ export function BottomMenu({
   const activeRoute = state.routes[state.index]?.name;
   const isFocused = (name: string) => activeRoute === name;
   const isSearchActive = activeRoute === "search";
-  const lastNonSearchRoute = useRef<string>("index");
+  const lastNonSearchRoute = useRef<string>("(feed)");
 
   useEffect(() => {
     if (activeRoute && activeRoute !== "search") {
@@ -93,9 +93,9 @@ export function BottomMenu({
         {!isSearchActive && (
           <View className={styles.container}>
             <MenuButton
-              label={descriptors["index"]?.options?.title ?? "Home"}
-              isActive={isFocused("index")}
-              onPress={() => navigation.navigate("index")}
+              label={descriptors["(feed)"]?.options?.title ?? "Home"}
+              isActive={isFocused("(feed)")}
+              onPress={() => navigation.navigate("(feed)")}
               icon={HomeSimple}
             />
             <MenuButton

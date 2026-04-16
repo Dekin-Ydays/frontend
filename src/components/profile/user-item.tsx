@@ -2,6 +2,9 @@ import { View, Pressable } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
+/*
+// Tailwind styles
+*/
 const styles = {
   container: "flex-row items-center gap-3",
   avatarContainer: "relative",

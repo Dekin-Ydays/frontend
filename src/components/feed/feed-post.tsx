@@ -6,6 +6,26 @@ import { ProfilePicture } from "@/components/profile/profile-picture";
 import { RoundedButton } from "@/components/ui/rounded-button";
 import { Icon } from "@/components/ui/icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
+import type { FeedPostData } from "@/types/feed";
+export type { FeedPostData };
+
+/*
+// Tailwind styles
+*/
+const styles = {
+  post: "flex-1 bg-dark",
+  videoImage: "absolute left-0 right-0 top-0 rounded-[20px]",
+  videoGradient: "absolute left-0 right-0 bg-gradient-to-b from-black/0 to-black/20 rounded-b-[20px]",
+  actions: "absolute right-5 items-center gap-[15px]",
+  actionButton: "items-center gap-[5px]",
+  info: "absolute left-5 right-5 gap-2.5",
+  userRow: "flex-row items-center gap-2.5",
+  userInfo: "flex-1 gap-[5px]",
+  musicRow: "flex-row items-center gap-[5px]",
+  progressContainer: "absolute left-0 right-0 items-center",
+  progressTrack: "h-[2px] w-full rounded-full bg-white/20",
+  progressFill: "absolute top-0 left-0 h-[2px] rounded-full bg-white/60",
+} as const;
 
 /*
 // Proportional ratios from Figma (reference screen: 852px tall)
@@ -23,21 +43,6 @@ const INFO_TOP_RATIO = 659 / FIGMA_H;
 const PROGRESS_TOP_RATIO = 752 / FIGMA_H;
 
 /*
-// Types
-*/
-export type FeedPostData = {
-  imageUri: string;
-  userName: string;
-  avatarUri: string;
-  title: string;
-  musicName: string;
-  description: string;
-  likeCount: string;
-  commentCount: string;
-  shareCount: string;
-};
-
-/*
 // Secondary components
 */
 type ActionButtonProps = {
@@ -48,7 +53,7 @@ type ActionButtonProps = {
 
 function ActionButton({ icon, count, onPress }: ActionButtonProps) {
   return (
-    <Pressable className="items-center gap-[5px]" onPress={onPress}>
+    <Pressable className={styles.actionButton} onPress={onPress}>
       <Icon icon={icon} size={32} color="#FFFFFF" />
       <AppText className="text-sm">{count}</AppText>
     </Pressable>
@@ -73,27 +78,24 @@ export function FeedPost({ post }: FeedPostProps) {
   const progressTop = height * PROGRESS_TOP_RATIO;
 
   return (
-    <View className="flex-1 bg-dark">
+    <View className={styles.post}>
       {/* Background video/image — rounded card, not full bleed */}
       <Image
         source={{ uri: post.imageUri }}
-        className="absolute left-0 right-0 top-0 rounded-[20px]"
+        className={styles.videoImage}
         style={{ height: videoHeight }}
         resizeMode="cover"
       />
 
       {/* Subtle gradient at bottom of the video area */}
       <View
-        className="absolute left-0 right-0 bg-gradient-to-b from-black/0 to-black/20 rounded-b-[20px]"
+        className={styles.videoGradient}
         style={{ top: gradientTop, height: videoHeight - gradientTop }}
         pointerEvents="none"
       />
 
       {/* Right-side action buttons */}
-      <View
-        className="absolute right-5 items-center gap-[15px]"
-        style={{ top: actionsTop }}
-      >
+      <View className={styles.actions} style={{ top: actionsTop }}>
         <ActionButton icon={Heart} count={post.likeCount} />
         <ActionButton
           icon={ChatLines}
@@ -104,18 +106,15 @@ export function FeedPost({ post }: FeedPostProps) {
       </View>
 
       {/* Bottom info: user row + description */}
-      <View
-        className="absolute left-5 right-5 gap-2.5"
-        style={{ top: infoTop }}
-      >
+      <View className={styles.info} style={{ top: infoTop }}>
         {/* User row */}
-        <View className="flex-row items-center gap-2.5">
+        <View className={styles.userRow}>
           <ProfilePicture uri={post.avatarUri} size={46} />
-          <View className="flex-1 gap-[5px]">
+          <View className={styles.userInfo}>
             <AppText className="font-montserrat-bold text-sm">
               {post.title}
             </AppText>
-            <View className="flex-row items-center gap-[5px]">
+            <View className={styles.musicRow}>
               <Icon icon={MusicNote} size={18} color="#bdbdbd" />
               <AppText className="text-xs !text-[#bdbdbd]">
                 {post.musicName}
@@ -131,18 +130,13 @@ export function FeedPost({ post }: FeedPostProps) {
 
       {/* Progress bars (video timeline) */}
       <View
-        className="absolute left-0 right-0 items-center"
+        className={styles.progressContainer}
         style={{ top: progressTop }}
         pointerEvents="none"
       >
         <View style={{ width: 268 }}>
-          {/* Total duration bar */}
-          <View className="h-[2px] w-full rounded-full bg-white/20" />
-          {/* Current progress bar */}
-          <View
-            className="absolute top-0 left-0 h-[2px] rounded-full bg-white/60"
-            style={{ width: 194 }}
-          />
+          <View className={styles.progressTrack} />
+          <View className={styles.progressFill} style={{ width: 194 }} />
         </View>
       </View>
 

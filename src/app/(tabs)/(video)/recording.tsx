@@ -4,6 +4,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 
+/*
+// Tailwind styles
+*/
 const styles = {
   screen: "flex-1 bg-dark",
   bottomBar:

@@ -13,6 +13,19 @@ import { TopHeader } from "@/components/nav/top-header";
 import { AuthConnectionMenu } from "@/components/auth/auth-connection-menu";
 
 /*
+// Tailwind styles
+*/
+const styles = {
+  screen: "flex-1 bg-dark",
+  content: "px-5 pt-24 pb-36 gap-y-12",
+  logoSection: "gap-y-3",
+  subtitle: "!text-primary text-sm",
+  form: "gap-y-6",
+  forgotPassword: "!text-secondary text-sm",
+  socialRow: "flex-row gap-2.5",
+} as const;
+
+/*
 // Main component
 */
 export default function LoginScreen() {
@@ -22,7 +35,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-dark"
+      className={styles.screen}
     >
       <TopHeader title="SE CONNECTER" />
 
@@ -30,19 +43,17 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pt-24 pb-36 gap-y-12">
-          {/* Logo + subtitle */}
-          <View className="gap-y-3">
+        <View className={styles.content}>
+          <View className={styles.logoSection}>
             <AppText variant="title" className="text-5xl">
               DEKIN
             </AppText>
-            <AppText className="!text-primary text-sm">
+            <AppText className={styles.subtitle}>
               Encore toi ! Prêt à danser ?
             </AppText>
           </View>
 
-          {/* Form */}
-          <View className="gap-y-6">
+          <View className={styles.form}>
             <AppInput
               label="Email"
               labelClassName="!text-white"
@@ -64,7 +75,7 @@ export default function LoginScreen() {
                 placeholderTextColor="#919191"
               />
               <Pressable className="mt-1">
-                <AppText className="!text-secondary text-sm">
+                <AppText className={styles.forgotPassword}>
                   Mot de passe oublié ?
                 </AppText>
               </Pressable>
@@ -72,8 +83,7 @@ export default function LoginScreen() {
 
             <Button variant="primary" label="Se connecter" />
 
-            {/* Social buttons */}
-            <View className="flex-row gap-2.5">
+            <View className={styles.socialRow}>
               <Button variant="secondary" label="Google" className="flex-1" />
               <Button variant="secondary" label="Apple" className="flex-1" />
             </View>

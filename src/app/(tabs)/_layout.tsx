@@ -13,33 +13,23 @@ export default function TabLayout() {
   return (
     <BottomBarProvider>
       <Tabs
-        screenOptions={({ route }) => {
-          const isFeedRoute =
-            route.name === "index" ||
-            route.name === "following" ||
-            route.name === "favorites";
-
-          return {
-            headerTransparent: true,
-            header: () => {
-              if (isFeedRoute) return <TopFeed />;
-              if (route.name === "search")
-                return <TopHeader title="RECHERCHE" avatarUri={USER_AVATAR_URI} />;
-              if (route.name === "research-dances")
-                return <TopHeader backButton />;
-              // Groups handle their own headers via nested Stack layouts
-              return null;
-            },
-          };
-        }}
+        screenOptions={({ route }) => ({
+          headerTransparent: true,
+          header: () => {
+            if (route.name === "search")
+              return <TopHeader title="RECHERCHE" avatarUri={USER_AVATAR_URI} />;
+            if (route.name === "research-dances")
+              return <TopHeader backButton />;
+            // (feed), (messages), (profile), (video) handle their own headers
+            return null;
+          },
+        })}
         tabBar={(props) => <BottomMenu {...props} />}
       >
-        <Tabs.Screen name="index" options={{ title: "Home" }} />
+        <Tabs.Screen name="(feed)" options={{ title: "Home", headerShown: false }} />
         <Tabs.Screen name="(messages)" options={{ title: "Messages", headerShown: false }} />
         <Tabs.Screen name="(profile)" options={{ title: "Profil", headerShown: false }} />
         <Tabs.Screen name="search" options={{ title: "Recherche" }} />
-        <Tabs.Screen name="following" options={{ href: null }} />
-        <Tabs.Screen name="favorites" options={{ href: null }} />
         <Tabs.Screen name="send" options={{ href: null }} />
         <Tabs.Screen name="(video)" options={{ href: null, headerShown: false }} />
         <Tabs.Screen name="research-dances" options={{ href: null }} />

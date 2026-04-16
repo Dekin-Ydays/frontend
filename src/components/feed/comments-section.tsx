@@ -5,6 +5,14 @@ import { AppText } from "@/components/ui/app-text";
 import { MessageSender } from "@/components/messages/message-sender";
 import { CommentItem } from "./comment-item";
 
+/*
+// Tailwind styles
+*/
+const styles = {
+  header: "px-5 pt-2 pb-4 border-b border-white/10",
+  headerTitle: "text-center font-montserrat-bold",
+} as const;
+
 type CommentsSectionProps = {
   comments: CommentData[];
   /** Hauteur max de la liste avant scroll. Par défaut 380. */
@@ -28,8 +36,8 @@ export function CommentsSection({
   return (
     <View>
       {/* Header */}
-      <View className="px-5 pt-2 pb-4 border-b border-white/10">
-        <AppText className="text-center font-montserrat-bold">
+      <View className={styles.header}>
+        <AppText className={styles.headerTitle}>
           Commentaires
         </AppText>
       </View>
