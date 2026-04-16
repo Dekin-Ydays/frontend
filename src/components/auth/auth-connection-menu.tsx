@@ -39,7 +39,7 @@ export function AuthConnectionMenu({ activeTab }: AuthConnectionMenuProps) {
         ) : (
           <Pressable
             className="flex-1 h-[50px] items-center justify-center rounded-full"
-            onPress={() => router.replace("/(auth)/register-1")}
+            onPress={() => router.replace("/(auth)/register/step-1")}
           >
             <AppText className="text-sm">S'inscrire</AppText>
           </Pressable>

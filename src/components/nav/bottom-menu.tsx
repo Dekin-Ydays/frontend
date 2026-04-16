@@ -84,19 +84,7 @@ export function BottomMenu({
     }
   }, [activeRoute]);
 
-  const routesWithoutMenu = [
-    "conversation",
-    "edit-profile",
-    "score-result",
-    "video-creation",
-    "video-form",
-    "other-profile",
-    "send",
-    "video-perform",
-    "video-recording",
-    "video-review",
-  ];
-  if (!isVisible || routesWithoutMenu.includes(activeRoute)) return null;
+  if (!isVisible) return null;
 
   return (
     <View className={styles.bar} style={{ paddingBottom: insets.bottom }}>
@@ -105,21 +93,21 @@ export function BottomMenu({
         {!isSearchActive && (
           <View className={styles.container}>
             <MenuButton
-              label={descriptors.index?.options?.title ?? "Home"}
+              label={descriptors["index"]?.options?.title ?? "Home"}
               isActive={isFocused("index")}
               onPress={() => navigation.navigate("index")}
               icon={HomeSimple}
             />
             <MenuButton
-              label={descriptors.messages?.options?.title ?? "Messages"}
-              isActive={isFocused("messages")}
-              onPress={() => navigation.navigate("messages")}
+              label={descriptors["(messages)"]?.options?.title ?? "Messages"}
+              isActive={isFocused("(messages)")}
+              onPress={() => navigation.navigate("(messages)")}
               icon={Send}
             />
             <MenuButton
-              label={descriptors.profile?.options?.title ?? "Profil"}
-              isActive={isFocused("profile")}
-              onPress={() => navigation.navigate("profile")}
+              label={descriptors["(profile)"]?.options?.title ?? "Profil"}
+              isActive={isFocused("(profile)")}
+              onPress={() => navigation.navigate("(profile)")}
               icon={User}
             />
           </View>
@@ -128,7 +116,7 @@ export function BottomMenu({
         {/* Search pill — always visible, acts as back button when search is active */}
         <View className={styles.container}>
           <MenuButton
-            label={descriptors.search?.options?.title ?? "Recherche"}
+            label={descriptors["search"]?.options?.title ?? "Recherche"}
             isActive={isFocused("search")}
             onPress={() => {
               if (isSearchActive) {

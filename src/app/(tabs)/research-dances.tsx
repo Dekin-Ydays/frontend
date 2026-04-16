@@ -156,7 +156,7 @@ export default function ResearchDancesScreen() {
               avatarUri={item.avatarUri}
               userName={item.userName}
               messagePreview={item.stats}
-              onPress={() => router.push("/(tabs)/other-profile")}
+              onPress={() => router.push("/(tabs)/(profile)/1")}
             />
           )}
         />

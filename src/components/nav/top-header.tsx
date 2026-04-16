@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
-import { UserItem, type UserItemProps } from "../user-item";
+import { UserItem, type UserItemProps } from "@/components/profile/user-item";
 
 /*
 // Tailwind styles

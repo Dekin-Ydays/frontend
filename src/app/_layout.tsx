@@ -5,6 +5,7 @@ import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Montserrat_400Regular,
   Montserrat_500Medium,
@@ -37,8 +38,10 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider className="bg-dark flex-1">
-      <Slot />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider className="bg-dark flex-1">
+        <Slot />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
