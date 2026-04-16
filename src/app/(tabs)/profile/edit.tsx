@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -6,7 +6,7 @@ import {
   ScrollView,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
@@ -35,10 +35,12 @@ export default function EditProfileScreen() {
   const { hide, show } = useBottomBar();
   const [firstName, setFirstName] = useState("Adrien");
 
-  useEffect(() => {
-    hide();
-    return show;
-  }, [hide, show]);
+  useFocusEffect(
+    useCallback(() => {
+      hide();
+      return show;
+    }, [hide, show])
+  );
   const [lastName, setLastName] = useState("Cambier");
   const [pseudo, setPseudo] = useState("TheGoat1438");
   const [email, setEmail] = useState("gérard.dupont@gmail.com");

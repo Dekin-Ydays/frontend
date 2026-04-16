@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback } from "react";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import type { Href } from "expo-router";
 import { ProfileView } from "@/components/profile/profile-view";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
@@ -16,10 +16,12 @@ export default function OtherProfileScreen() {
 
   const activeTab = ((Array.isArray(tab) ? tab[0] : tab) ?? "performances") as ProfileTabKey;
 
-  useEffect(() => {
-    hide();
-    return show;
-  }, [hide, show]);
+  useFocusEffect(
+    useCallback(() => {
+      hide();
+      return show;
+    }, [hide, show])
+  );
 
   const handleChangeTab = useCallback(
     (t: ProfileTabKey) => router.setParams({ tab: t }),

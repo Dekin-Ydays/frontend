@@ -26,7 +26,7 @@ export default function TabLayout() {
 
         {/* ── Pages annexes (pas de tab button) ── */}
         <Tabs.Screen name="video" options={{ href: null }} />
-        <Tabs.Screen name="share" options={{ href: null }} />
+
       </Tabs>
     </BottomBarProvider>
   );

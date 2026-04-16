@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Image, Pressable, useWindowDimensions, View } from "react-native";
-import { useRouter } from "expo-router";
 import { Heart, ChatLines, ShareIos, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
@@ -8,6 +7,7 @@ import { RoundedButton } from "@/components/ui/rounded-button";
 import { Icon } from "@/components/ui/icon";
 import type { AppIconComponent } from "@/components/ui/icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
+import { ShareBottomSheet } from "@/components/ui/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
 export type { FeedPostData };
 
@@ -70,9 +70,9 @@ type FeedPostProps = {
 };
 
 export function FeedPost({ post }: FeedPostProps) {
-  const router = useRouter();
   const { height } = useWindowDimensions();
   const [commentsVisible, setCommentsVisible] = useState(false);
+  const [shareVisible, setShareVisible] = useState(false);
 
   const videoHeight = height * VIDEO_H_RATIO;
   const gradientTop = height * GRADIENT_TOP_RATIO;
@@ -105,7 +105,7 @@ export function FeedPost({ post }: FeedPostProps) {
           count={post.commentCount}
           onPress={() => setCommentsVisible(true)}
         />
-        <ActionButton icon={ShareIos} count={post.shareCount} onPress={() => router.push("/(tabs)/share" as any)} />
+        <ActionButton icon={ShareIos} count={post.shareCount} onPress={() => setShareVisible(true)} />
       </View>
 
       {/* Bottom info: user row + description */}
@@ -143,6 +143,10 @@ export function FeedPost({ post }: FeedPostProps) {
         </View>
       </View>
 
+      <ShareBottomSheet
+        visible={shareVisible}
+        onClose={() => setShareVisible(false)}
+      />
       <CommentsBottomSheet
         visible={commentsVisible}
         onClose={() => setCommentsVisible(false)}

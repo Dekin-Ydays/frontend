@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
 import {
   Image,
   KeyboardAvoidingView,
@@ -34,10 +34,12 @@ export default function VideoFormScreen() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  useEffect(() => {
-    hide();
-    return show;
-  }, [hide, show]);
+  useFocusEffect(
+    useCallback(() => {
+      hide();
+      return show;
+    }, [hide, show])
+  );
 
   return (
     <KeyboardAvoidingView

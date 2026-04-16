@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import { ArrowLeft, ArrowRight, Play } from "iconoir-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
@@ -30,10 +30,12 @@ export default function VideoReviewScreen() {
   const insets = useSafeAreaInsets();
   const { hide, show } = useBottomBar();
 
-  useEffect(() => {
-    hide();
-    return show;
-  }, [hide, show]);
+  useFocusEffect(
+    useCallback(() => {
+      hide();
+      return show;
+    }, [hide, show])
+  );
 
   return (
     <View className={styles.screen}>

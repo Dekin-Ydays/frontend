@@ -1,27 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  View,
-} from "react-native";
+import { useMemo, useState } from "react";
+import { FlatList, Pressable, View } from "react-native";
 import { Send } from "iconoir-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { AppText } from "@/components/ui/app-text";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { ProfilePicture } from "@/components/profile/profile-picture";
 import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
-import { ProfilePicture } from "@/components/profile/profile-picture";
-import { useBottomBar } from "@/components/nav/bottom-bar-context";
+import { AppText } from "@/components/ui/app-text";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 
 /*
-// Tailwind styles
+// Styles
 */
 const styles = {
-  screen: "flex-1 bg-black/50",
-  backdrop: "flex-1",
-  sheet: "bg-[rgba(14,14,14,0.95)] rounded-t-[40px] px-5 pt-5 gap-5",
-  handle: "self-center w-10 h-1.5 bg-white/40 rounded-full mb-1",
   userCard: "flex-1 items-center gap-2.5 py-2",
   userName: "text-sm text-center",
   bottomBar: "border-t border-white/5 pt-4",
@@ -42,18 +33,19 @@ function UserCard({ item }: { item: ShareUser }) {
 }
 
 /*
+// Props
+*/
+type ShareBottomSheetProps = {
+  visible: boolean;
+  onClose: () => void;
+};
+
+/*
 // Main component
 */
-export default function SendScreen() {
-  const router = useRouter();
+export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
   const insets = useSafeAreaInsets();
-  const { hide, show } = useBottomBar();
   const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    hide();
-    return show;
-  }, [hide, show]);
 
   const filteredUsers = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -62,17 +54,11 @@ export default function SendScreen() {
   }, [query]);
 
   return (
-    <View className={styles.screen}>
-      {/* Tap backdrop to go back */}
-      <Pressable className={styles.backdrop} onPress={() => router.back()} />
-
-      {/* Bottom sheet */}
+    <BottomSheet visible={visible} onClose={onClose}>
       <View
-        className={styles.sheet}
-        style={{ paddingBottom: insets.bottom + 12 }}
+        className="bg-[rgba(14,14,14,0.97)] rounded-t-[40px] overflow-hidden px-5 pb-6 gap-5"
+        style={{ paddingBottom: insets.bottom + 24 }}
       >
-        <View className={styles.handle} />
-
         <AppInput
           placeholder="Rechercher une personne..."
           placeholderTextColor="#919191"
@@ -91,9 +77,9 @@ export default function SendScreen() {
         />
 
         <View className={styles.bottomBar}>
-          <Button variant="primary" label="Envoyer" Icon={Send} onPress={() => router.back()} />
+          <Button variant="primary" label="Envoyer" Icon={Send} onPress={onClose} />
         </View>
       </View>
-    </View>
+    </BottomSheet>
   );
 }

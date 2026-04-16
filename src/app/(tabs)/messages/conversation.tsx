@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -6,7 +6,7 @@ import {
   Platform,
   View,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useFocusEffect } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import {
   ChatBubble,
@@ -110,10 +110,12 @@ export default function ConversationScreen() {
   const [inputValue, setInputValue] = useState("");
   const listRef = useRef<FlatList>(null);
 
-  useEffect(() => {
-    hide();
-    return show;
-  }, [hide, show]);
+  useFocusEffect(
+    useCallback(() => {
+      hide();
+      return show;
+    }, [hide, show])
+  );
 
   const handleSend = useCallback(() => {
     const text = inputValue.trim();
