@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { ProfileView } from "@/components/profile/profile-view";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import type { ProfileTabKey } from "@/types/profile";
@@ -34,6 +35,12 @@ export default function OtherProfileScreen() {
       tabs={OTHER_PROFILE_TABS}
       activeTab={activeTab}
       onChangeTab={handleChangeTab}
+      onMessage={() =>
+        router.push({
+          pathname: "/(tabs)/messages/conversation",
+          params: { userName: "Juan-Bautista", avatarUri: AVATAR_URI, isOnline: "false" },
+        } as Href)
+      }
     />
   );
 }

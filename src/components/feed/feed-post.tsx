@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Image, Pressable, useWindowDimensions, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Heart, ChatLines, ShareIos, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { RoundedButton } from "@/components/ui/rounded-button";
 import { Icon } from "@/components/ui/icon";
+import type { AppIconComponent } from "@/components/ui/icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
 export type { FeedPostData };
@@ -46,7 +48,7 @@ const PROGRESS_TOP_RATIO = 752 / FIGMA_H;
 // Secondary components
 */
 type ActionButtonProps = {
-  icon: React.ComponentType<{ width?: number; height?: number; color?: string }>;
+  icon: AppIconComponent;
   count: string;
   onPress?: () => void;
 };
@@ -68,6 +70,7 @@ type FeedPostProps = {
 };
 
 export function FeedPost({ post }: FeedPostProps) {
+  const router = useRouter();
   const { height } = useWindowDimensions();
   const [commentsVisible, setCommentsVisible] = useState(false);
 
@@ -102,7 +105,7 @@ export function FeedPost({ post }: FeedPostProps) {
           count={post.commentCount}
           onPress={() => setCommentsVisible(true)}
         />
-        <ActionButton icon={ShareIos} count={post.shareCount} />
+        <ActionButton icon={ShareIos} count={post.shareCount} onPress={() => router.push("/(tabs)/share" as any)} />
       </View>
 
       {/* Bottom info: user row + description */}

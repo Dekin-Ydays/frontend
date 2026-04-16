@@ -91,7 +91,7 @@ export default function SendScreen() {
         />
 
         <View className={styles.bottomBar}>
-          <Button variant="primary" label="Envoyer" Icon={Send} />
+          <Button variant="primary" label="Envoyer" Icon={Send} onPress={() => router.back()} />
         </View>
       </View>
     </View>

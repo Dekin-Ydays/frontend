@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { ShareIos } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -17,6 +18,7 @@ const styles = {
 } as const;
 
 export default function ScoreResultScreen() {
+  const router = useRouter();
   const { hide, show } = useBottomBar();
   const score = 90;
 
@@ -44,7 +46,7 @@ export default function ScoreResultScreen() {
       </View>
 
       <BottomActionBar>
-        <Button variant="primary" label="Partager" Icon={ShareIos} />
+        <Button variant="primary" label="Partager" Icon={ShareIos} onPress={() => router.push("/(tabs)/share" as any)} />
       </BottomActionBar>
     </View>
   );

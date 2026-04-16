@@ -6,6 +6,7 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const styles = {
 // Main component
 */
 export default function EditProfileScreen() {
+  const router = useRouter();
   const { hide, show } = useBottomBar();
   const [firstName, setFirstName] = useState("Adrien");
 
@@ -106,7 +108,7 @@ export default function EditProfileScreen() {
       </ScrollView>
 
       <BottomActionBar>
-        <Button variant="primary" label="Enregistrer" />
+        <Button variant="primary" label="Enregistrer" onPress={() => router.back()} />
       </BottomActionBar>
     </KeyboardAvoidingView>
   );

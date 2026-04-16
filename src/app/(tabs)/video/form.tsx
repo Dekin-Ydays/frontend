@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 import {
   Image,
   KeyboardAvoidingView,
@@ -28,6 +29,7 @@ const styles = {
 } as const;
 
 export default function VideoFormScreen() {
+  const router = useRouter();
   const { hide, show } = useBottomBar();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -82,7 +84,7 @@ export default function VideoFormScreen() {
       </ScrollView>
 
       <BottomActionBar>
-        <Button variant="primary" label="Publier" Icon={Upload} />
+        <Button variant="primary" label="Publier" Icon={Upload} onPress={() => router.push("/(tabs)/video/score" as any)} />
       </BottomActionBar>
     </KeyboardAvoidingView>
   );

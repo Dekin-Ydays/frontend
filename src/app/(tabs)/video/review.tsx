@@ -13,7 +13,7 @@ import { useBottomBar } from "@/components/nav/bottom-bar-context";
 const styles = {
   screen: "flex-1 bg-dark",
   header:
-    "absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center gap-5 px-5",
+    "absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center justify-between px-5",
   bottomBar:
     "absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 gap-3 pt-3",
   progressTrack: "h-[2px] bg-white/20 rounded-full mx-5",
@@ -48,6 +48,13 @@ export default function VideoReviewScreen() {
           <Icon icon={ArrowLeft} size={32} color="#FFFFFF" />
         </Pressable>
         <AppText variant="title">NOUVELLE VIDEO</AppText>
+        <Pressable
+          onPress={() => router.push("/(tabs)/video/form" as any)}
+          accessibilityRole="button"
+          accessibilityLabel="Suivant"
+        >
+          <AppText className="!text-primary text-sm font-montserrat-semibold">Suivant</AppText>
+        </Pressable>
       </View>
 
       <View

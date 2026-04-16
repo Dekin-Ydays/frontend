@@ -31,6 +31,8 @@ type ProfileHeaderProps = {
   tabs: ProfileTab[];
   activeTab: ProfileTabKey;
   onChangeTab: (tab: ProfileTabKey) => void;
+  onPressAdd?: () => void;
+  onMessage?: () => void;
 };
 
 function ProfileHeader({
@@ -41,11 +43,13 @@ function ProfileHeader({
   tabs,
   activeTab,
   onChangeTab,
+  onPressAdd,
+  onMessage,
 }: ProfileHeaderProps) {
   return (
     <>
       <View className={styles.avatarRow}>
-        <ProfilePicture uri={avatarUri} size={96} showAddButton={isOwnProfile} />
+        <ProfilePicture uri={avatarUri} size={96} showAddButton={isOwnProfile} onPressAdd={onPressAdd} />
         <View className="flex-1">
           <AppText variant="bolderLargeText">{name}</AppText>
           <AppText variant="secondaryText" className="mt-1">{stats}</AppText>
@@ -55,7 +59,7 @@ function ProfileHeader({
       {!isOwnProfile && (
         <View className={styles.actionsRow}>
           <RoundedButton variant="primary" label="S'abonner" Icon={EditPencil} />
-          <RoundedButton variant="secondary" label="Ecrire" Icon={ChatBubble} />
+          <RoundedButton variant="secondary" label="Ecrire" Icon={ChatBubble} onPress={onMessage} />
         </View>
       )}
 
@@ -85,6 +89,8 @@ type ProfileViewProps = {
   activeTab: ProfileTabKey;
   onChangeTab: (tab: ProfileTabKey) => void;
   isOwnProfile?: boolean;
+  onPressAdd?: () => void;
+  onMessage?: () => void;
 };
 
 export function ProfileView({
@@ -96,6 +102,8 @@ export function ProfileView({
   activeTab,
   onChangeTab,
   isOwnProfile = false,
+  onPressAdd,
+  onMessage,
 }: ProfileViewProps) {
   const visiblePosts = useMemo(
     () => posts.filter((post) => post.category === activeTab),
@@ -131,6 +139,8 @@ export function ProfileView({
           tabs={tabs}
           activeTab={activeTab}
           onChangeTab={onChangeTab}
+          onPressAdd={onPressAdd}
+          onMessage={onMessage}
         />
       }
       renderItem={renderPost}

@@ -1,5 +1,6 @@
 import { ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { QuestionMark, EditPencil, Bell, LogOut, NavArrowRight } from "iconoir-react-native";
 import { SettingsItem } from "@/components/profile/settings-item";
 
@@ -40,6 +41,7 @@ export default function SettingsScreen() {
         label="Se déconnecter"
         danger
         trailingIcon={LogOut}
+        onPress={() => router.replace("/login" as Href)}
       />
     </ScrollView>
   );

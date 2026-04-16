@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { useCallback } from "react";
 import { ProfileView } from "@/components/profile/profile-view";
 import type { ProfileTabKey } from "@/types/profile";
@@ -27,6 +28,7 @@ export default function ProfileScreen() {
       activeTab={activeTab}
       onChangeTab={handleChangeTab}
       isOwnProfile
+      onPressAdd={() => router.push("/(tabs)/video/creation" as Href)}
     />
   );
 }
