@@ -11,9 +11,7 @@ import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { ProfilePicture } from "@/components/profile/profile-picture";
-
-const AVATAR_URI =
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80";
+import { MOCK_AVATARS } from "@/mocks/avatars";
 
 export default function EditProfileScreen() {
   const [firstName, setFirstName] = useState("Adrien");
@@ -33,7 +31,7 @@ export default function EditProfileScreen() {
         <View className="px-5 pt-24 pb-36 gap-y-6">
           {/* Avatar section */}
           <View className="items-center gap-y-2.5">
-            <ProfilePicture uri={AVATAR_URI} size={96} showAddButton />
+            <ProfilePicture uri={MOCK_AVATARS[0]} size={96} showAddButton />
             <Pressable>
               <AppText className="!text-secondary text-sm">
                 Modifier la photo de profil

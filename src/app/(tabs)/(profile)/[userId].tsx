@@ -9,6 +9,7 @@ import { MediaTileButton } from "@/components/media/media-tile-button";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import type { ProfilePost, ProfileTabKey } from "@/types/profile";
 import { MOCK_POSTS, OTHER_PROFILE_TABS } from "@/mocks/profiles";
+import { MOCK_AVATARS } from "@/mocks/avatars";
 
 /*
 // Secondary components
@@ -23,10 +24,7 @@ function ProfileHeader({ activeTab, onChangeTab }: ProfileHeaderProps) {
     <>
       {/* Avatar + stats */}
       <View className="mb-5 flex-row items-center gap-4">
-        <ProfilePicture
-          uri="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80"
-          size={96}
-        />
+        <ProfilePicture uri={MOCK_AVATARS[0]} size={96} />
         <View className="flex-1">
           <AppText variant="bolderLargeText">Juan-Bautista</AppText>
           <AppText variant="secondaryText" className="mt-1">
