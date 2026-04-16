@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Cancel, MusicNote, RefreshDouble } from "iconoir-react-native";
+import { Xmark, MusicNote, RefreshDouble } from "iconoir-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
@@ -107,7 +107,7 @@ export default function VideoCreationScreen() {
       <View className={styles.header} style={{ paddingTop: insets.top }}>
         <View className={styles.headerLeft}>
           <Pressable onPress={() => router.back()}>
-            <Icon icon={Cancel} size={32} color="#FFFFFF" />
+            <Icon icon={Xmark} size={32} color="#FFFFFF" />
           </Pressable>
           <AppText variant="title">NOUVELLE VIDEO</AppText>
         </View>

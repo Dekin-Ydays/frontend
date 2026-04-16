@@ -72,7 +72,7 @@ export default function VideoReviewScreen() {
             accessibilityRole="button"
             accessibilityLabel="Lire"
           >
-            <Icon icon={Play} size={28} color="#0E0E0E" />
+            <Icon icon={Play} size={32} color="#0E0E0E" />
           </Pressable>
 
           <Pressable

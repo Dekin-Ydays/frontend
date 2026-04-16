@@ -9,6 +9,11 @@ export default function FeedLayout() {
         header: () => <TopFeed />,
         animation: "none",
       }}
-    />
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name="for-you" />
+      <Stack.Screen name="following" />
+      <Stack.Screen name="favorites" />
+    </Stack>
   );
 }

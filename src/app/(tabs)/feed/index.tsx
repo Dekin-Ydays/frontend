@@ -1,6 +1,6 @@
-import { FeedList } from "@/components/feed/feed-list";
-import { MOCK_FOR_YOU_POSTS } from "@/mocks/feed";
+import { Redirect } from "expo-router";
+import type { Href } from "expo-router";
 
-export default function ForYouScreen() {
-  return <FeedList posts={MOCK_FOR_YOU_POSTS} />;
+export default function FeedIndex() {
+  return <Redirect href={"/feed/for-you" as Href} />;
 }

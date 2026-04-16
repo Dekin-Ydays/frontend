@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Image, Pressable, View } from "react-native";
-import { Cancel, RefreshDouble } from "iconoir-react-native";
+import { Xmark, RefreshDouble } from "iconoir-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
@@ -42,7 +42,7 @@ export default function VideoPerformScreen() {
 
       <View className={styles.header} style={{ paddingTop: insets.top }}>
         <Pressable onPress={() => router.back()}>
-          <Icon icon={Cancel} size={32} color="#FFFFFF" />
+          <Icon icon={Xmark} size={32} color="#FFFFFF" />
         </Pressable>
       </View>
 

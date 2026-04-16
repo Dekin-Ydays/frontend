@@ -1,5 +1,6 @@
 import { Pressable, View } from "react-native";
 import { usePathname, useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "../ui/app-text";
 
@@ -20,10 +21,10 @@ export function TopFeed() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const pathname = usePathname();
-  const normalizedPath = pathname === "" ? "/feed" : pathname;
+  const normalizedPath = pathname === "" ? "/feed/for-you" : pathname;
 
   const feedTabs = [
-    { label: "Pour vous", path: "/feed" },
+    { label: "Pour vous", path: "/feed/for-you" },
     { label: "Vos suivis", path: "/feed/following" },
     { label: "Favoris", path: "/feed/favorites" },
   ] as const;
@@ -39,7 +40,7 @@ export function TopFeed() {
               key={tab.path}
               accessibilityRole="button"
               accessibilityLabel={tab.label}
-              onPress={() => router.replace(tab.path)}
+              onPress={() => router.replace(tab.path as Href)}
             >
               <View className="items-center">
                 <AppText
