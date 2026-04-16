@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -11,6 +11,7 @@ import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { ProfilePicture } from "@/components/profile/profile-picture";
+import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 
 /*
@@ -46,7 +47,13 @@ function UserCard({ item }: { item: ShareUser }) {
 export default function SendScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { hide, show } = useBottomBar();
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    hide();
+    return show;
+  }, [hide, show]);
 
   const filteredUsers = useMemo(() => {
     const q = query.trim().toLowerCase();

@@ -1,24 +1,86 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { RoundedButton } from "@/components/ui/rounded-button";
 import { MediaTileButton } from "@/components/media/media-tile-button";
 import { MessageListItem } from "@/components/messages/message-list-item";
-import type { SearchFilter } from "@/types/search";
-import {
-  MOCK_DANCES,
-  MOCK_SEARCH_PROFILES,
-  SEARCH_FILTERS,
-} from "@/mocks/search";
+import { AppText } from "@/components/ui/app-text";
+import type { SearchFilter, SearchProfileItem, SearchDanceItem } from "@/types/search";
+import { MOCK_DANCES, MOCK_SEARCH_PROFILES, SEARCH_FILTERS } from "@/mocks/search";
 
 /*
-// Tailwind styles
+// Utils
 */
-const styles = {
-  screen: "flex-1 bg-dark",
-  filterRow: "flex-row gap-2 px-5 pt-24 pb-2",
-} as const;
+function filterByQuery<T>(items: T[], query: string, getField: (item: T) => string): T[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return items;
+  return items.filter((item) => getField(item).toLowerCase().includes(q));
+}
+
+/*
+// Secondary components
+*/
+type ProfilesListProps = {
+  data: SearchProfileItem[];
+  paddingBottom: number;
+  onPress: (id: string) => void;
+};
+
+function ProfilesList({ data, paddingBottom, onPress }: ProfilesListProps) {
+  return (
+    <FlatList
+      key="profiles"
+      data={data}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom, gap: 16 }}
+      showsVerticalScrollIndicator={false}
+      renderItem={({ item }) => (
+        <MessageListItem
+          avatarUri={item.avatarUri}
+          userName={item.userName}
+          messagePreview={item.stats}
+          onPress={() => onPress(item.id)}
+        />
+      )}
+    />
+  );
+}
+
+type DancesListProps = {
+  data: SearchDanceItem[];
+  paddingBottom: number;
+};
+
+function DancesList({ data, paddingBottom }: DancesListProps) {
+  return (
+    <FlatList
+      key="dances"
+      data={data}
+      numColumns={2}
+      keyExtractor={(item) => item.id}
+      columnWrapperStyle={{ gap: 8 }}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom, gap: 8 }}
+      showsVerticalScrollIndicator={false}
+      renderItem={({ item }) => (
+        <MediaTileButton
+          imageUri={item.imageUri}
+          title={item.title}
+          className="flex-1 rounded-[20px]"
+        />
+      )}
+    />
+  );
+}
+
+function EmptyState({ label }: { label: string }) {
+  return (
+    <View className="flex-1 items-center justify-center">
+      <AppText variant="secondaryText">{label}</AppText>
+    </View>
+  );
+}
 
 /*
 // Main component
@@ -26,81 +88,57 @@ const styles = {
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const params = useLocalSearchParams<{ q?: string }>();
-  const searchQuery = (Array.isArray(params.q) ? params.q[0] : params.q) ?? "";
-  const [activeFilter, setActiveFilter] = useState<SearchFilter>("Profils");
+  const { q, category } = useLocalSearchParams<{ q?: string; category?: string }>();
 
-  const filteredProfiles = useMemo(() => {
-    const q = searchQuery.toLowerCase();
-    if (!q) return MOCK_SEARCH_PROFILES;
-    return MOCK_SEARCH_PROFILES.filter((p) =>
-      p.userName.toLowerCase().includes(q),
-    );
-  }, [searchQuery]);
+  const searchQuery = (Array.isArray(q) ? q[0] : q) ?? "";
+  const activeFilter = ((Array.isArray(category) ? category[0] : category) ?? "Profils") as SearchFilter;
+  const listPaddingBottom = insets.bottom + 96;
 
-  const filteredDances = useMemo(() => {
-    const q = searchQuery.toLowerCase();
-    if (!q) return MOCK_DANCES;
-    return MOCK_DANCES.filter((d) => d.title.toLowerCase().includes(q));
-  }, [searchQuery]);
+  const filteredProfiles = useMemo(
+    () => filterByQuery(MOCK_SEARCH_PROFILES, searchQuery, (p) => p.userName),
+    [searchQuery],
+  );
 
-  const listBottomPadding = insets.bottom + 96;
+  const filteredDances = useMemo(
+    () => filterByQuery(MOCK_DANCES, searchQuery, (d) => d.title),
+    [searchQuery],
+  );
+
+  const handleFilterChange = useCallback(
+    (filter: SearchFilter) => router.setParams({ category: filter }),
+    [router],
+  );
+
+  const handlePressProfile = useCallback(
+    (id: string) => router.push(`/(tabs)/profile/${id}` as Href),
+    [router],
+  );
 
   return (
-    <View className={styles.screen}>
-      {/* Filter row */}
-      <View className={styles.filterRow}>
+    <View className="flex-1 bg-dark">
+      <View className="flex-row gap-2 px-5 pt-24 pb-2">
         {SEARCH_FILTERS.map((filter) => (
           <RoundedButton
             key={filter}
             variant={activeFilter === filter ? "primary" : "secondary"}
             label={filter}
-            onPress={() => setActiveFilter(filter)}
+            onPress={() => handleFilterChange(filter)}
           />
         ))}
       </View>
 
-      {activeFilter === "Danses" ? (
-        <FlatList
-          key="dances"
-          data={filteredDances}
-          numColumns={2}
-          keyExtractor={(item) => item.id}
-          columnWrapperStyle={{ gap: 8 }}
-          contentContainerStyle={{
-            paddingHorizontal: 20,
-            paddingBottom: listBottomPadding,
-            gap: 8,
-          }}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <MediaTileButton
-              imageUri={item.imageUri}
-              title={item.title}
-              className="flex-1 rounded-[20px]"
-            />
-          )}
-        />
-      ) : (
-        <FlatList
-          key="profiles"
+      {activeFilter === "Profils" && (
+        <ProfilesList
           data={filteredProfiles}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{
-            paddingHorizontal: 20,
-            paddingBottom: listBottomPadding,
-          }}
-          ItemSeparatorComponent={() => <View className="h-4" />}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <MessageListItem
-              avatarUri={item.avatarUri}
-              userName={item.userName}
-              messagePreview={item.stats}
-              onPress={() => router.push("/(tabs)/profile/1")}
-            />
-          )}
+          paddingBottom={listPaddingBottom}
+          onPress={handlePressProfile}
         />
+      )}
+      {activeFilter === "Danses" && (
+        <DancesList data={filteredDances} paddingBottom={listPaddingBottom} />
+      )}
+      {activeFilter === "Autre" && (
+        <EmptyState label="Bientôt disponible" />
       )}
     </View>
   );

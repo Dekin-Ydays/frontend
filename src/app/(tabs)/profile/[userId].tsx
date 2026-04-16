@@ -1,109 +1,39 @@
-import { useEffect, useMemo, useState } from "react";
-import { FlatList, View } from "react-native";
-import { ChatBubble, EditPencil } from "iconoir-react-native";
-import { AppText } from "@/components/ui/app-text";
-import { RoundedButton } from "@/components/ui/rounded-button";
-import { ProfilePicture } from "@/components/profile/profile-picture";
-import { ProfileTabButton } from "@/components/profile/profile-tab-button";
-import { MediaTileButton } from "@/components/media/media-tile-button";
+import { useEffect, useCallback } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ProfileView } from "@/components/profile/profile-view";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
-import type { ProfilePost, ProfileTabKey } from "@/types/profile";
+import type { ProfileTabKey } from "@/types/profile";
 import { MOCK_POSTS, OTHER_PROFILE_TABS } from "@/mocks/profiles";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "px-4 pb-32 pt-24",
-  headerAvatarRow: "mb-5 flex-row items-center gap-4",
-  headerStats: "mt-1",
-  headerActions: "mb-5 flex-row items-center gap-2.5",
-  headerTabs: "mb-6 flex-row items-center gap-3",
-  postItem: "mb-3 w-[48.5%]",
-} as const;
+const AVATAR_URI = MOCK_AVATARS[0];
 
-/*
-// Secondary components
-*/
-type ProfileHeaderProps = {
-  activeTab: ProfileTabKey;
-  onChangeTab: (tab: ProfileTabKey) => void;
-};
-
-function ProfileHeader({ activeTab, onChangeTab }: ProfileHeaderProps) {
-  return (
-    <>
-      <View className={styles.headerAvatarRow}>
-        <ProfilePicture uri={MOCK_AVATARS[0]} size={96} />
-        <View className="flex-1">
-          <AppText variant="bolderLargeText">Juan-Bautista</AppText>
-          <AppText variant="secondaryText" className={styles.headerStats}>
-            7 suivis | 13 followers
-          </AppText>
-        </View>
-      </View>
-
-      <View className={styles.headerActions}>
-        <RoundedButton variant="primary" label="S'abonner" Icon={EditPencil} />
-        <RoundedButton variant="secondary" label="Ecrire" Icon={ChatBubble} />
-      </View>
-
-      <View className={styles.headerTabs}>
-        {OTHER_PROFILE_TABS.map((tab) => (
-          <ProfileTabButton
-            key={tab.key}
-            label={tab.label}
-            isActive={activeTab === tab.key}
-            onPress={() => onChangeTab(tab.key)}
-          />
-        ))}
-      </View>
-    </>
-  );
-}
-
-function renderPostItem({ item }: { item: ProfilePost }) {
-  return (
-    <MediaTileButton
-      imageUri={item.imageUri}
-      title={item.title}
-      className={styles.postItem}
-    />
-  );
-}
-
-/*
-// Main component
-*/
 export default function OtherProfileScreen() {
+  const router = useRouter();
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
   const { hide, show } = useBottomBar();
-  const [activeTab, setActiveTab] = useState<ProfileTabKey>("performances");
+
+  const activeTab = ((Array.isArray(tab) ? tab[0] : tab) ?? "performances") as ProfileTabKey;
 
   useEffect(() => {
     hide();
     return show;
   }, [hide, show]);
 
-  const visiblePosts = useMemo(
-    () => MOCK_POSTS.filter((post) => post.category === activeTab),
-    [activeTab],
+  const handleChangeTab = useCallback(
+    (t: ProfileTabKey) => router.setParams({ tab: t }),
+    [router],
   );
 
   return (
-    <FlatList
-      className={styles.screen}
-      contentContainerClassName={styles.content}
-      data={visiblePosts}
-      keyExtractor={(item) => item.id}
-      numColumns={2}
-      columnWrapperStyle={{ justifyContent: "space-between" }}
-      showsVerticalScrollIndicator={false}
-      ListHeaderComponent={
-        <ProfileHeader activeTab={activeTab} onChangeTab={setActiveTab} />
-      }
-      renderItem={renderPostItem}
+    <ProfileView
+      avatarUri={AVATAR_URI}
+      name="Juan-Bautista"
+      stats="7 suivis | 13 followers"
+      posts={MOCK_POSTS}
+      tabs={OTHER_PROFILE_TABS}
+      activeTab={activeTab}
+      onChangeTab={handleChangeTab}
     />
   );
 }

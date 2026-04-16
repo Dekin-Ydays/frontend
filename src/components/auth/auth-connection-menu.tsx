@@ -1,5 +1,6 @@
 import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 
@@ -40,7 +41,7 @@ export function AuthConnectionMenu({ activeTab }: AuthConnectionMenuProps) {
         ) : (
           <Pressable
             className={styles.inactiveTab}
-            onPress={() => router.replace("/(auth)/login")}
+            onPress={() => router.replace("/login" as Href)}
           >
             <AppText className="text-sm">Se connecter</AppText>
           </Pressable>
@@ -52,7 +53,7 @@ export function AuthConnectionMenu({ activeTab }: AuthConnectionMenuProps) {
         ) : (
           <Pressable
             className={styles.inactiveTab}
-            onPress={() => router.replace("/(auth)/register/step-1")}
+            onPress={() => router.replace("/register" as Href)}
           >
             <AppText className="text-sm">S'inscrire</AppText>
           </Pressable>
