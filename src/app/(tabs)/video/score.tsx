@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { View } from "react-native";
 import { ShareIos } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
+import { useBottomBar } from "@/components/nav/bottom-bar-context";
 
 /*
 // Tailwind styles
@@ -15,7 +17,13 @@ const styles = {
 } as const;
 
 export default function ScoreResultScreen() {
+  const { hide, show } = useBottomBar();
   const score = 90;
+
+  useEffect(() => {
+    hide();
+    return show;
+  }, [hide, show]);
   const scoreLabel =
     score >= 95 ? "Parfait !" : score >= 80 ? "Presque parfait" : "Bonne tentative !";
 

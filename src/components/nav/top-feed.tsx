@@ -20,12 +20,12 @@ export function TopFeed() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const pathname = usePathname();
-  const normalizedPath = pathname === "" ? "/" : pathname;
+  const normalizedPath = pathname === "" ? "/feed" : pathname;
 
   const feedTabs = [
-    { label: "Pour vous", path: "/" },
-    { label: "Vos suivis", path: "/following" },
-    { label: "Favoris", path: "/favorites" },
+    { label: "Pour vous", path: "/feed" },
+    { label: "Vos suivis", path: "/feed/following" },
+    { label: "Favoris", path: "/feed/favorites" },
   ] as const;
 
   return (

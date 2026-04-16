@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -12,6 +12,7 @@ import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Icon } from "@/components/ui/icon";
+import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
 /*
@@ -27,8 +28,14 @@ const styles = {
 } as const;
 
 export default function VideoFormScreen() {
+  const { hide, show } = useBottomBar();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    hide();
+    return show;
+  }, [hide, show]);
 
   return (
     <KeyboardAvoidingView

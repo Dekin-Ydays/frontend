@@ -97,7 +97,7 @@ export default function SearchScreen() {
               avatarUri={item.avatarUri}
               userName={item.userName}
               messagePreview={item.stats}
-              onPress={() => router.push("/(tabs)/(profile)/1")}
+              onPress={() => router.push("/(tabs)/profile/1")}
             />
           )}
         />

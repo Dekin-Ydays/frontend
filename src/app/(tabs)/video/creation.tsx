@@ -136,7 +136,7 @@ export default function VideoCreationScreen() {
 
         <Pressable
           className={styles.recordButton}
-          onPress={() => router.push("/(tabs)/(video)/form")}
+          onPress={() => router.push("/(tabs)/video/form")}
         >
           <View className={styles.recordInner} />
         </Pressable>

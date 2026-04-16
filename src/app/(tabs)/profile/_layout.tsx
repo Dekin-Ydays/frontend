@@ -13,7 +13,7 @@ export default function ProfileLayout() {
             <TopHeader
               title="MON PROFIL"
               moreButton
-              onMore={() => router.push("/(tabs)/(profile)/settings")}
+              onMore={() => router.push("/(tabs)/profile/settings")}
             />
           ),
         }}

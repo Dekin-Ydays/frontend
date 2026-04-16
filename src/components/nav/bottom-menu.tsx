@@ -76,7 +76,7 @@ export function BottomMenu({
   const activeRoute = state.routes[state.index]?.name;
   const isFocused = (name: string) => activeRoute === name;
   const isSearchActive = activeRoute === "search";
-  const lastNonSearchRoute = useRef<string>("(feed)");
+  const lastNonSearchRoute = useRef<string>("feed");
 
   useEffect(() => {
     if (activeRoute && activeRoute !== "search") {
@@ -93,21 +93,21 @@ export function BottomMenu({
         {!isSearchActive && (
           <View className={styles.container}>
             <MenuButton
-              label={descriptors["(feed)"]?.options?.title ?? "Home"}
-              isActive={isFocused("(feed)")}
-              onPress={() => navigation.navigate("(feed)")}
+              label={descriptors["feed"]?.options?.title ?? "Home"}
+              isActive={isFocused("feed")}
+              onPress={() => navigation.navigate("feed")}
               icon={HomeSimple}
             />
             <MenuButton
-              label={descriptors["(messages)"]?.options?.title ?? "Messages"}
-              isActive={isFocused("(messages)")}
-              onPress={() => navigation.navigate("(messages)")}
+              label={descriptors["messages"]?.options?.title ?? "Messages"}
+              isActive={isFocused("messages")}
+              onPress={() => navigation.navigate("messages")}
               icon={Send}
             />
             <MenuButton
-              label={descriptors["(profile)"]?.options?.title ?? "Profil"}
-              isActive={isFocused("(profile)")}
-              onPress={() => navigation.navigate("(profile)")}
+              label={descriptors["profile"]?.options?.title ?? "Profil"}
+              isActive={isFocused("profile")}
+              onPress={() => navigation.navigate("profile")}
               icon={User}
             />
           </View>

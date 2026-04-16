@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,6 +11,7 @@ import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { ProfilePicture } from "@/components/profile/profile-picture";
+import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
 /*
@@ -29,7 +30,13 @@ const styles = {
 // Main component
 */
 export default function EditProfileScreen() {
+  const { hide, show } = useBottomBar();
   const [firstName, setFirstName] = useState("Adrien");
+
+  useEffect(() => {
+    hide();
+    return show;
+  }, [hide, show]);
   const [lastName, setLastName] = useState("Cambier");
   const [pseudo, setPseudo] = useState("TheGoat1438");
   const [email, setEmail] = useState("gérard.dupont@gmail.com");

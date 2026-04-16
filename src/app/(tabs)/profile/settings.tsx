@@ -27,7 +27,7 @@ export default function SettingsScreen() {
       <SettingsItem
         icon={EditPencil}
         label="Modifier le profil"
-        onPress={() => router.push("/(tabs)/(profile)/edit")}
+        onPress={() => router.push("/(tabs)/profile/edit")}
         trailingIcon={NavArrowRight}
       />
       <SettingsItem

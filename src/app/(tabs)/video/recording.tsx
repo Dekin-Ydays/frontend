@@ -36,7 +36,7 @@ export default function VideoRecordingScreen() {
       >
         <Pressable
           className={styles.stopButton}
-          onPress={() => router.push("/(tabs)/(video)/review")}
+          onPress={() => router.push("/(tabs)/video/review")}
           accessibilityRole="button"
           accessibilityLabel="Arrêter l'enregistrement"
         >
