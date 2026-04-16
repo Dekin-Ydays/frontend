@@ -17,14 +17,7 @@ import { MessageSender } from "@/components/messages/message-sender";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "gap-2 px-4 pb-28 pt-24",
-  timestamp: "text-right text-xs",
-} as const;
+
 
 /*
 // Types
@@ -93,7 +86,7 @@ const initialMessages: ChatItem[] = [
 */
 function ChatTimestamp({ time }: { time: string }) {
   return (
-    <AppText variant="secondaryText" className={styles.timestamp}>
+    <AppText variant="secondaryText" className="text-right text-xs">
       {time}
     </AppText>
   );
@@ -155,13 +148,13 @@ export default function ConversationScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className={styles.screen}
+      className="flex-1 bg-dark"
     >
       <FlatList
         ref={listRef}
         data={messages}
         keyExtractor={(item) => item.id}
-        contentContainerClassName={styles.content}
+        contentContainerClassName={"gap-2 px-4 pb-28 pt-24"}
         ItemSeparatorComponent={() => <View className="h-1" />}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}

@@ -5,13 +5,7 @@ import { AppText } from "@/components/ui/app-text";
 import { MessageSender } from "@/components/messages/message-sender";
 import { CommentItem } from "./comment-item";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  header: "px-5 pt-2 pb-4 border-b border-white/10",
-  headerTitle: "text-center font-montserrat-bold",
-} as const;
+
 
 type CommentsSectionProps = {
   comments: CommentData[];
@@ -36,8 +30,8 @@ export function CommentsSection({
   return (
     <View>
       {/* Header */}
-      <View className={styles.header}>
-        <AppText className={styles.headerTitle}>
+      <View className="px-5 pt-2 pb-4 border-b border-white/10">
+        <AppText className="text-center font-montserrat-bold">
           Commentaires
         </AppText>
       </View>

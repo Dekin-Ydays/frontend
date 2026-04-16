@@ -11,14 +11,7 @@ import type { ProfilePost, ProfileTab, ProfileTabKey } from "@/types/profile";
 /*
 // Styles
 */
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "px-4 pb-32 pt-24",
-  avatarRow: "mb-5 flex-row items-center gap-4",
-  actionsRow: "mb-5 flex-row items-center gap-2.5",
-  tabsRow: "mb-6 flex-row items-center gap-3",
-  postItem: "mb-3 w-[48.5%]",
-} as const;
+// styles inlined below
 
 /*
 // Secondary components
@@ -48,22 +41,38 @@ function ProfileHeader({
 }: ProfileHeaderProps) {
   return (
     <>
-      <View className={styles.avatarRow}>
-        <ProfilePicture uri={avatarUri} size={96} showAddButton={isOwnProfile} onPressAdd={onPressAdd} />
+      <View className="mb-5 flex-row items-center gap-4">
+        <ProfilePicture
+          uri={avatarUri}
+          size={96}
+          showAddButton={isOwnProfile}
+          onPressAdd={onPressAdd}
+        />
         <View className="flex-1">
           <AppText variant="bolderLargeText">{name}</AppText>
-          <AppText variant="secondaryText" className="mt-1">{stats}</AppText>
+          <AppText variant="secondaryText" className="mt-1">
+            {stats}
+          </AppText>
         </View>
       </View>
 
       {!isOwnProfile && (
-        <View className={styles.actionsRow}>
-          <RoundedButton variant="primary" label="S'abonner" Icon={EditPencil} />
-          <RoundedButton variant="secondary" label="Ecrire" Icon={ChatBubble} onPress={onMessage} />
+        <View className="mb-5 flex-row items-center gap-2.5">
+          <RoundedButton
+            variant="primary"
+            label="S'abonner"
+            Icon={EditPencil}
+          />
+          <RoundedButton
+            variant="secondary"
+            label="Ecrire"
+            Icon={ChatBubble}
+            onPress={onMessage}
+          />
         </View>
       )}
 
-      <View className={styles.tabsRow}>
+      <View className="mb-6 flex-row items-center gap-3">
         {tabs.map((tab) => (
           <ProfileTabButton
             key={tab.key}
@@ -115,7 +124,7 @@ export function ProfileView({
       <MediaTileButton
         imageUri={item.imageUri}
         title={item.title}
-        className={styles.postItem}
+        className="mb-3 w-[48.5%]"
       />
     ),
     [],
@@ -123,8 +132,8 @@ export function ProfileView({
 
   return (
     <FlatList
-      className={styles.screen}
-      contentContainerClassName={styles.content}
+      className="flex-1 bg-dark"
+      contentContainerClassName="px-4 pb-32 pt-24"
       data={visiblePosts}
       keyExtractor={(item) => item.id}
       numColumns={2}

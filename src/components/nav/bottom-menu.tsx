@@ -8,20 +8,7 @@ import { useRouter } from "expo-router";
 import { Icon } from "../ui/icon";
 import { useBottomBar } from "./bottom-bar-context";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  bar: "absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center",
-  row: "flex-row items-center justify-center gap-3 px-4 w-full",
-  container:
-    "h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1",
-  pressable: "flex items-center justify-center h-full w-16 rounded-full",
-  pressableActive: "!bg-white/20",
-  searchInput:
-    "h-16 flex-1 rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray outline-none focus:border-secondary",
-  transition: "transition-all duration-300",
-} as const;
+
 
 /*
 // Secondary components
@@ -39,7 +26,7 @@ function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className={`${styles.pressable} ${isActive ? styles.pressableActive : ""} ${styles.transition}`}
+      className={`flex items-center justify-center h-full w-16 rounded-full ${isActive ? "!bg-white/20" : ""} transition-all duration-300`}
     >
       <Icon icon={icon} size={32} color={isActive ? "#3CFFD0" : "#FFFFFF"} />
     </Pressable>
@@ -57,7 +44,7 @@ function SearchBar({ onSearch }: SearchBarProps) {
       placeholderTextColor="#919191"
       underlineColorAndroid="transparent"
       onChangeText={onSearch}
-      className={`${styles.searchInput} ${styles.transition}`}
+      className={`h-16 flex-1 rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300`}
     />
   );
 }
@@ -87,11 +74,11 @@ export function BottomMenu({
   if (!isVisible) return null;
 
   return (
-    <View className={styles.bar} style={{ paddingBottom: insets.bottom }}>
-      <View className={styles.row}>
+    <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center" style={{ paddingBottom: insets.bottom }}>
+      <View className="flex-row items-center justify-center gap-3 px-4 w-full">
         {/* Main nav pills — hidden when search is active */}
         {!isSearchActive && (
-          <View className={styles.container}>
+          <View className="h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1">
             <MenuButton
               label={descriptors["feed"]?.options?.title ?? "Home"}
               isActive={isFocused("feed")}
@@ -114,7 +101,7 @@ export function BottomMenu({
         )}
 
         {/* Search pill — always visible, acts as back button when search is active */}
-        <View className={styles.container}>
+        <View className="h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1">
           <MenuButton
             label={descriptors["search"]?.options?.title ?? "Recherche"}
             isActive={isFocused("search")}

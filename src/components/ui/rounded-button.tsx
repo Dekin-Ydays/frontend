@@ -2,16 +2,7 @@ import type { ComponentType } from "react";
 import { Pressable } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  base: "flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit",
-  primary: "bg-primary",
-  secondary: "bg-white/10",
-  icon: "h-4 w-4",
-  disabled: "opacity-50 pointer-events-none",
-} as const;
+
 
 /*
 // Main component
@@ -41,9 +32,9 @@ export function RoundedButton({
       accessibilityLabel={label ?? "Button"}
       onPress={onPress}
       disabled={disabled || !onPress}
-      className={`${styles.base} ${styles[variant]} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
+      className={`flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit ${({"base": "flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit", "primary": "bg-primary", "secondary": "bg-white/10", "icon": "h-4 w-4", "disabled": "opacity-50 pointer-events-none"} as Record<string, string>)[variant]} ${disabled ? "opacity-50 pointer-events-none" : ""} ${className ?? ""}`}
     >
-      {Icon && <Icon className={` ${styles.icon} ${color}`} />}
+      {Icon && <Icon className={` h-4 w-4 ${color}`} />}
       {label && (
         <AppText variant="baseText" className={color}>
           {label}

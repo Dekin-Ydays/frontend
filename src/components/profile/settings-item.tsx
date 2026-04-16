@@ -3,14 +3,7 @@ import { NavArrowRight } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon, type AppIconComponent } from "@/components/ui/icon";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  container: "flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-[20px] px-5 h-[60px]",
-  label: "flex-1",
-  dangerText: "!text-dangerous",
-} as const;
+
 
 const DANGER_COLOR = "#E84545";
 const DEFAULT_COLOR = "#FFFFFF";
@@ -40,12 +33,12 @@ export function SettingsItem({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className={styles.container}
+      className="flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-[20px] px-5 h-[60px]"
     >
       <Icon icon={icon} size={18} color={color} />
       <AppText
         variant="bolderBaseText"
-        className={`${styles.label} ${danger ? styles.dangerText : ""}`}
+        className={`flex-1 ${danger ? "!text-dangerous" : ""}`}
       >
         {label}
       </AppText>

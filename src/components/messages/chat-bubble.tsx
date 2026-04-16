@@ -2,24 +2,7 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  // Received
-  receivedContainer: "flex-col",
-  receivedHeader: "flex-row items-center mb-1.5",
-  // Sent
-  sentContainer: "flex-col items-end",
-  sentRow: "flex-row justify-end",
-  // Bubble
-  bubble: "rounded-full px-3 py-2 self-start",
-  bubbleOwn: "bg-secondary",
-  bubbleOther: "bg-primary",
-  bubbleText: "!text-dark text-sm",
-  // Timestamp
-  timestamp: "text-xs",
-} as const;
+
 
 /*
 // Main component
@@ -41,15 +24,15 @@ export function ChatBubble({
 }: ChatBubbleProps) {
   if (isOwn) {
     return (
-      <View className={styles.sentContainer}>
+      <View className="flex-col items-end">
         {timestamp ? (
-          <AppText variant="secondaryText" className={styles.timestamp}>
+          <AppText variant="secondaryText" className="text-xs">
             {timestamp}
           </AppText>
         ) : null}
-        <View className={styles.sentRow}>
-          <View className={`${styles.bubble} ${styles.bubbleOwn}`}>
-            <AppText className={styles.bubbleText}>{text}</AppText>
+        <View className="flex-row justify-end">
+          <View className={`rounded-full px-3 py-2 self-start bg-secondary`}>
+            <AppText className="!text-dark text-sm">{text}</AppText>
           </View>
         </View>
       </View>
@@ -59,18 +42,18 @@ export function ChatBubble({
   // Received — first in group: avatar + timestamp header row, then bubble directly
   if (showAvatar && avatarUri) {
     return (
-      <View className={styles.receivedContainer}>
-        <View className={styles.receivedHeader}>
+      <View className="flex-col">
+        <View className="flex-row items-center mb-1.5">
           <ProfilePicture uri={avatarUri} size={32} />
           <View className="flex-1" />
           {timestamp ? (
-            <AppText variant="secondaryText" className={styles.timestamp}>
+            <AppText variant="secondaryText" className="text-xs">
               {timestamp}
             </AppText>
           ) : null}
         </View>
-        <View className={`${styles.bubble} ${styles.bubbleOther}`}>
-          <AppText className={styles.bubbleText}>{text}</AppText>
+        <View className={`rounded-full px-3 py-2 self-start bg-primary`}>
+          <AppText className="!text-dark text-sm">{text}</AppText>
         </View>
       </View>
     );
@@ -78,8 +61,8 @@ export function ChatBubble({
 
   // Received — continuation (no avatar)
   return (
-    <View className={`${styles.bubble} ${styles.bubbleOther}`}>
-      <AppText className={styles.bubbleText}>{text}</AppText>
+    <View className={`rounded-full px-3 py-2 self-start bg-primary`}>
+      <AppText className="!text-dark text-sm">{text}</AppText>
     </View>
   );
 }

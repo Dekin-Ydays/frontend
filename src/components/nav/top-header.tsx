@@ -7,15 +7,7 @@ import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 import { UserItem, type UserItemProps } from "@/components/profile/user-item";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  bar: "fixed top-0 left-0 right-0 z-50 bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 h-24 flex-row items-center justify-between px-4",
-  row: "flex-row items-center gap-3",
-  icon: "h-8 w-8 text-white",
-  avatar: "h-12 w-12 rounded-full bg-secondary",
-} as const;
+
 
 /*
 // Secondary components
@@ -70,8 +62,8 @@ export function TopHeader({
   const handleBack = onBack ?? (() => router.back());
 
   return (
-    <View className={styles.bar} style={{ paddingTop: insets.top }}>
-      <View className={styles.row}>
+    <View className="fixed top-0 left-0 right-0 z-50 bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 h-24 flex-row items-center justify-between px-4" style={{ paddingTop: insets.top }}>
+      <View className="flex-row items-center gap-3">
         {backButton && (
           <IconButton icon={ArrowLeft} onPress={handleBack} label="Retour" />
         )}
@@ -79,7 +71,7 @@ export function TopHeader({
         {title && <AppText variant="title">{title}</AppText>}
       </View>
       {(editButton || moreButton || avatarUri) && (
-        <View className={styles.row}>
+        <View className="flex-row items-center gap-3">
           {editButton && (
             <IconButton icon={EditPencil} onPress={onEdit} label="Modifier" />
           )}
@@ -87,7 +79,7 @@ export function TopHeader({
             <IconButton icon={MoreHoriz} onPress={onMore} label="Plus" />
           )}
           {avatarUri && (
-            <Image source={{ uri: avatarUri }} className={styles.avatar} />
+            <Image source={{ uri: avatarUri }} className="h-12 w-12 rounded-full bg-secondary" />
           )}
         </View>
       )}

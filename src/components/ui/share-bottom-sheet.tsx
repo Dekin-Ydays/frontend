@@ -12,20 +12,16 @@ import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 /*
 // Styles
 */
-const styles = {
-  userCard: "flex-1 items-center gap-2.5 py-2",
-  userName: "text-sm text-center",
-  bottomBar: "border-t border-white/5 pt-4",
-} as const;
+// styles inlined below
 
 /*
 // Secondary components
 */
 function UserCard({ item }: { item: ShareUser }) {
   return (
-    <Pressable className={styles.userCard}>
+    <Pressable className="flex-1 items-center gap-2.5 py-2">
       <ProfilePicture uri={item.avatarUri} size={96} />
-      <AppText className={styles.userName} numberOfLines={2}>
+      <AppText className="text-sm text-center" numberOfLines={2}>
         {item.userName}
       </AppText>
     </Pressable>
@@ -76,8 +72,13 @@ export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
           renderItem={({ item }) => <UserCard item={item} />}
         />
 
-        <View className={styles.bottomBar}>
-          <Button variant="primary" label="Envoyer" Icon={Send} onPress={onClose} />
+        <View className="border-t border-white/5 pt-4">
+          <Button
+            variant="primary"
+            label="Envoyer"
+            Icon={Send}
+            onPress={onClose}
+          />
         </View>
       </View>
     </BottomSheet>

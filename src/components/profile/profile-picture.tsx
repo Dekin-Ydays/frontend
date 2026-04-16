@@ -2,15 +2,7 @@ import { Pressable, Image, View } from "react-native";
 import { Plus } from "iconoir-react-native";
 import { Icon } from "@/components/ui/icon";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  container: "relative",
-  image: "bg-white/10",
-  addButton:
-    "absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full border-2 border-dark bg-primary",
-} as const;
+
 
 /*
 // Main component
@@ -29,10 +21,10 @@ export function ProfilePicture({
   onPressAdd,
 }: ProfilePictureProps) {
   return (
-    <View className={styles.container} style={{ width: size, height: size }}>
+    <View className="relative" style={{ width: size, height: size }}>
       <Image
         source={{ uri }}
-        className={styles.image}
+        className="bg-white/10"
         style={{ width: size, height: size, borderRadius: size / 2 }}
       />
 
@@ -41,7 +33,7 @@ export function ProfilePicture({
           accessibilityRole="button"
           accessibilityLabel="Ajouter une photo de profil"
           onPress={onPressAdd}
-          className={styles.addButton}
+          className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full border-2 border-dark bg-primary"
         >
           <Icon icon={Plus} size={18} color="#0E0E0E" />
         </Pressable>

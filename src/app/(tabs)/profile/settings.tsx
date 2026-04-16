@@ -4,13 +4,7 @@ import type { Href } from "expo-router";
 import { QuestionMark, EditPencil, Bell, LogOut, NavArrowRight } from "iconoir-react-native";
 import { SettingsItem } from "@/components/profile/settings-item";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "px-4 pt-28 gap-3",
-} as const;
+
 
 /*
 // Main component
@@ -19,7 +13,7 @@ export default function SettingsScreen() {
   const router = useRouter();
 
   return (
-    <ScrollView className={styles.screen} contentContainerClassName={styles.content}>
+    <ScrollView className="flex-1 bg-dark" contentContainerClassName={"px-4 pt-28 gap-3"}>
       <SettingsItem
         icon={QuestionMark}
         label="Demander de l'aide"

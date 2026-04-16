@@ -1,15 +1,7 @@
 import { Image, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  base: "relative overflow-hidden bg-white/5",
-  image: "aspect-square w-full",
-  overlay:
-    "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4",
-} as const;
+
 
 /*
 // Main component
@@ -35,10 +27,10 @@ export function MediaTileButton({
       accessibilityLabel={accessibilityLabel ?? title}
       onPress={onPress}
       disabled={!onPress}
-      className={`${styles.base} ${className ?? ""}`}
+      className={`relative overflow-hidden bg-white/5 ${className ?? ""}`}
     >
-      <Image source={{ uri: imageUri }} className={styles.image} />
-      <View className={styles.overlay}>
+      <Image source={{ uri: imageUri }} className="aspect-square w-full" />
+      <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4">
         <AppText numberOfLines={1}>{title}</AppText>
       </View>
     </Pressable>

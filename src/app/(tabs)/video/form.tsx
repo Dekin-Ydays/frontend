@@ -16,17 +16,7 @@ import { Icon } from "@/components/ui/icon";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "px-5 pt-24 pb-36 gap-y-6",
-  thumbnailSection: "items-center gap-y-3",
-  thumbnail: "h-[184px] w-[96px] rounded-[20px] bg-white/10",
-  musicRow: "flex-row items-center gap-1.5",
-  formFields: "gap-y-6",
-} as const;
+
 
 export default function VideoFormScreen() {
   const router = useRouter();
@@ -44,26 +34,26 @@ export default function VideoFormScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className={styles.screen}
+      className="flex-1 bg-dark"
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className={styles.content}>
-          <View className={styles.thumbnailSection}>
+        <View className="px-5 pt-24 pb-36 gap-y-6">
+          <View className="items-center gap-y-3">
             <Image
               source={{ uri: MOCK_THUMBNAIL_URI }}
-              className={styles.thumbnail}
+              className="h-[184px] w-[96px] rounded-[20px] bg-white/10"
               resizeMode="cover"
             />
-            <View className={styles.musicRow}>
+            <View className="flex-row items-center gap-1.5">
               <Icon icon={MusicNote} size={18} color="#BDBDBD" />
               <AppText variant="secondaryText">In the dark</AppText>
             </View>
           </View>
 
-          <View className={styles.formFields}>
+          <View className="gap-y-6">
             <AppInput
               label="Titre"
               labelClassName="!text-white"

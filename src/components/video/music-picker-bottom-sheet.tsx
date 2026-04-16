@@ -12,11 +12,7 @@ import { MOCK_MUSIC_LIST } from "@/mocks/videos";
 /*
 // Styles
 */
-const styles = {
-  musicItem: "flex-row items-center justify-between py-2",
-  musicCover: "h-[46px] w-[46px] rounded-[5px] bg-white/10",
-  musicInfo: "flex-1 ml-2.5 gap-y-1",
-} as const;
+// styles inlined below
 
 /*
 // Secondary components
@@ -29,10 +25,13 @@ function MusicListItem({
   onSelect: (item: MusicItem) => void;
 }) {
   return (
-    <Pressable className={styles.musicItem} onPress={() => onSelect(item)}>
+    <Pressable
+      className="flex-row items-center justify-between py-2"
+      onPress={() => onSelect(item)}
+    >
       <View className="flex-row items-center gap-2.5 flex-1">
-        <View className={styles.musicCover} />
-        <View className={styles.musicInfo}>
+        <View className="h-[46px] w-[46px] rounded-[5px] bg-white/10" />
+        <View className="flex-1 ml-2.5 gap-y-1">
           <AppText variant="bolderBaseText" className="text-sm">
             {item.title}
           </AppText>

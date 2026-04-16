@@ -1,17 +1,7 @@
 import type { ReactNode } from "react";
 import { Text } from "react-native";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  title: "text-2xl font-bebas text-white",
-  baseText: "font-montserrat text-white",
-  largeText: "font-montserrat text-xl text-white",
-  bolderLargeText: "font-montserrat-bold text-xl text-white",
-  bolderBaseText: "font-montserrat-bold text-white",
-  secondaryText: "font-montserrat text-sm text-gray",
-} as const;
+
 
 /*
 // Main component
@@ -39,7 +29,7 @@ export function AppText({
   return (
     <Text
       numberOfLines={numberOfLines}
-      className={`${styles[variant]} ${className ?? ""}`}
+      className={`${({"title": "text-2xl font-bebas text-white", "baseText": "font-montserrat text-white", "largeText": "font-montserrat text-xl text-white", "bolderLargeText": "font-montserrat-bold text-xl text-white", "bolderBaseText": "font-montserrat-bold text-white", "secondaryText": "font-montserrat text-sm text-gray"} as Record<string, string>)[variant]} ${className ?? ""}`}
     >
       {children}
     </Text>

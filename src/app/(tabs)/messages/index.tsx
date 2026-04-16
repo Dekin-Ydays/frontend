@@ -8,16 +8,7 @@ import {
 import { MessagesSearchInput } from "@/components/messages/messages-search-input";
 import { MOCK_CONVERSATIONS } from "@/mocks/messages";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "gap-4 px-4 pb-24 pt-24",
-  listHeader: "mb-3",
-  listHeaderSearch: "mt-2",
-  itemSeparator: "h-4",
-} as const;
+
 
 type MessageRow = MessageListItemProps & { key: string };
 
@@ -34,8 +25,8 @@ function MessageListHeader({
   onChangeSearchQuery,
 }: MessageListHeaderProps) {
   return (
-    <View className={styles.listHeader}>
-      <View className={styles.listHeaderSearch}>
+    <View className="mb-3">
+      <View className="mt-2">
         <MessagesSearchInput
           value={searchQuery}
           onChangeText={onChangeSearchQuery}
@@ -50,7 +41,7 @@ function renderMessageItem({ item }: { item: MessageRow }) {
 }
 
 function renderItemSeparator() {
-  return <View className={styles.itemSeparator} />;
+  return <View className="h-4" />;
 }
 
 /*
@@ -95,8 +86,8 @@ export default function MessagesScreen() {
 
   return (
     <FlatList
-      className={styles.screen}
-      contentContainerClassName={styles.content}
+      className="flex-1 bg-dark"
+      contentContainerClassName={"gap-4 px-4 pb-24 pt-24"}
       data={filteredMessages}
       keyExtractor={(item) => item.key}
       ListHeaderComponent={

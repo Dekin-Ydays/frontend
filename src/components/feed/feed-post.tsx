@@ -11,23 +11,7 @@ import { ShareBottomSheet } from "@/components/ui/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
 export type { FeedPostData };
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  post: "flex-1 bg-dark",
-  videoImage: "absolute left-0 right-0 top-0 rounded-[20px]",
-  videoGradient: "absolute left-0 right-0 bg-gradient-to-b from-black/0 to-black/20 rounded-b-[20px]",
-  actions: "absolute right-5 items-center gap-[15px]",
-  actionButton: "items-center gap-[5px]",
-  info: "absolute left-5 right-5 gap-2.5",
-  userRow: "flex-row items-center gap-2.5",
-  userInfo: "flex-1 gap-[5px]",
-  musicRow: "flex-row items-center gap-[5px]",
-  progressContainer: "absolute left-0 right-0 items-center",
-  progressTrack: "h-[2px] w-full rounded-full bg-white/20",
-  progressFill: "absolute top-0 left-0 h-[2px] rounded-full bg-white/60",
-} as const;
+
 
 /*
 // Proportional ratios from Figma (reference screen: 852px tall)
@@ -55,7 +39,7 @@ type ActionButtonProps = {
 
 function ActionButton({ icon, count, onPress }: ActionButtonProps) {
   return (
-    <Pressable className={styles.actionButton} onPress={onPress}>
+    <Pressable className="items-center gap-[5px]" onPress={onPress}>
       <Icon icon={icon} size={32} color="#FFFFFF" />
       <AppText className="text-sm">{count}</AppText>
     </Pressable>
@@ -81,43 +65,47 @@ export function FeedPost({ post }: FeedPostProps) {
   const progressTop = height * PROGRESS_TOP_RATIO;
 
   return (
-    <View className={styles.post}>
+    <View className="flex-1 bg-dark">
       {/* Background video/image — rounded card, not full bleed */}
       <Image
         source={{ uri: post.imageUri }}
-        className={styles.videoImage}
+        className="absolute left-0 right-0 top-0 rounded-[20px]"
         style={{ height: videoHeight }}
         resizeMode="cover"
       />
 
       {/* Subtle gradient at bottom of the video area */}
       <View
-        className={styles.videoGradient}
+        className="absolute left-0 right-0 bg-gradient-to-b from-black/0 to-black/20 rounded-b-[20px]"
         style={{ top: gradientTop, height: videoHeight - gradientTop }}
         pointerEvents="none"
       />
 
       {/* Right-side action buttons */}
-      <View className={styles.actions} style={{ top: actionsTop }}>
+      <View className="absolute right-5 items-center gap-[15px]" style={{ top: actionsTop }}>
         <ActionButton icon={Heart} count={post.likeCount} />
         <ActionButton
           icon={ChatLines}
           count={post.commentCount}
           onPress={() => setCommentsVisible(true)}
         />
-        <ActionButton icon={ShareIos} count={post.shareCount} onPress={() => setShareVisible(true)} />
+        <ActionButton
+          icon={ShareIos}
+          count={post.shareCount}
+          onPress={() => setShareVisible(true)}
+        />
       </View>
 
       {/* Bottom info: user row + description */}
-      <View className={styles.info} style={{ top: infoTop }}>
+      <View className="absolute left-5 right-5 gap-2.5" style={{ top: infoTop }}>
         {/* User row */}
-        <View className={styles.userRow}>
+        <View className="flex-row items-center gap-2.5">
           <ProfilePicture uri={post.avatarUri} size={46} />
-          <View className={styles.userInfo}>
+          <View className="flex-1 gap-[5px]">
             <AppText className="font-montserrat-bold text-sm">
               {post.title}
             </AppText>
-            <View className={styles.musicRow}>
+            <View className="flex-row items-center gap-[5px]">
               <Icon icon={MusicNote} size={18} color="#bdbdbd" />
               <AppText className="text-xs !text-[#bdbdbd]">
                 {post.musicName}
@@ -133,13 +121,13 @@ export function FeedPost({ post }: FeedPostProps) {
 
       {/* Progress bars (video timeline) */}
       <View
-        className={styles.progressContainer}
+        className="absolute left-0 right-0 items-center"
         style={{ top: progressTop }}
         pointerEvents="none"
       >
         <View style={{ width: 268 }}>
-          <View className={styles.progressTrack} />
-          <View className={styles.progressFill} style={{ width: 194 }} />
+          <View className="h-[2px] w-full rounded-full bg-white/20" />
+          <View className="absolute top-0 left-0 h-[2px] rounded-full bg-white/60" style={{ width: 194 }} />
         </View>
       </View>
 

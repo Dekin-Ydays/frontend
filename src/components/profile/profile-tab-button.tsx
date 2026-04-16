@@ -1,16 +1,7 @@
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  pressable: "flex-1",
-  content: "items-start",
-  inactiveLabel: "text-lightgray",
-  activeUnderline: "mt-2 h-px w-full bg-white",
-  inactiveUnderline: "mt-2 h-px w-full bg-white/10",
-} as const;
+
 
 /*
 // Main component
@@ -31,18 +22,18 @@ export function ProfileTabButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className={styles.pressable}
+      className="flex-1"
     >
-      <View className={styles.content}>
+      <View className="items-start">
         <AppText
           variant="baseText"
-          className={isActive ? "" : styles.inactiveLabel}
+          className={isActive ? "" : "text-lightgray"}
         >
           {label}
         </AppText>
         <View
           className={
-            isActive ? styles.activeUnderline : styles.inactiveUnderline
+            isActive ? "mt-2 h-px w-full bg-white" : "mt-2 h-px w-full bg-white/10"
           }
         />
       </View>

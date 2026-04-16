@@ -7,23 +7,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  header:
-    "absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center justify-between px-5",
-  bottomBar:
-    "absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 gap-3 pt-3",
-  progressTrack: "h-[2px] bg-white/20 rounded-full mx-5",
-  progressFill: "h-full w-1/2 bg-primary rounded-full",
-  controlsRow: "flex-row items-center justify-between px-5",
-  controlPill:
-    "flex-row items-center gap-1.5 h-8 px-5 rounded-full bg-white/10",
-  playButton:
-    "h-[60px] w-[60px] rounded-full bg-white border border-white/5 items-center justify-center",
-} as const;
+
 
 export default function VideoReviewScreen() {
   const router = useRouter();
@@ -38,10 +22,10 @@ export default function VideoReviewScreen() {
   );
 
   return (
-    <View className={styles.screen}>
+    <View className="flex-1 bg-dark">
       <View className="flex-1 bg-[#1a1a1a]" />
 
-      <View className={styles.header} style={{ paddingTop: insets.top }}>
+      <View className="absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center justify-between px-5" style={{ paddingTop: insets.top }}>
         <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
@@ -60,16 +44,16 @@ export default function VideoReviewScreen() {
       </View>
 
       <View
-        className={styles.bottomBar}
+        className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 gap-3 pt-3"
         style={{ paddingBottom: insets.bottom + 12 }}
       >
-        <View className={styles.progressTrack}>
-          <View className={styles.progressFill} />
+        <View className="h-[2px] bg-white/20 rounded-full mx-5">
+          <View className="h-full w-1/2 bg-primary rounded-full" />
         </View>
 
-        <View className={styles.controlsRow}>
+        <View className="flex-row items-center justify-between px-5">
           <Pressable
-            className={styles.controlPill}
+            className="flex-row items-center gap-1.5 h-8 px-5 rounded-full bg-white/10"
             accessibilityRole="button"
             accessibilityLabel="Retour en arrière"
           >
@@ -77,7 +61,7 @@ export default function VideoReviewScreen() {
           </Pressable>
 
           <Pressable
-            className={styles.playButton}
+            className="h-[60px] w-[60px] rounded-full bg-white border border-white/5 items-center justify-center"
             accessibilityRole="button"
             accessibilityLabel="Lire"
           >
@@ -85,7 +69,7 @@ export default function VideoReviewScreen() {
           </Pressable>
 
           <Pressable
-            className={styles.controlPill}
+            className="flex-row items-center gap-1.5 h-8 px-5 rounded-full bg-white/10"
             accessibilityRole="button"
             accessibilityLabel="Avancer"
           >

@@ -8,15 +8,7 @@ import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { ShareBottomSheet } from "@/components/ui/share-bottom-sheet";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "px-5 pt-24 gap-y-6",
-  progressTrack: "h-8 w-full rounded-full bg-white/10",
-  progressFill: "h-8 rounded-full bg-secondary w-[64%]",
-} as const;
+
 
 export default function ScoreResultScreen() {
   const { hide, show } = useBottomBar();
@@ -33,16 +25,16 @@ export default function ScoreResultScreen() {
     score >= 95 ? "Parfait !" : score >= 80 ? "Presque parfait" : "Bonne tentative !";
 
   return (
-    <View className={styles.screen}>
-      <View className={styles.content}>
+    <View className="flex-1 bg-dark">
+      <View className="px-5 pt-24 gap-y-6">
         <View className="gap-y-1.5">
           <AppText variant="bolderLargeText">Score {score}%</AppText>
           <AppText variant="secondaryText">{scoreLabel}</AppText>
         </View>
 
-        <View className={styles.progressTrack}>
+        <View className="h-8 w-full rounded-full bg-white/10">
           <View
-            className={styles.progressFill}
+            className="h-8 rounded-full bg-secondary w-[64%]"
             style={{ width: `${score}%` }}
           />
         </View>

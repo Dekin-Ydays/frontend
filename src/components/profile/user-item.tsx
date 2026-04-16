@@ -2,17 +2,7 @@ import { View, Pressable } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  container: "flex-row items-center gap-3",
-  avatarContainer: "relative",
-  onlineIndicator:
-    "absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark",
-  textContainer: "flex-1 gap-1",
-  transition: "transition-all duration-300",
-} as const;
+
 
 export type UserItemProps = {
   avatarUri: string;
@@ -31,14 +21,14 @@ export function UserItem({
 }: UserItemProps) {
   return (
     <Pressable
-      className={`${styles.container} ${styles.transition}`}
+      className={`flex-row items-center gap-3 transition-all duration-300`}
       onPress={onPress}
     >
-      <View className={styles.avatarContainer}>
+      <View className="relative">
         <ProfilePicture uri={avatarUri} size={48} />
-        {isOnline && <View className={styles.onlineIndicator} />}
+        {isOnline && <View className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark" />}
       </View>
-      <View className={styles.textContainer}>
+      <View className="flex-1 gap-1">
         <AppText variant="bolderBaseText">{userName}</AppText>
         <AppText variant="secondaryText">{message}</AppText>
       </View>

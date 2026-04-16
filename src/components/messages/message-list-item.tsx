@@ -2,18 +2,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  container: "flex-row items-center gap-3",
-  avatarContainer: "relative",
-  onlineIndicator:
-    "absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark",
-  textContainer: "flex-1",
-  title: "text-white",
-  subtitle: "mt-0.5 text-lightgray",
-} as const;
+
 
 /*
 // Main component
@@ -38,24 +27,24 @@ export function MessageListItem({
       accessibilityRole="button"
       accessibilityLabel={`Ouvrir la conversation avec ${userName}`}
       onPress={onPress}
-      className={styles.container}
+      className="flex-row items-center gap-3"
     >
-      <View className={styles.avatarContainer}>
+      <View className="relative">
         <ProfilePicture uri={avatarUri} size={48} />
-        {isOnline ? <View className={styles.onlineIndicator} /> : null}
+        {isOnline ? <View className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark" /> : null}
       </View>
 
-      <View className={styles.textContainer}>
+      <View className="flex-1">
         <AppText
           variant="bolderBaseText"
-          className={styles.title}
+          className="text-white"
           numberOfLines={1}
         >
           {userName}
         </AppText>
         <AppText
           variant="secondaryText"
-          className={styles.subtitle}
+          className="mt-0.5 text-lightgray"
           numberOfLines={1}
         >
           {messagePreview}

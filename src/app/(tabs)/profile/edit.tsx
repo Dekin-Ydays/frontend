@@ -15,17 +15,7 @@ import { ProfilePicture } from "@/components/profile/profile-picture";
 import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  screen: "flex-1 bg-dark",
-  content: "px-5 pt-24 pb-36 gap-y-6",
-  avatarSection: "items-center gap-y-2.5",
-  avatarEditLink: "!text-secondary text-sm",
-  form: "gap-y-6",
-  nameRow: "flex-row gap-2.5",
-} as const;
+
 
 /*
 // Main component
@@ -48,26 +38,26 @@ export default function EditProfileScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className={styles.screen}
+      className="flex-1 bg-dark"
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className={styles.content}>
+        <View className="px-5 pt-24 pb-36 gap-y-6">
           {/* Avatar section */}
-          <View className={styles.avatarSection}>
+          <View className="items-center gap-y-2.5">
             <ProfilePicture uri={MOCK_AVATARS[0]} size={96} showAddButton />
             <Pressable>
-              <AppText className={styles.avatarEditLink}>
+              <AppText className="!text-secondary text-sm">
                 Modifier la photo de profil
               </AppText>
             </Pressable>
           </View>
 
           {/* Form */}
-          <View className={styles.form}>
-            <View className={styles.nameRow}>
+          <View className="gap-y-6">
+            <View className="flex-row gap-2.5">
               <View className="flex-1">
                 <AppInput
                   label="Prénom"

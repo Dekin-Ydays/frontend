@@ -5,14 +5,7 @@ import { Eye, EyeClosed } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 
-/*
-// Tailwind styles
-*/
-const styles = {
-  baseInput:
-    "h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary",
-  transition: "transition-all duration-300",
-} as const;
+
 
 /*
 // Main component
@@ -79,7 +72,7 @@ export function AppInput({
         secureTextEntry={
           isPasswordType ? !isPasswordVisible : props.secureTextEntry
         }
-        className={`${styles.baseInput} ${styles.transition} ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
+        className={`h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
       />
 
       {isPasswordType ? (
