@@ -9,6 +9,7 @@ import { BottomBar } from "@/components/ui/bottom-bar";
 import type { MusicItem } from "@/types/video";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 import { MusicPickerBottomSheet } from "@/components/video/music-picker-bottom-sheet";
+import { TopBar } from "@/components/ui/top-bar";
 
 export default function VideoCreationScreen() {
   const router = useRouter();
@@ -20,10 +21,7 @@ export default function VideoCreationScreen() {
     <View className="flex-1 bg-dark">
       <View className="flex-1 bg-[#1a1a1a]" />
 
-      <View
-        className="absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center justify-between px-5"
-        style={{ paddingTop: insets.top }}
-      >
+      <TopBar>
         <View className="flex-row items-center gap-5">
           <Pressable onPress={() => router.back()}>
             <Icon icon={Xmark} size={32} color="#FFFFFF" />
@@ -39,9 +37,9 @@ export default function VideoCreationScreen() {
             {selectedMusic ? selectedMusic.title : "Musique"}
           </AppText>
         </Pressable>
-      </View>
+      </TopBar>
 
-      <BottomBar>
+      <BottomBar className="!justify-between">
         <View className="rounded-full border-2 border-white overflow-hidden h-[60px] w-[60px]">
           <Image
             source={{ uri: MOCK_THUMBNAIL_URI }}

@@ -18,7 +18,7 @@ export function MessageSender({
   placeholder = "Votre message...",
 }: MessageSenderProps) {
   return (
-    <BottomBar className="flex-row items-center gap-3 px-5">
+    <BottomBar>
       <BottomTextInput
         value={value}
         onChangeText={onChangeText}

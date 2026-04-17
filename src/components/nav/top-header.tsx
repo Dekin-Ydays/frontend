@@ -6,8 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 import { UserItem, type UserItemProps } from "@/components/profile/user-item";
-
-
+import { TopBar } from "../ui/top-bar";
 
 /*
 // Secondary components
@@ -62,8 +61,8 @@ export function TopHeader({
   const handleBack = onBack ?? (() => router.back());
 
   return (
-    <View className="fixed top-0 left-0 right-0 z-50 bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 h-24 flex-row items-center justify-between px-4" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center gap-3">
+    <TopBar className="!from-secondary/10 !to-secondary/0 bg-dark">
+      <View className="flex-row items-center gap-5">
         {backButton && (
           <IconButton icon={ArrowLeft} onPress={handleBack} label="Retour" />
         )}
@@ -79,10 +78,13 @@ export function TopHeader({
             <IconButton icon={MoreHoriz} onPress={onMore} label="Plus" />
           )}
           {avatarUri && (
-            <Image source={{ uri: avatarUri }} className="h-12 w-12 rounded-full bg-secondary" />
+            <Image
+              source={{ uri: avatarUri }}
+              className="h-12 w-12 rounded-full bg-secondary"
+            />
           )}
         </View>
       )}
-    </View>
+    </TopBar>
   );
 }

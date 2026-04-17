@@ -6,6 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
+import { TopBar } from "@/components/ui/top-bar";
 
 export default function VideoPerformScreen() {
   const router = useRouter();
@@ -15,30 +16,22 @@ export default function VideoPerformScreen() {
     <View className="flex-1 bg-dark">
       <View className="flex-1 bg-[#1a1a1a]" />
 
-      <View
-        className="absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center px-5"
-        style={{ paddingTop: insets.top }}
-      >
+      <TopBar>
         <Pressable onPress={() => router.back()}>
           <Icon icon={Xmark} size={32} color="#FFFFFF" />
         </Pressable>
-      </View>
+      </TopBar>
 
       <View
         className="absolute inset-0 items-center justify-center"
         pointerEvents="none"
       >
-        <View className="absolute" style={{ right: "22%", top: "28%" }}>
-          <AppText variant="title" className="text-[80px] opacity-20">
-            2
-          </AppText>
-        </View>
         <AppText variant="title" className="text-[140px]">
           3
         </AppText>
       </View>
 
-      <BottomBar>
+      <BottomBar className="!justify-between">
         <View className="rounded-full border-2 border-white overflow-hidden h-[60px] w-[60px]">
           <Image
             source={{ uri: MOCK_THUMBNAIL_URI }}
