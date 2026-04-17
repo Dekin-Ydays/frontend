@@ -1,6 +1,5 @@
 import { Pressable, Image, View } from "react-native";
 import { Plus } from "iconoir-react-native";
-import { AppIcon } from "@/components/ui/app-icon";
 
 /*
 // Main component
@@ -33,7 +32,7 @@ export function ProfilePicture({
           onPress={onPressAdd}
           className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full border-2 border-dark bg-primary"
         >
-          <AppIcon icon={Plus} size="sm" color="#0E0E0E" />
+          <Plus className="size-5 text-dark" />
         </Pressable>
       ) : null}
     </View>

@@ -1,17 +1,13 @@
 import type { ComponentType } from "react";
-import type { StyleProp, ViewStyle } from "react-native";
 
 type IconoirLikeProps = {
   color?: string;
-  width?: number | string;
-  height?: number | string;
   strokeWidth?: number | string;
-  style?: StyleProp<ViewStyle>;
 };
 
 export type AppIconComponent = ComponentType<IconoirLikeProps>;
 
-const iconSizes = { sm: 18, lg: 32 } as const;
+const iconSizes = { sm: "w-5 h-5", lg: "w-8 h-8" } as const;
 
 type AppIconSize = keyof typeof iconSizes;
 
@@ -20,7 +16,7 @@ type AppIconProps = {
   size?: AppIconSize;
   color?: string;
   strokeWidth?: number;
-  style?: StyleProp<ViewStyle>;
+  className?: string;
 };
 
 export function AppIcon({
@@ -28,16 +24,14 @@ export function AppIcon({
   size = "sm",
   color = "#FFFFFF",
   strokeWidth = 1.8,
-  style,
+  className,
 }: AppIconProps) {
-  const px = iconSizes[size];
+  const sizeClasses = iconSizes[size];
   return (
     <IconComponent
       color={color}
-      width={px}
-      height={px}
       strokeWidth={strokeWidth}
-      style={style}
+      className={`${sizeClasses} !text-red-500 ${className ?? ""}`}
     />
   );
 }

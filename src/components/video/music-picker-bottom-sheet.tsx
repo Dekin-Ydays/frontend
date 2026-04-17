@@ -4,7 +4,6 @@ import { MusicNote } from "iconoir-react-native";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { AppInput } from "@/components/ui/inputs/app-input";
 import { AppText } from "@/components/ui/app-text";
-import { AppIcon } from "@/components/ui/app-icon";
 import type { MusicItem } from "@/types/video";
 import { MOCK_MUSIC_LIST } from "@/mocks/videos";
 
@@ -32,7 +31,7 @@ function MusicListItem({
           <AppText variant="secondaryText">{item.artist}</AppText>
         </View>
       </View>
-      <AppIcon icon={MusicNote} size="sm" color="#FFFFFF" />
+      <MusicNote className="size-5 text-white" />
     </Pressable>
   );
 }

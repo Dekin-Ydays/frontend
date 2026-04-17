@@ -4,7 +4,6 @@ import { Heart, ChatLines, ShareIos, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { RoundedButton } from "@/components/ui/buttons/rounded-button";
-import { AppIcon } from "@/components/ui/app-icon";
 import type { AppIconComponent } from "@/components/ui/app-icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
 import { ShareBottomSheet } from "@/components/feed/share-bottom-sheet";

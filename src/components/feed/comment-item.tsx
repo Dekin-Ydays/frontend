@@ -3,7 +3,6 @@ import { Heart } from "iconoir-react-native";
 import type { CommentData } from "@/types/comment";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
-import { AppIcon } from "@/components/ui/app-icon";
 
 type CommentItemProps = {
   item: CommentData;
@@ -27,12 +26,10 @@ export function CommentItem({ item, onReply }: CommentItemProps) {
             <AppText className="!text-secondary text-sm">Répondre</AppText>
           </Pressable>
           <View className="flex-row items-center gap-1.5">
-            <AppIcon
-              icon={Heart}
-              size="sm"
-              color={item.liked ? "#FF3B5C" : "#bdbdbd"}
+            <Heart
+              className={`size-5 ${item.liked ? "text-dangerous" : "text-lightgray"}`}
             />
-            <AppText className="text-xs !text-[#bdbdbd]">{item.likes}</AppText>
+            <AppText className="text-xs text-lightgray">{item.likes}</AppText>
           </View>
         </View>
       </View>

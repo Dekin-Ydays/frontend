@@ -1,9 +1,8 @@
-import type { AppIconComponent } from "@/components/ui/app-icon";
+import type { AppIconComponent } from "iconoir-react-native";
 import { EditPencil, MoreHoriz, ArrowLeft } from "iconoir-react-native";
 import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { AppText } from "../ui/app-text";
-import { AppIcon } from "../ui/app-icon";
 import { UserItem, type UserItemProps } from "@/components/profile/user-item";
 import { TopBar } from "../ui/top-bar";
 
@@ -16,14 +15,14 @@ type IconButtonProps = {
   label: string;
 };
 
-function IconButton({ icon, onPress, label }: IconButtonProps) {
+function IconButton({ icon: Icon, onPress, label }: IconButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
     >
-      <AppIcon icon={icon} size="lg" color="#FFFFFF" />
+      <Icon className="size-8 text-white" />
     </Pressable>
   );
 }

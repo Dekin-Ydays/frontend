@@ -3,7 +3,6 @@ import { Pressable, TextInput, View } from "react-native";
 import { useState } from "react";
 import { Eye, EyeClosed } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { AppIcon } from "@/components/ui/app-icon";
 
 type AppInputType = "text" | "password" | "email" | "number" | "phone" | "url";
 
@@ -76,11 +75,11 @@ export function AppInput({
           onPress={() => setIsPasswordVisible((v) => !v)}
           className="absolute right-4 h-16 justify-center"
         >
-          <AppIcon
-            icon={isPasswordVisible ? Eye : EyeClosed}
-            size="lg"
-            color="#FFFFFF"
-          />
+          {isPasswordVisible ? (
+            <Eye className="size-8 text-white" />
+          ) : (
+            <EyeClosed className="size-8 text-white" />
+          )}
         </Pressable>
       )}
     </View>

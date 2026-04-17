@@ -1,16 +1,16 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import type { AppIconComponent } from "@/components/ui/app-icon";
 import { useEffect, useRef } from "react";
 import { HomeSimple, Search, Send, User } from "iconoir-react-native";
 import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
-import { AppIcon } from "../ui/app-icon";
 import { BottomTextInput } from "../ui/inputs/bottom-text-input";
 import { BottomBar } from "../ui/bottom-bar";
 
 /*
 // Secondary components
 */
+import type { AppIconComponent } from "iconoir-react-native";
+
 type MenuButtonProps = {
   label: string;
   isActive: boolean;
@@ -19,6 +19,7 @@ type MenuButtonProps = {
 };
 
 function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
+  const Icon = icon;
   return (
     <Pressable
       accessibilityRole="button"
@@ -26,7 +27,9 @@ function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
       onPress={onPress}
       className={`flex items-center justify-center h-full w-16 rounded-full ${isActive ? "!bg-white/5" : ""} transition-all duration-300`}
     >
-      <AppIcon icon={icon} size="lg" color={isActive ? "#3CFFD0" : "#FFFFFF"} />
+      <Icon
+        className={`size-8 ${isActive ? "text-secondary" : "text-white"}`}
+      />
     </Pressable>
   );
 }

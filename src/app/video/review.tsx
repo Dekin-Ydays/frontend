@@ -2,7 +2,6 @@ import { Pressable, View } from "react-native";
 import { ArrowLeft, ArrowRight, Play } from "iconoir-react-native";
 import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
-import { AppIcon } from "@/components/ui/app-icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
 import { TopBar } from "@/components/ui/top-bar";
 
@@ -20,7 +19,7 @@ export default function VideoReviewScreen() {
             accessibilityRole="button"
             accessibilityLabel="Retour"
           >
-            <AppIcon icon={ArrowLeft} size="lg" color="#FFFFFF" />
+            <ArrowLeft className="size-8 text-white" />
           </Pressable>
           <AppText variant="title">Nouvelle vidéo</AppText>
         </View>
@@ -31,7 +30,7 @@ export default function VideoReviewScreen() {
           accessibilityRole="button"
           accessibilityLabel="Retour en arrière"
         >
-          <AppIcon icon={ArrowLeft} size="sm" color="#FFFFFF" />
+          <ArrowLeft className="size-5 text-white" />
         </Pressable>
 
         <Pressable
@@ -39,7 +38,7 @@ export default function VideoReviewScreen() {
           accessibilityRole="button"
           accessibilityLabel="Lire"
         >
-          <AppIcon icon={Play} size="lg" color="#0E0E0E" />
+          <Play className="size-8 text-dark" />
         </Pressable>
 
         <Pressable
@@ -48,7 +47,7 @@ export default function VideoReviewScreen() {
           accessibilityRole="button"
           accessibilityLabel="Avancer"
         >
-          <AppIcon icon={ArrowRight} size="sm" color="#FFFFFF" />
+          <ArrowRight className="size-5 text-white" />
         </Pressable>
       </BottomBar>
     </View>

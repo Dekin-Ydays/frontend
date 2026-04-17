@@ -2,7 +2,6 @@ import { Image, Pressable, View } from "react-native";
 import { Xmark, RefreshDouble } from "iconoir-react-native";
 import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
-import { AppIcon } from "@/components/ui/app-icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 import { TopBar } from "@/components/ui/top-bar";
@@ -16,7 +15,7 @@ export default function VideoPerformScreen() {
 
       <TopBar>
         <Pressable onPress={() => router.back()}>
-          <AppIcon icon={Xmark} size="lg" color="#FFFFFF" />
+          <Xmark className="size-8 text-white" />
         </Pressable>
       </TopBar>
 
@@ -46,7 +45,7 @@ export default function VideoPerformScreen() {
         </Pressable>
 
         <Pressable className="h-[60px] w-[60px] rounded-full bg-white/10 border border-white/5 backdrop-blur-sm items-center justify-center">
-          <AppIcon icon={RefreshDouble} size="lg" color="#FFFFFF" />
+          <RefreshDouble className="size-8 text-white" />
         </Pressable>
       </BottomBar>
     </View>

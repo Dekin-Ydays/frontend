@@ -1,6 +1,5 @@
 import { Pressable } from "react-native";
 import { SendDiagonal } from "iconoir-react-native";
-import { AppIcon } from "@/components/ui/app-icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
 import { BottomTextInput } from "@/components/ui/inputs/bottom-text-input";
 
@@ -31,7 +30,7 @@ export function MessageSender({
         onPress={onSend}
         className="h-[60px] w-[60px] items-center justify-center rounded-full bg-white/10 border border-white/5 backdrop-blur-sm"
       >
-        <AppIcon icon={SendDiagonal} size="lg" color="#FFFFFF" />
+        <SendDiagonal className="size-8 text-white" />
       </Pressable>
     </BottomBar>
   );
