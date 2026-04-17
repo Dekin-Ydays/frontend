@@ -41,9 +41,13 @@ export default function VideoCreationScreen() {
         </Pressable>
       </View>
 
-      <BottomBar paddingExtra={12} className="flex-row items-center justify-between px-5">
+      <BottomBar>
         <View className="rounded-full border-2 border-white overflow-hidden h-[60px] w-[60px]">
-          <Image source={{ uri: MOCK_THUMBNAIL_URI }} className="h-full w-full" resizeMode="cover" />
+          <Image
+            source={{ uri: MOCK_THUMBNAIL_URI }}
+            className="h-full w-full"
+            resizeMode="cover"
+          />
         </View>
 
         <Pressable

@@ -11,7 +11,7 @@ import { Upload, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/inputs/app-input";
 import { Button } from "@/components/ui/button";
-import { BottomActionBar } from "@/components/ui/bottom-action-bar";
+import { BottomBar } from "@/components/ui/bottom-bar";
 import { Icon } from "@/components/ui/icon";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
@@ -64,9 +64,14 @@ export default function VideoFormScreen() {
         </View>
       </ScrollView>
 
-      <BottomActionBar>
-        <Button variant="primary" label="Publier" Icon={Upload} onPress={() => router.push("/video/score")} />
-      </BottomActionBar>
+      <BottomBar>
+        <Button
+          variant="primary"
+          label="Publier"
+          Icon={Upload}
+          onPress={() => router.push("/video/score")}
+        />
+      </BottomBar>
     </KeyboardAvoidingView>
   );
 }

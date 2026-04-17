@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
+import { BottomBar } from "@/components/ui/bottom-bar";
 
 export default function VideoReviewScreen() {
   const router = useRouter();
@@ -13,7 +14,10 @@ export default function VideoReviewScreen() {
     <View className="flex-1 bg-dark">
       <View className="flex-1 bg-[#1a1a1a]" />
 
-      <View className="absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center justify-between px-5" style={{ paddingTop: insets.top }}>
+      <View
+        className="absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/80 to-black/0 flex-row items-center justify-between px-5"
+        style={{ paddingTop: insets.top }}
+      >
         <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
@@ -27,14 +31,13 @@ export default function VideoReviewScreen() {
           accessibilityRole="button"
           accessibilityLabel="Suivant"
         >
-          <AppText className="!text-primary text-sm font-montserrat-semibold">Suivant</AppText>
+          <AppText className="!text-primary text-sm font-montserrat-semibold">
+            Suivant
+          </AppText>
         </Pressable>
       </View>
 
-      <View
-        className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 gap-3 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
+      <BottomBar>
         <View className="h-[2px] bg-white/20 rounded-full mx-5">
           <View className="h-full w-1/2 bg-primary rounded-full" />
         </View>
@@ -64,7 +67,7 @@ export default function VideoReviewScreen() {
             <Icon icon={ArrowRight} size={18} color="#FFFFFF" />
           </Pressable>
         </View>
-      </View>
+      </BottomBar>
     </View>
   );
 }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { TopHeader } from "@/components/nav/top-header";
-import { BottomActionBar } from "@/components/ui/bottom-action-bar";
+import { BottomBar } from "@/components/ui/bottom-bar";
 
 type AuthScreenProps = {
   title: string;
@@ -32,7 +32,7 @@ export function AuthScreen({
       >
         <View className={contentClassName}>{children}</View>
       </ScrollView>
-      {bottomBar && <BottomActionBar>{bottomBar}</BottomActionBar>}
+      {bottomBar && <BottomBar>{bottomBar}</BottomBar>}
       {footer}
     </KeyboardAvoidingView>
   );

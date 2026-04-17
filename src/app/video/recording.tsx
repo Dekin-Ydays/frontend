@@ -9,7 +9,7 @@ export default function VideoRecordingScreen() {
     <View className="flex-1 bg-dark">
       <View className="flex-1 bg-[#1a1a1a]" />
 
-      <BottomBar paddingExtra={12} className="items-center justify-center">
+      <BottomBar>
         <Pressable
           className="h-[60px] w-[60px] rounded-full bg-white border border-white/5 items-center justify-center"
           onPress={() => router.push("/video/review")}

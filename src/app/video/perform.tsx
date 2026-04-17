@@ -24,16 +24,27 @@ export default function VideoPerformScreen() {
         </Pressable>
       </View>
 
-      <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
+      <View
+        className="absolute inset-0 items-center justify-center"
+        pointerEvents="none"
+      >
         <View className="absolute" style={{ right: "22%", top: "28%" }}>
-          <AppText variant="title" className="text-[80px] opacity-20">2</AppText>
+          <AppText variant="title" className="text-[80px] opacity-20">
+            2
+          </AppText>
         </View>
-        <AppText variant="title" className="text-[140px]">3</AppText>
+        <AppText variant="title" className="text-[140px]">
+          3
+        </AppText>
       </View>
 
-      <BottomBar paddingExtra={12} className="flex-row items-center justify-between px-5">
+      <BottomBar>
         <View className="rounded-full border-2 border-white overflow-hidden h-[60px] w-[60px]">
-          <Image source={{ uri: MOCK_THUMBNAIL_URI }} className="h-full w-full" resizeMode="cover" />
+          <Image
+            source={{ uri: MOCK_THUMBNAIL_URI }}
+            className="h-full w-full"
+            resizeMode="cover"
+          />
         </View>
 
         <Pressable

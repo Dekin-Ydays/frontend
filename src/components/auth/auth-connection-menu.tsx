@@ -1,10 +1,31 @@
 import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import type { Href } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
+import { BottomBar } from "../ui/bottom-bar";
 
+/*
+// Secondary components
+*/
+type TabButtonProps = {
+  label: string;
+  isActive: boolean;
+  onPress: () => void;
+};
 
+function TabButton({ label, isActive, onPress }: TabButtonProps) {
+  return (
+    <Pressable
+      className={`flex-1 h-full items-center justify-center rounded-full ${isActive ? "!bg-white/5" : ""} transition-all duration-300`}
+      disabled={isActive}
+      onPress={onPress}
+    >
+      <AppText className={`text-sm ${isActive ? "!text-secondary" : ""}`}>
+        {label}
+      </AppText>
+    </Pressable>
+  );
+}
 
 /*
 // Main component
@@ -15,39 +36,21 @@ type AuthConnectionMenuProps = {
 
 export function AuthConnectionMenu({ activeTab }: AuthConnectionMenuProps) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   return (
-    <View
-      className="absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-b from-black/0 to-black/80 justify-center px-5"
-      style={{ paddingBottom: insets.bottom + 12 }}
-    >
-      <View className="flex-row items-center gap-2.5 bg-white/10 rounded-full border border-white/5 p-1.5">
-        {activeTab === "login" ? (
-          <View className="flex-1 h-[50px] items-center justify-center rounded-full bg-white/5">
-            <AppText className="!text-secondary text-sm">Se connecter</AppText>
-          </View>
-        ) : (
-          <Pressable
-            className="flex-1 h-[50px] items-center justify-center rounded-full"
-            onPress={() => router.replace("/login" as Href)}
-          >
-            <AppText className="text-sm">Se connecter</AppText>
-          </Pressable>
-        )}
-        {activeTab === "register" ? (
-          <View className="flex-1 h-[50px] items-center justify-center rounded-full bg-white/5">
-            <AppText className="!text-secondary text-sm">S'inscrire</AppText>
-          </View>
-        ) : (
-          <Pressable
-            className="flex-1 h-[50px] items-center justify-center rounded-full"
-            onPress={() => router.replace("/register" as Href)}
-          >
-            <AppText className="text-sm">S'inscrire</AppText>
-          </Pressable>
-        )}
+    <BottomBar>
+      <View className="h-16 flex-1 backdrop-blur-sm flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1">
+        <TabButton
+          label="Se connecter"
+          isActive={activeTab === "login"}
+          onPress={() => router.replace("/login" as Href)}
+        />
+        <TabButton
+          label="S'inscrire"
+          isActive={activeTab === "register"}
+          onPress={() => router.replace("/register" as Href)}
+        />
       </View>
-    </View>
+    </BottomBar>
   );
 }
