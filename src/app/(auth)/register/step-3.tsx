@@ -23,7 +23,7 @@ export default function RegisterStep3Screen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pb-24 gap-y-6">
+        <View className="px-4 pb-24 gap-6">
           <StepBadge current={3} total={3} />
 
           <AppText className="text-sm leading-5">
@@ -32,7 +32,7 @@ export default function RegisterStep3Screen() {
 
           <CodeInput length={CODE_LENGTH} value={code} onChange={setCode} />
 
-          <View className="items-center gap-y-2.5">
+          <View className="items-center gap-2.5">
             <AppText>Vous n'avez pas reçu le code ?</AppText>
             <Pressable>
               <AppText className="!text-secondary text-sm">Renvoyer le code</AppText>

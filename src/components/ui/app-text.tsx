@@ -24,7 +24,7 @@ export function AppText({
   return (
     <Text
       numberOfLines={numberOfLines}
-      className={`${({ title: "text-2xl font-bebas text-white", baseText: "font-montserrat text-white", largeText: "font-montserrat text-xl text-white", bolderLargeText: "font-montserrat-bold text-xl text-white", bolderBaseText: "font-montserrat-bold text-white", secondaryText: "font-montserrat text-sm text-gray" } as Record<string, string>)[variant]} ${className ?? ""}`}
+      className={`${({ title: "text-2xl font-bebas text-white", baseText: "font-montserrat text-white text-sm", largeText: "font-montserrat text-xl text-white", bolderLargeText: "font-montserrat-bold text-xl text-white", bolderBaseText: "font-montserrat-bold text-white text-sm", secondaryText: "font-montserrat text-sm text-gray" } as Record<string, string>)[variant]} ${className ?? ""}`}
     >
       {children}
     </Text>

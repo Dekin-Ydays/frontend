@@ -28,8 +28,8 @@ export default function VideoFormScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pb-24 gap-y-6">
-          <View className="items-center gap-y-3">
+        <View className="px-4 pb-24 gap-6">
+          <View className="items-center gap-3">
             <Image
               source={{ uri: MOCK_THUMBNAIL_URI }}
               className="h-[184px] w-[96px] rounded-[20px] bg-white/10"
@@ -41,7 +41,7 @@ export default function VideoFormScreen() {
             </View>
           </View>
 
-          <View className="gap-y-6">
+          <View className="gap-6">
             <AppInput
               label="Titre"
               labelClassName="!text-white"

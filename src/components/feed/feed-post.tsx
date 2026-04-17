@@ -51,7 +51,7 @@ export function FeedPost({ post }: FeedPostProps) {
       />
 
       {/* Overlay with actions and info */}
-      <View className="flex-column justify-end p-4 gap-4 bg-gradient-to-t from-black/80 to-transparent rounded-3xl">
+      <View className="flex-column justify-end p-4 gap-6 bg-gradient-to-t from-black/80 to-transparent rounded-3xl">
         {/* Right Actions */}
         <View className="items-end gap-5">
           <ActionButton icon={Heart} count={post.likeCount} />
@@ -72,14 +72,10 @@ export function FeedPost({ post }: FeedPostProps) {
           <View className="flex-row items-center gap-4">
             <ProfilePicture uri={post.avatarUri} size={46} />
             <View className="flex-1 gap-1">
-              <AppText className="font-montserrat-bold text-sm text-white">
-                {post.title}
-              </AppText>
+              <AppText variant="bolderBaseText">{post.title}</AppText>
               <View className="flex-row items-center gap-1">
-                <MusicNote className="size-4 text-[#bdbdbd]" />
-                <AppText className="text-xs text-[#bdbdbd]">
-                  {post.musicName}
-                </AppText>
+                <MusicNote className="size-5 text-gray" />
+                <AppText variant="secondaryText">{post.musicName}</AppText>
               </View>
             </View>
             <RoundedButton variant="primary-alt" label="Danser" />

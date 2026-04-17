@@ -21,10 +21,10 @@ export default function RegisterStep2Screen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pb-24 gap-y-6">
+        <View className="px-4 pb-24 gap-6">
           <StepBadge current={2} total={3} />
 
-          <View className="flex-row gap-2.5">
+          <View className="flex-row gap-3">
             <View className="flex-1">
               <AppInput
                 label="Prénom"

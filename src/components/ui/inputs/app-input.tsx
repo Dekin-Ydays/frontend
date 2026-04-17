@@ -89,7 +89,7 @@ export function AppInput({
 
   return (
     <View className="flex-col gap-2.5">
-      <AppText className={`text-sm text-lightgray ${labelClassName ?? ""}`}>
+      <AppText className={` text-lightgray ${labelClassName ?? ""}`}>
         {label}
       </AppText>
       {input}
