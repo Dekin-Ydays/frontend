@@ -1,10 +1,9 @@
-import type { AppIconComponent } from "@/components/ui/icon";
+import type { AppIconComponent } from "@/components/ui/app-icon";
 import { EditPencil, MoreHoriz, ArrowLeft } from "iconoir-react-native";
 import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "../ui/app-text";
-import { Icon } from "../ui/icon";
+import { Icon } from "../ui/app-icon";
 import { UserItem, type UserItemProps } from "@/components/profile/user-item";
 import { TopBar } from "../ui/top-bar";
 
@@ -24,7 +23,7 @@ function IconButton({ icon, onPress, label }: IconButtonProps) {
       accessibilityLabel={label}
       onPress={onPress}
     >
-      <Icon icon={icon} size={32} color="#FFFFFF" />
+      <Icon icon={icon} size="lg" color="#FFFFFF" />
     </Pressable>
   );
 }
@@ -56,7 +55,6 @@ export function TopHeader({
   userItem,
   avatarUri,
 }: TopHeaderProps) {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const handleBack = onBack ?? (() => router.back());
 

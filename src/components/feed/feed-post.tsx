@@ -1,30 +1,15 @@
 import { useState } from "react";
-import { Image, Pressable, useWindowDimensions, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { Heart, ChatLines, ShareIos, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { RoundedButton } from "@/components/ui/buttons/rounded-button";
-import { Icon } from "@/components/ui/icon";
-import type { AppIconComponent } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/app-icon";
+import type { AppIconComponent } from "@/components/ui/app-icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
-import { ShareBottomSheet } from "@/components/social/share-bottom-sheet";
+import { ShareBottomSheet } from "@/components/feed/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
 export type { FeedPostData };
-
-/*
-// Proportional ratios from Figma (reference screen: 852px tall)
-*/
-const FIGMA_H = 852;
-// Image goes from y=0 to y=752
-const VIDEO_H_RATIO = 752 / FIGMA_H;
-// Gradient starts at y=422 (midpoint)
-const GRADIENT_TOP_RATIO = 422 / FIGMA_H;
-// Actions start at y=422+20=442
-const ACTIONS_TOP_RATIO = 442 / FIGMA_H;
-// User info starts at y=422+237=659
-const INFO_TOP_RATIO = 659 / FIGMA_H;
-// Progress bars are at y=752 (bottom edge of video)
-const PROGRESS_TOP_RATIO = 752 / FIGMA_H;
 
 /*
 // Secondary components
@@ -37,9 +22,9 @@ type ActionButtonProps = {
 
 function ActionButton({ icon, count, onPress }: ActionButtonProps) {
   return (
-    <Pressable className="items-center gap-[5px]" onPress={onPress}>
-      <Icon icon={icon} size={32} color="#FFFFFF" />
-      <AppText className="text-sm">{count}</AppText>
+    <Pressable className="items-center gap-1" onPress={onPress}>
+      <Icon icon={icon} size="lg" color="#FFFFFF" />
+      <AppText className="text-sm text-white font-montserrat-semibold">{count}</AppText>
     </Pressable>
   );
 }
@@ -52,88 +37,75 @@ type FeedPostProps = {
 };
 
 export function FeedPost({ post }: FeedPostProps) {
-  const { height } = useWindowDimensions();
   const [commentsVisible, setCommentsVisible] = useState(false);
   const [shareVisible, setShareVisible] = useState(false);
 
-  const videoHeight = height * VIDEO_H_RATIO;
-  const gradientTop = height * GRADIENT_TOP_RATIO;
-  const actionsTop = height * ACTIONS_TOP_RATIO;
-  const infoTop = height * INFO_TOP_RATIO;
-  const progressTop = height * PROGRESS_TOP_RATIO;
-
   return (
-    <View className="flex-1 !pb-24">
-      {/* Background video/image — rounded card, not full bleed */}
+    <View style={styles.container}>
+      {/* Background Image */}
       <Image
         source={{ uri: post.imageUri }}
-        className="absolute left-0 right-0 top-0 rounded-[20px] h-full"
+        style={[StyleSheet.absoluteFill, styles.image]}
         resizeMode="cover"
       />
 
-      {/* Subtle gradient at bottom of the video area */}
+      {/* Gradient fade over the bottom half */}
       <View
-        className="absolute left-0 right-0 bg-gradient-to-b from-black/0 to-black/20 rounded-b-[20px]"
-        style={{ top: gradientTop, height: videoHeight - gradientTop }}
+        className="absolute left-0 right-0 bottom-0 h-2/3 bg-gradient-to-b from-black/0 via-black/40 to-black/90 rounded-b-[20px]"
         pointerEvents="none"
       />
 
-      {/* Right-side action buttons */}
-      <View
-        className="absolute right-5 items-center gap-[15px]"
-        style={{ top: actionsTop }}
-      >
-        <ActionButton icon={Heart} count={post.likeCount} />
-        <ActionButton
-          icon={ChatLines}
-          count={post.commentCount}
-          onPress={() => setCommentsVisible(true)}
-        />
-        <ActionButton
-          icon={ShareIos}
-          count={post.shareCount}
-          onPress={() => setShareVisible(true)}
-        />
-      </View>
-
-      {/* Bottom info: user row + description */}
-      <View
-        className="absolute left-5 right-5 gap-2.5"
-        style={{ top: infoTop }}
-      >
-        {/* User row */}
-        <View className="flex-row items-center gap-2.5">
-          <ProfilePicture uri={post.avatarUri} size={46} />
-          <View className="flex-1 gap-[5px]">
-            <AppText className="font-montserrat-bold text-sm">
-              {post.title}
-            </AppText>
-            <View className="flex-row items-center gap-[5px]">
-              <Icon icon={MusicNote} size={18} color="#bdbdbd" />
-              <AppText className="text-xs !text-[#bdbdbd]">
-                {post.musicName}
-              </AppText>
+      {/* Main Content Area - Flex layout to push things bottom */}
+      <View className="flex-1 justify-end pb-28">
+        <View 
+          className="px-5 w-full" 
+          style={{ flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" }}
+        >
+          {/* Left Side: Info */}
+          <View className="flex-1 mr-4 gap-3">
+            <View className="flex-row items-center gap-2.5">
+              <ProfilePicture uri={post.avatarUri} size={46} />
+              <View className="flex-1 gap-1">
+                <AppText className="font-montserrat-bold text-sm text-white">
+                  {post.title}
+                </AppText>
+                <View className="flex-row items-center gap-1">
+                  <Icon icon={MusicNote} size="sm" color="#bdbdbd" />
+                  <AppText className="text-xs text-[#bdbdbd]">
+                    {post.musicName}
+                  </AppText>
+                </View>
+              </View>
+              <RoundedButton variant="secondary" label="Suivre" />
             </View>
+            <AppText className="text-sm text-white">{post.description}</AppText>
           </View>
-          <RoundedButton variant="secondary" label="Suivre" />
-        </View>
 
-        {/* Description */}
-        <AppText className="text-sm">{post.description}</AppText>
+          {/* Right Side: Actions */}
+          <View className="items-center gap-5">
+            <ActionButton icon={Heart} count={post.likeCount} />
+            <ActionButton
+              icon={ChatLines}
+              count={post.commentCount}
+              onPress={() => setCommentsVisible(true)}
+            />
+            <ActionButton
+              icon={ShareIos}
+              count={post.shareCount}
+              onPress={() => setShareVisible(true)}
+            />
+          </View>
+        </View>
       </View>
 
-      {/* Progress bars (video timeline) */}
+      {/* Progress bar just above the bottom menu */}
       <View
-        className="absolute left-0 right-0 items-center"
-        style={{ top: progressTop }}
+        className="absolute left-0 right-0 bottom-24 items-center"
         pointerEvents="none"
       >
-        <View style={{ width: 268 }}>
+        <View className="w-[268px]">
           <View className="h-[2px] w-full rounded-full bg-white/20" />
-          <View
-            className="absolute top-0 left-0 h-[2px] rounded-full bg-white/60"
-            style={{ width: 194 }}
-          />
+          <View className="absolute top-0 left-0 h-[2px] w-[194px] rounded-full bg-white/60" />
         </View>
       </View>
 
@@ -148,3 +120,8 @@ export function FeedPost({ post }: FeedPostProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#0E0E0E" },
+  image: { borderRadius: 20 },
+});

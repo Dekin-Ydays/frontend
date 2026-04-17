@@ -1,4 +1,5 @@
-import { FlatList, View, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import { FlatList, View, LayoutChangeEvent } from "react-native";
 import { FeedPost } from "./feed-post";
 import type { FeedPostData } from "@/types/feed";
 
@@ -7,24 +8,32 @@ type FeedListProps = {
 };
 
 export function FeedList({ posts }: FeedListProps) {
-  const { height } = useWindowDimensions();
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    setContainerHeight(event.nativeEvent.layout.height);
+  };
 
   return (
-    <FlatList
-      data={posts}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <View style={{ height }}>
-          <FeedPost post={item} />
-        </View>
+    <View className="flex-1 bg-[#0E0E0E]" onLayout={handleLayout}>
+      {containerHeight > 0 && (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={{ height: containerHeight }}>
+              <FeedPost post={item} />
+            </View>
+          )}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          getItemLayout={(_, index) => ({
+            length: containerHeight,
+            offset: containerHeight * index,
+            index,
+          })}
+        />
       )}
-      pagingEnabled
-      showsVerticalScrollIndicator={false}
-      getItemLayout={(_, index) => ({
-        length: height,
-        offset: height * index,
-        index,
-      })}
-    />
+    </View>
   );
 }

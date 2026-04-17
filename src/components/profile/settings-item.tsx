@@ -1,7 +1,7 @@
 import { Pressable } from "react-native";
 import { NavArrowRight } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Icon, type AppIconComponent } from "@/components/ui/icon";
+import { Icon, type AppIconComponent } from "@/components/ui/app-icon";
 
 
 
@@ -35,14 +35,14 @@ export function SettingsItem({
       onPress={onPress}
       className="flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-[20px] px-5 h-[60px]"
     >
-      <Icon icon={icon} size={18} color={color} />
+      <Icon icon={icon} size="sm" color={color} />
       <AppText
         variant="bolderBaseText"
         className={`flex-1 ${danger ? "!text-dangerous" : ""}`}
       >
         {label}
       </AppText>
-      <Icon icon={trailingIcon} size={18} color={color} />
+      <Icon icon={trailingIcon} size="sm" color={color} />
     </Pressable>
   );
 }

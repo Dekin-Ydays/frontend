@@ -12,7 +12,7 @@ import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/inputs/app-input";
 import { Button } from "@/components/ui/buttons/button";
 import { BottomBar } from "@/components/ui/bottom-bar";
-import { Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/app-icon";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 
 export default function VideoFormScreen() {
@@ -37,7 +37,7 @@ export default function VideoFormScreen() {
               resizeMode="cover"
             />
             <View className="flex-row items-center gap-1.5">
-              <Icon icon={MusicNote} size={18} color="#BDBDBD" />
+              <Icon icon={MusicNote} size="sm" color="#BDBDBD" />
               <AppText variant="secondaryText">In the dark</AppText>
             </View>
           </View>
