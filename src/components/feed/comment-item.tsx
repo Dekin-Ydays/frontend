@@ -13,25 +13,22 @@ export function CommentItem({ item, onReply }: CommentItemProps) {
   return (
     <View className="flex-row gap-3">
       <ProfilePicture uri={item.avatarUri} size={42} />
-      <View className="flex-1 gap-0.5">
-        <View className="flex-row items-center gap-2">
-          <AppText className="font-montserrat-bold text-sm">
-            {item.name}
-          </AppText>
-          <AppText className="text-xs !text-[#bdbdbd]">{item.date}</AppText>
-        </View>
-        <AppText className="text-sm leading-5">{item.text}</AppText>
+      <View className="flex-1 gap-1">
+        <AppText variant="bolderBaseText">{item.name}</AppText>
+        <AppText variant="secondaryText">{item.date}</AppText>
+        <AppText className="leading-5">{item.text}</AppText>
         <View className="flex-row items-center justify-between mt-1.5">
           <Pressable hitSlop={8} onPress={() => onReply?.(item)}>
-            <AppText className="!text-secondary text-sm">Répondre</AppText>
+            <AppText className="!text-secondary">Répondre</AppText>
           </Pressable>
-          <View className="flex-row items-center gap-1.5">
+          <View className="flex-row items-center gap-1">
             <Heart
               className={`size-5 ${item.liked ? "text-dangerous" : "text-lightgray"}`}
             />
-            <AppText className="text-xs text-lightgray">{item.likes}</AppText>
+            <AppText variant="secondaryText">{item.likes}</AppText>
           </View>
         </View>
+        s
       </View>
     </View>
   );

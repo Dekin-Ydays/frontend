@@ -91,23 +91,22 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
     >
       <Animated.View
         style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}
-        pointerEvents="none"
-      />
-
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <Pressable className="flex-1" onPress={onClose} />
+      </Animated.View>
 
+      <KeyboardAvoidingView
+        className="flex-1 justify-end"
+        pointerEvents="box-none"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <Animated.View style={sheetStyle}>
-          <View className="relative bg-dark/80 backdrop-blur-sm p-4 gap-4 rounded-t-3xl">
+          <View className="flex-1 relative bg-dark/80 backdrop-blur-sm gap-4 rounded-t-3xl">
             <GestureDetector gesture={panGesture}>
-              <View className="flex items-center">
+              <View className="flex items-center bg-transparent">
                 <View className="h-1.5 w-10 bg-white/20 rounded-full" />
               </View>
             </GestureDetector>
-
             <View className="flex-1">{children}</View>
           </View>
         </Animated.View>
