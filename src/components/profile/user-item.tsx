@@ -2,8 +2,6 @@ import { View, Pressable } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
-
-
 export type UserItemProps = {
   avatarUri: string;
   userName: string;
@@ -26,7 +24,9 @@ export function UserItem({
     >
       <View className="relative">
         <ProfilePicture uri={avatarUri} size={48} />
-        {isOnline && <View className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark" />}
+        {isOnline && (
+          <View className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary border-2 border-dark" />
+        )}
       </View>
       <View className="flex-1 gap-1">
         <AppText variant="bolderBaseText">{userName}</AppText>

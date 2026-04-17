@@ -15,7 +15,7 @@ export function FeedList({ posts }: FeedListProps) {
   };
 
   return (
-    <View className="flex-1 bg-[#0E0E0E]" onLayout={handleLayout}>
+    <View className="flex-1 bg-dark" onLayout={handleLayout}>
       {containerHeight > 0 && (
         <FlatList
           data={posts}

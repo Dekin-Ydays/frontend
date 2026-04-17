@@ -3,7 +3,7 @@ import { EditPencil, MoreHoriz, ArrowLeft } from "iconoir-react-native";
 import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { AppText } from "../ui/app-text";
-import { Icon } from "../ui/app-icon";
+import { AppIcon } from "../ui/app-icon";
 import { UserItem, type UserItemProps } from "@/components/profile/user-item";
 import { TopBar } from "../ui/top-bar";
 
@@ -23,7 +23,7 @@ function IconButton({ icon, onPress, label }: IconButtonProps) {
       accessibilityLabel={label}
       onPress={onPress}
     >
-      <Icon icon={icon} size="lg" color="#FFFFFF" />
+      <AppIcon icon={icon} size="lg" color="#FFFFFF" />
     </Pressable>
   );
 }

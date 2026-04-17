@@ -3,7 +3,7 @@ import { Image, Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Xmark, MusicNote, RefreshDouble } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Icon } from "@/components/ui/app-icon";
+import { AppIcon } from "@/components/ui/app-icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
 import type { MusicItem } from "@/types/video";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
@@ -22,7 +22,7 @@ export default function VideoCreationScreen() {
       <TopBar>
         <View className="flex-row items-center gap-5">
           <Pressable onPress={() => router.back()}>
-            <Icon icon={Xmark} size="lg" color="#FFFFFF" />
+            <AppIcon icon={Xmark} size="lg" color="#FFFFFF" />
           </Pressable>
           <AppText variant="title">NOUVELLE VIDEO</AppText>
         </View>
@@ -30,7 +30,7 @@ export default function VideoCreationScreen() {
           className="flex-row items-center gap-1.5 h-8 px-5 rounded-full bg-white/10"
           onPress={() => setMusicModalVisible(true)}
         >
-          <Icon icon={MusicNote} size="sm" color="#FFFFFF" />
+          <AppIcon icon={MusicNote} size="sm" color="#FFFFFF" />
           <AppText className="text-sm">
             {selectedMusic ? selectedMusic.title : "Musique"}
           </AppText>
@@ -54,7 +54,7 @@ export default function VideoCreationScreen() {
         </Pressable>
 
         <Pressable className="h-[60px] w-[60px] rounded-full bg-white/10 border border-white/5 backdrop-blur-sm items-center justify-center">
-          <Icon icon={RefreshDouble} size="lg" color="#FFFFFF" />
+          <AppIcon icon={RefreshDouble} size="lg" color="#FFFFFF" />
         </Pressable>
       </BottomBar>
 

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { HomeSimple, Search, Send, User } from "iconoir-react-native";
 import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Icon } from "../ui/app-icon";
+import { AppIcon } from "../ui/app-icon";
 import { BottomTextInput } from "../ui/inputs/bottom-text-input";
 import { BottomBar } from "../ui/bottom-bar";
 
@@ -26,7 +26,7 @@ function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
       onPress={onPress}
       className={`flex items-center justify-center h-full w-16 rounded-full ${isActive ? "!bg-white/5" : ""} transition-all duration-300`}
     >
-      <Icon icon={icon} size="lg" color={isActive ? "#3CFFD0" : "#FFFFFF"} />
+      <AppIcon icon={icon} size="lg" color={isActive ? "#3CFFD0" : "#FFFFFF"} />
     </Pressable>
   );
 }

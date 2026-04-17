@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import { Pressable } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "primary-alt" | "secondary";
 
 type RoundedButtonProps = {
   variant: ButtonVariant;
@@ -22,6 +22,12 @@ export function RoundedButton({
   disabled = false,
 }: RoundedButtonProps) {
   const color = variant === "secondary" ? "text-white" : "!text-dark";
+  const bgColor =
+    variant === "primary"
+      ? "bg-primary"
+      : variant === "primary-alt"
+        ? "bg-secondary"
+        : "bg-white/10";
 
   return (
     <Pressable
@@ -29,7 +35,7 @@ export function RoundedButton({
       accessibilityLabel={label ?? "Button"}
       onPress={onPress}
       disabled={disabled || !onPress}
-      className={`flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit ${variant === "primary" ? "bg-primary" : "bg-white/10"} ${disabled ? "opacity-50" : ""} ${className ?? ""}`}
+      className={`flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit ${bgColor} ${disabled ? "opacity-50" : ""} ${className ?? ""}`}
     >
       {Icon && <Icon className={`h-4 w-4 ${color}`} />}
       {label && (

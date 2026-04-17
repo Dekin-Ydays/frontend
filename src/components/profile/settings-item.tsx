@@ -1,9 +1,7 @@
 import { Pressable } from "react-native";
 import { NavArrowRight } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Icon, type AppIconComponent } from "@/components/ui/app-icon";
-
-
+import { AppIcon, type AppIconComponent } from "@/components/ui/app-icon";
 
 const DANGER_COLOR = "#E84545";
 const DEFAULT_COLOR = "#FFFFFF";
@@ -33,16 +31,16 @@ export function SettingsItem({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className="flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-[20px] px-5 h-[60px]"
+      className="flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-xl px-5 h-[60px]"
     >
-      <Icon icon={icon} size="sm" color={color} />
+      <AppIcon icon={icon} size="sm" color={color} />
       <AppText
         variant="bolderBaseText"
         className={`flex-1 ${danger ? "!text-dangerous" : ""}`}
       >
         {label}
       </AppText>
-      <Icon icon={trailingIcon} size="sm" color={color} />
+      <AppIcon icon={trailingIcon} size="sm" color={color} />
     </Pressable>
   );
 }

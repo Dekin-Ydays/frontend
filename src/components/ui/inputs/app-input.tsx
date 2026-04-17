@@ -3,7 +3,7 @@ import { Pressable, TextInput, View } from "react-native";
 import { useState } from "react";
 import { Eye, EyeClosed } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Icon } from "@/components/ui/app-icon";
+import { AppIcon } from "@/components/ui/app-icon";
 
 type AppInputType = "text" | "password" | "email" | "number" | "phone" | "url";
 
@@ -11,7 +11,6 @@ type AppInputProps = Omit<TextInputProps, "className"> & {
   type?: AppInputType;
   label?: string;
   labelClassName?: string;
-  containerClassName?: string;
   className?: string;
 };
 
@@ -50,7 +49,6 @@ export function AppInput({
   type = "text",
   label,
   labelClassName,
-  containerClassName,
   className,
   ...props
 }: AppInputProps) {
@@ -62,17 +60,27 @@ export function AppInput({
       <TextInput
         {...typeProps[type]}
         {...props}
-        secureTextEntry={isPasswordType ? !isPasswordVisible : props.secureTextEntry}
-        className={`h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
+        secureTextEntry={
+          isPasswordType ? !isPasswordVisible : props.secureTextEntry
+        }
+        className={`h-16 w-full rounded-2xl bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
       />
       {isPasswordType && (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={isPasswordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          accessibilityLabel={
+            isPasswordVisible
+              ? "Masquer le mot de passe"
+              : "Afficher le mot de passe"
+          }
           onPress={() => setIsPasswordVisible((v) => !v)}
           className="absolute right-4 h-16 justify-center"
         >
-          <Icon icon={isPasswordVisible ? Eye : EyeClosed} size="lg" color="#FFFFFF" />
+          <AppIcon
+            icon={isPasswordVisible ? Eye : EyeClosed}
+            size="lg"
+            color="#FFFFFF"
+          />
         </Pressable>
       )}
     </View>
@@ -81,8 +89,8 @@ export function AppInput({
   if (!label) return input;
 
   return (
-    <View className={containerClassName}>
-      <AppText className={`mb-2.5 text-sm text-lightgray ${labelClassName ?? ""}`}>
+    <View className="flex-col gap-2.5">
+      <AppText className={`text-sm text-lightgray ${labelClassName ?? ""}`}>
         {label}
       </AppText>
       {input}

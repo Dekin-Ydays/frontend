@@ -13,23 +13,23 @@ export type AppIconComponent = ComponentType<IconoirLikeProps>;
 
 const iconSizes = { sm: 18, lg: 32 } as const;
 
-type IconSize = keyof typeof iconSizes;
+type AppIconSize = keyof typeof iconSizes;
 
-type IconProps = {
+type AppIconProps = {
   icon: AppIconComponent;
-  size?: IconSize;
+  size?: AppIconSize;
   color?: string;
   strokeWidth?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Icon({
+export function AppIcon({
   icon: IconComponent,
   size = "sm",
   color = "#FFFFFF",
   strokeWidth = 1.8,
   style,
-}: IconProps) {
+}: AppIconProps) {
   const px = iconSizes[size];
   return (
     <IconComponent
