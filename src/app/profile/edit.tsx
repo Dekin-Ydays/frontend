@@ -30,7 +30,7 @@ export default function EditProfileScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pt-24 pb-36 gap-y-6">
+        <View className="px-5 pb-36 gap-y-6">
           <View className="items-center gap-y-2.5">
             <ProfilePicture uri={MOCK_AVATARS[0]} size={96} showAddButton />
             <Pressable>

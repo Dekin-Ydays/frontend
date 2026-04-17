@@ -19,7 +19,7 @@ export default function ScoreResultScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="px-5 pt-24 gap-y-6">
+      <View className="px-5 gap-y-6">
         <View className="gap-y-1.5">
           <AppText variant="bolderLargeText">Score {score}%</AppText>
           <AppText variant="secondaryText">{scoreLabel}</AppText>

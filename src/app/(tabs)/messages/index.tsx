@@ -88,7 +88,7 @@ export default function MessagesScreen() {
   return (
     <FlatList
       className="flex-1 bg-dark"
-      contentContainerClassName={"gap-4 px-4 pb-24 pt-24"}
+      contentContainerClassName={"gap-4 px-4 pb-24"}
       data={filteredMessages}
       keyExtractor={(item) => item.key}
       ListHeaderComponent={

@@ -116,7 +116,7 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="flex-row gap-2 px-5 pt-24 pb-2">
+      <View className="flex-row gap-2 px-5 pb-2">
         {SEARCH_FILTERS.map((filter) => (
           <RoundedButton
             key={filter}

@@ -128,7 +128,7 @@ export function ProfileView({
   return (
     <FlatList
       className="flex-1 bg-dark"
-      contentContainerClassName="px-4 pb-32 pt-24"
+      contentContainerClassName="px-4 pb-32"
       data={visiblePosts}
       keyExtractor={(item) => item.id}
       numColumns={2}
