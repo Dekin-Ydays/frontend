@@ -1,6 +1,5 @@
 import { Image, Pressable, View } from "react-native";
 import { Xmark, RefreshDouble } from "iconoir-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
@@ -10,7 +9,6 @@ import { TopBar } from "@/components/ui/top-bar";
 
 export default function VideoPerformScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   return (
     <View className="flex-1 bg-dark">

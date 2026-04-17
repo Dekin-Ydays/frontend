@@ -5,19 +5,16 @@ export default function ProfileLayout() {
   const router = useRouter();
 
   return (
-    <Stack screenOptions={{ headerTransparent: true }}>
-      <Stack.Screen
-        name="index"
-        options={{
-          header: () => (
-            <TopHeader
-              title="MON PROFIL"
-              moreButton
-              onMore={() => router.push("/profile/settings")}
-            />
-          ),
-        }}
-      />
-    </Stack>
+    <Stack
+      screenOptions={{
+        header: () => (
+          <TopHeader
+            title="MON PROFIL"
+            moreButton
+            onMore={() => router.push("/profile/settings")}
+          />
+        ),
+      }}
+    />
   );
 }

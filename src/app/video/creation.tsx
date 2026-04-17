@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Image, Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Xmark, MusicNote, RefreshDouble } from "iconoir-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
@@ -13,7 +12,6 @@ import { TopBar } from "@/components/ui/top-bar";
 
 export default function VideoCreationScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [musicModalVisible, setMusicModalVisible] = useState(false);
   const [selectedMusic, setSelectedMusic] = useState<MusicItem | null>(null);
 
