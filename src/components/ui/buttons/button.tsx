@@ -29,7 +29,7 @@ export function Button({
       accessibilityLabel={label ?? "Button"}
       onPress={onPress}
       disabled={disabled || !onPress}
-      className={`flex-row items-center gap-3 px-5 h-16 rounded-2xl w-full ${variant === "primary" ? "bg-primary justify-between" : "bg-white items-center justify-center"} ${disabled ? "opacity-50" : ""} ${className ?? ""}`}
+      className={`flex-row items-center gap-3 px-5 h-16 rounded-3xl w-full ${variant === "primary" ? "bg-primary justify-between" : "bg-white items-center justify-center"} ${disabled ? "opacity-50" : ""} ${className ?? ""}`}
     >
       {Icon && !iconRight && <Icon className="size-8 text-dark" />}
 

@@ -38,7 +38,7 @@ export function CodeInput({ length = 4, value, onChange }: CodeInputProps) {
       {value.map((digit, index) => (
         <View
           key={index}
-          className={`relative h-16 w-16 rounded-2xl bg-white/10 border border-white/5 items-center justify-center ${focusedIndex === index ? "border-primary" : ""}`}
+          className={`relative h-16 w-16 rounded-3xl bg-white/10 border border-white/5 items-center justify-center ${focusedIndex === index ? "border-primary" : ""}`}
         >
           <TextInput
             ref={(ref) => {
