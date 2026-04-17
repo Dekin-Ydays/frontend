@@ -2,11 +2,6 @@ import { Search } from "iconoir-react-native";
 import { TextInput, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
 
-
-
-/*
-// Main component
-*/
 type MessagesSearchInputProps = {
   value: string;
   onChangeText: (value: string) => void;

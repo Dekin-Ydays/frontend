@@ -28,7 +28,7 @@ export default function ProfileScreen() {
       activeTab={activeTab}
       onChangeTab={handleChangeTab}
       isOwnProfile
-      onPressAdd={() => router.push("/(tabs)/video/creation" as Href)}
+      onPressAdd={() => router.push("/video/creation" as Href)}
     />
   );
 }

@@ -1,25 +1,13 @@
-import { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import { ArrowLeft, ArrowRight, Play } from "iconoir-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
-import { useBottomBar } from "@/components/nav/bottom-bar-context";
-
-
 
 export default function VideoReviewScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { hide, show } = useBottomBar();
-
-  useFocusEffect(
-    useCallback(() => {
-      hide();
-      return show;
-    }, [hide, show])
-  );
 
   return (
     <View className="flex-1 bg-dark">
@@ -35,7 +23,7 @@ export default function VideoReviewScreen() {
         </Pressable>
         <AppText variant="title">NOUVELLE VIDEO</AppText>
         <Pressable
-          onPress={() => router.push("/(tabs)/video/form" as any)}
+          onPress={() => router.push("/video/form")}
           accessibilityRole="button"
           accessibilityLabel="Suivant"
         >

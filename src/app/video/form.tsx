@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useState } from "react";
+import { useRouter } from "expo-router";
 import {
   Image,
   KeyboardAvoidingView,
@@ -13,23 +13,12 @@ import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Icon } from "@/components/ui/icon";
-import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
-
-
 
 export default function VideoFormScreen() {
   const router = useRouter();
-  const { hide, show } = useBottomBar();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
-  useFocusEffect(
-    useCallback(() => {
-      hide();
-      return show;
-    }, [hide, show])
-  );
 
   return (
     <KeyboardAvoidingView
@@ -76,7 +65,7 @@ export default function VideoFormScreen() {
       </ScrollView>
 
       <BottomActionBar>
-        <Button variant="primary" label="Publier" Icon={Upload} onPress={() => router.push("/(tabs)/video/score" as any)} />
+        <Button variant="primary" label="Publier" Icon={Upload} onPress={() => router.push("/video/score")} />
       </BottomActionBar>
     </KeyboardAvoidingView>
   );

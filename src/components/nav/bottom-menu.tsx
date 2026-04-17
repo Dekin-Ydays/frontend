@@ -6,9 +6,6 @@ import { Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Icon } from "../ui/icon";
-import { useBottomBar } from "./bottom-bar-context";
-
-
 
 /*
 // Secondary components
@@ -44,7 +41,7 @@ function SearchBar({ onSearch }: SearchBarProps) {
       placeholderTextColor="#919191"
       underlineColorAndroid="transparent"
       onChangeText={onSearch}
-      className={`h-16 flex-1 rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300`}
+      className={`h-16 flex-1 rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray backdrop-blur-sm outline-none focus:border-secondary transition-all duration-300`}
     />
   );
 }
@@ -57,7 +54,6 @@ export function BottomMenu({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
-  const { isVisible } = useBottomBar();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const activeRoute = state.routes[state.index]?.name;
@@ -71,10 +67,11 @@ export function BottomMenu({
     }
   }, [activeRoute]);
 
-  if (!isVisible) return null;
-
   return (
-    <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center" style={{ paddingBottom: insets.bottom }}>
+    <View
+      className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center"
+      style={{ paddingBottom: insets.bottom }}
+    >
       <View className="flex-row items-center justify-center gap-3 px-4 w-full">
         {/* Main nav pills — hidden when search is active */}
         {!isSearchActive && (

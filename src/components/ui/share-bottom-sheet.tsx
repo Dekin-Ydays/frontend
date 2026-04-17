@@ -10,11 +10,6 @@ import { AppText } from "@/components/ui/app-text";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 
 /*
-// Styles
-*/
-// styles inlined below
-
-/*
 // Secondary components
 */
 function UserCard({ item }: { item: ShareUser }) {

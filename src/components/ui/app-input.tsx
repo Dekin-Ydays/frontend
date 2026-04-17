@@ -72,7 +72,7 @@ export function AppInput({
         secureTextEntry={
           isPasswordType ? !isPasswordVisible : props.secureTextEntry
         }
-        className={`h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
+        className={`h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
       />
 
       {isPasswordType ? (

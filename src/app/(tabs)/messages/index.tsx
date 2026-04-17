@@ -58,7 +58,7 @@ export default function MessagesScreen() {
         key: `message-${index + 1}`,
         onPress: () =>
           router.push({
-            pathname: "/(tabs)/messages/conversation",
+            pathname: "/messages/conversation",
             params: {
               userName: item.userName,
               avatarUri: item.avatarUri,

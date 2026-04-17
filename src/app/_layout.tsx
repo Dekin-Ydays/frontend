@@ -1,5 +1,5 @@
 import "@/global.css";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
@@ -27,7 +27,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync("#0E0E0E");
-
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
@@ -40,7 +39,14 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider className="bg-dark flex-1">
-        <Slot />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" options={{ animation: "none" }} />
+          <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
+          <Stack.Screen name="profile" options={{ animation: "slide_from_right", gestureEnabled: true }} />
+          <Stack.Screen name="messages" options={{ animation: "slide_from_right", gestureEnabled: true }} />
+          <Stack.Screen name="video" options={{ animation: "slide_from_right", gestureEnabled: true }} />
+          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

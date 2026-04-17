@@ -110,7 +110,7 @@ export default function SearchScreen() {
   );
 
   const handlePressProfile = useCallback(
-    (id: string) => router.push(`/(tabs)/profile/${id}` as Href),
+    (id: string) => router.push(`/profile/${id}` as Href),
     [router],
   );
 

@@ -9,11 +9,6 @@ import { MediaTileButton } from "@/components/media/media-tile-button";
 import type { ProfilePost, ProfileTab, ProfileTabKey } from "@/types/profile";
 
 /*
-// Styles
-*/
-// styles inlined below
-
-/*
 // Secondary components
 */
 type ProfileHeaderProps = {

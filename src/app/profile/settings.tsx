@@ -4,11 +4,6 @@ import type { Href } from "expo-router";
 import { QuestionMark, EditPencil, Bell, LogOut, NavArrowRight } from "iconoir-react-native";
 import { SettingsItem } from "@/components/profile/settings-item";
 
-
-
-/*
-// Main component
-*/
 export default function SettingsScreen() {
   const router = useRouter();
 
@@ -22,7 +17,7 @@ export default function SettingsScreen() {
       <SettingsItem
         icon={EditPencil}
         label="Modifier le profil"
-        onPress={() => router.push("/(tabs)/profile/edit")}
+        onPress={() => router.push("/profile/edit")}
         trailingIcon={NavArrowRight}
       />
       <SettingsItem

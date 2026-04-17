@@ -6,7 +6,7 @@ import {
   Platform,
   View,
 } from "react-native";
-import { useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import {
   ChatBubble,
@@ -14,14 +14,8 @@ import {
 } from "@/components/messages/chat-bubble";
 import { ChatDateSeparator } from "@/components/messages/chat-date-separator";
 import { MessageSender } from "@/components/messages/message-sender";
-import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
-
-
-/*
-// Types
-*/
 type TimestampItem = {
   type: "timestamp";
   id: string;
@@ -81,9 +75,6 @@ const initialMessages: ChatItem[] = [
   },
 ];
 
-/*
-// Secondary components
-*/
 function ChatTimestamp({ time }: { time: string }) {
   return (
     <AppText variant="secondaryText" className="text-right text-xs">
@@ -92,23 +83,12 @@ function ChatTimestamp({ time }: { time: string }) {
   );
 }
 
-/*
-// Main component
-*/
 export default function ConversationScreen() {
   useLocalSearchParams<{ userName: string; avatarUri: string; isOnline: string }>();
-  const { hide, show } = useBottomBar();
 
   const [messages, setMessages] = useState<ChatItem[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const listRef = useRef<FlatList>(null);
-
-  useFocusEffect(
-    useCallback(() => {
-      hide();
-      return show;
-    }, [hide, show])
-  );
 
   const handleSend = useCallback(() => {
     const text = inputValue.trim();

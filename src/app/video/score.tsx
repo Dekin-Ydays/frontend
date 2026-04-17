@@ -1,26 +1,15 @@
-import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 import { ShareIos } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
-import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { ShareBottomSheet } from "@/components/ui/share-bottom-sheet";
 
-
-
 export default function ScoreResultScreen() {
-  const { hide, show } = useBottomBar();
   const score = 90;
   const [shareVisible, setShareVisible] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      hide();
-      return show;
-    }, [hide, show])
-  );
   const scoreLabel =
     score >= 95 ? "Parfait !" : score >= 80 ? "Presque parfait" : "Bonne tentative !";
 

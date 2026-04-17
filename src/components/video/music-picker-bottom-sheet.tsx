@@ -10,11 +10,6 @@ import type { MusicItem } from "@/types/video";
 import { MOCK_MUSIC_LIST } from "@/mocks/videos";
 
 /*
-// Styles
-*/
-// styles inlined below
-
-/*
 // Secondary components
 */
 function MusicListItem({

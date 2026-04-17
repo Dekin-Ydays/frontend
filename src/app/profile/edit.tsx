@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -6,31 +6,17 @@ import {
   ScrollView,
   View,
 } from "react-native";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { ProfilePicture } from "@/components/profile/profile-picture";
-import { useBottomBar } from "@/components/nav/bottom-bar-context";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
-
-
-/*
-// Main component
-*/
 export default function EditProfileScreen() {
   const router = useRouter();
-  const { hide, show } = useBottomBar();
   const [firstName, setFirstName] = useState("Adrien");
-
-  useFocusEffect(
-    useCallback(() => {
-      hide();
-      return show;
-    }, [hide, show])
-  );
   const [lastName, setLastName] = useState("Cambier");
   const [pseudo, setPseudo] = useState("TheGoat1438");
   const [email, setEmail] = useState("gérard.dupont@gmail.com");
@@ -45,7 +31,6 @@ export default function EditProfileScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-5 pt-24 pb-36 gap-y-6">
-          {/* Avatar section */}
           <View className="items-center gap-y-2.5">
             <ProfilePicture uri={MOCK_AVATARS[0]} size={96} showAddButton />
             <Pressable>
@@ -55,7 +40,6 @@ export default function EditProfileScreen() {
             </Pressable>
           </View>
 
-          {/* Form */}
           <View className="gap-y-6">
             <View className="flex-row gap-2.5">
               <View className="flex-1">
