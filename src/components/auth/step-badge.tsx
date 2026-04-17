@@ -8,9 +8,9 @@ type StepBadgeProps = {
 
 export function StepBadge({ current, total }: StepBadgeProps) {
   return (
-    <View className="flex-row items-center h-8 bg-secondary rounded-[10px] px-5 self-start">
+    <View className="flex-row items-center px-4 py-2 bg-secondary rounded-xl px-5 self-start">
       <AppText className="!text-dark font-montserrat-bold text-sm">
-        Étape {current} / {total}
+        Étape {current} ~ {total}
       </AppText>
     </View>
   );

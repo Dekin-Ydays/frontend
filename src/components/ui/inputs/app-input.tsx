@@ -55,7 +55,7 @@ export function AppInput({
   const isPasswordType = type === "password";
 
   const input = (
-    <View className="relative">
+    <View className="relative flex-1">
       <TextInput
         {...typeProps[type]}
         {...props}
@@ -88,7 +88,7 @@ export function AppInput({
   if (!label) return input;
 
   return (
-    <View className="flex-col gap-2.5">
+    <View className="flex-1 flex-col gap-2.5">
       <AppText className={` text-lightgray ${labelClassName ?? ""}`}>
         {label}
       </AppText>

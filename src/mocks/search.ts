@@ -1,7 +1,7 @@
 import type { SearchDanceItem, SearchFilter, SearchProfileItem } from "@/types/search";
 import { MOCK_AVATARS } from "./avatars";
 
-export const SEARCH_FILTERS: SearchFilter[] = ["Profils", "Danses", "Autre"];
+export const SEARCH_FILTERS: SearchFilter[] = ["Profils", "Performances", "Réalisations"];
 
 export const MOCK_SEARCH_PROFILES: SearchProfileItem[] = [
   { id: "1", avatarUri: MOCK_AVATARS[0], userName: "Jean-Baptiste Sainte-Beuve", stats: "7 suivis | 19 followers" },
@@ -15,7 +15,7 @@ export const MOCK_SEARCH_PROFILES: SearchProfileItem[] = [
   { id: "9", avatarUri: MOCK_AVATARS[2], userName: "Jean-Baptiste Sainte-Beuve", stats: "7 suivis | 19 followers" },
 ];
 
-export const MOCK_DANCES: SearchDanceItem[] = [
+export const MOCK_PERFORMANCES: SearchDanceItem[] = [
   {
     id: "1",
     title: "Hip-Hop Basics",
@@ -45,5 +45,28 @@ export const MOCK_DANCES: SearchDanceItem[] = [
     id: "6",
     title: "Locking",
     imageUri: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&q=80",
+  },
+];
+
+export const MOCK_REALISATIONS: SearchDanceItem[] = [
+  {
+    id: "1",
+    title: "Ma première chorégraphie",
+    imageUri: "https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "2",
+    title: "Freestyle urbain",
+    imageUri: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "3",
+    title: "Duo avec Marie",
+    imageUri: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "4",
+    title: "Battle final",
+    imageUri: "https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=400&q=80",
   },
 ];

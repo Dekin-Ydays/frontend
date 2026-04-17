@@ -1,8 +1,6 @@
 import { Image, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-
-
 /*
 // Main component
 */
@@ -27,7 +25,7 @@ export function MediaTileButton({
       accessibilityLabel={accessibilityLabel ?? title}
       onPress={onPress}
       disabled={!onPress}
-      className={`relative overflow-hidden bg-white/5 ${className ?? ""}`}
+      className={`relative flex-1 overflow-hidden bg-white/5 ${className ?? ""}`}
     >
       <Image source={{ uri: imageUri }} className="aspect-square w-full" />
       <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4">

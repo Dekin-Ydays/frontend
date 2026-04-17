@@ -1,4 +1,4 @@
-export type SearchFilter = "Profils" | "Danses" | "Autre";
+export type SearchFilter = "Profils" | "Performances" | "Réalisations";
 
 export type SearchProfileItem = {
   id: string;

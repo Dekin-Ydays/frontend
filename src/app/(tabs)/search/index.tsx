@@ -6,14 +6,26 @@ import type { Href } from "expo-router";
 import { RoundedButton } from "@/components/ui/buttons/rounded-button";
 import { MediaTileButton } from "@/components/media/media-tile-button";
 import { MessageListItem } from "@/components/messages/message-list-item";
-import { AppText } from "@/components/ui/app-text";
-import type { SearchFilter, SearchProfileItem, SearchDanceItem } from "@/types/search";
-import { MOCK_DANCES, MOCK_SEARCH_PROFILES, SEARCH_FILTERS } from "@/mocks/search";
+import type {
+  SearchFilter,
+  SearchProfileItem,
+  SearchDanceItem,
+} from "@/types/search";
+import {
+  MOCK_PERFORMANCES,
+  MOCK_REALISATIONS,
+  MOCK_SEARCH_PROFILES,
+  SEARCH_FILTERS,
+} from "@/mocks/search";
 
 /*
 // Utils
 */
-function filterByQuery<T>(items: T[], query: string, getField: (item: T) => string): T[] {
+function filterByQuery<T>(
+  items: T[],
+  query: string,
+  getField: (item: T) => string,
+): T[] {
   const q = query.toLowerCase().trim();
   if (!q) return items;
   return items.filter((item) => getField(item).toLowerCase().includes(q));
@@ -34,7 +46,8 @@ function ProfilesList({ data, paddingBottom, onPress }: ProfilesListProps) {
       key="profiles"
       data={data}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom, gap: 16 }}
+      contentContainerClassName="gap-4"
+      contentContainerStyle={{ paddingBottom }}
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
         <MessageListItem
@@ -60,25 +73,14 @@ function DancesList({ data, paddingBottom }: DancesListProps) {
       data={data}
       numColumns={2}
       keyExtractor={(item) => item.id}
-      columnWrapperStyle={{ gap: 8 }}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom, gap: 8 }}
+      contentContainerClassName="gap-4"
+      contentContainerStyle={{ paddingBottom }}
+      columnWrapperClassName="gap-4"
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
-        <MediaTileButton
-          imageUri={item.imageUri}
-          title={item.title}
-          className="flex-1 rounded-[20px]"
-        />
+        <MediaTileButton imageUri={item.imageUri} title={item.title} />
       )}
     />
-  );
-}
-
-function EmptyState({ label }: { label: string }) {
-  return (
-    <View className="flex-1 items-center justify-center">
-      <AppText variant="secondaryText">{label}</AppText>
-    </View>
   );
 }
 
@@ -88,10 +90,14 @@ function EmptyState({ label }: { label: string }) {
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { q, category } = useLocalSearchParams<{ q?: string; category?: string }>();
+  const { q, category } = useLocalSearchParams<{
+    q?: string;
+    category?: string;
+  }>();
 
   const searchQuery = (Array.isArray(q) ? q[0] : q) ?? "";
-  const activeFilter = ((Array.isArray(category) ? category[0] : category) ?? "Profils") as SearchFilter;
+  const activeFilter = ((Array.isArray(category) ? category[0] : category) ??
+    "Profils") as SearchFilter;
   const listPaddingBottom = insets.bottom + 96;
 
   const filteredProfiles = useMemo(
@@ -99,8 +105,13 @@ export default function SearchScreen() {
     [searchQuery],
   );
 
-  const filteredDances = useMemo(
-    () => filterByQuery(MOCK_DANCES, searchQuery, (d) => d.title),
+  const filteredPerformances = useMemo(
+    () => filterByQuery(MOCK_PERFORMANCES, searchQuery, (d) => d.title),
+    [searchQuery],
+  );
+
+  const filteredRealisations = useMemo(
+    () => filterByQuery(MOCK_REALISATIONS, searchQuery, (d) => d.title),
     [searchQuery],
   );
 
@@ -115,8 +126,8 @@ export default function SearchScreen() {
   );
 
   return (
-    <View className="flex-1 bg-dark">
-      <View className="flex-row gap-2 px-4 pb-2">
+    <View className="flex-1 bg-dark p-4 bg-24 gap-4">
+      <View className="flex-row gap-2">
         {SEARCH_FILTERS.map((filter) => (
           <RoundedButton
             key={filter}
@@ -134,11 +145,17 @@ export default function SearchScreen() {
           onPress={handlePressProfile}
         />
       )}
-      {activeFilter === "Danses" && (
-        <DancesList data={filteredDances} paddingBottom={listPaddingBottom} />
+      {activeFilter === "Performances" && (
+        <DancesList
+          data={filteredPerformances}
+          paddingBottom={listPaddingBottom}
+        />
       )}
-      {activeFilter === "Autre" && (
-        <EmptyState label="Bientôt disponible" />
+      {activeFilter === "Réalisations" && (
+        <DancesList
+          data={filteredRealisations}
+          paddingBottom={listPaddingBottom}
+        />
       )}
     </View>
   );

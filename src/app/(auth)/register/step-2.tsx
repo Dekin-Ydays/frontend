@@ -21,30 +21,27 @@ export default function RegisterStep2Screen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-4 pb-24 gap-6">
+        <View className="p-4 pb-24 gap-6">
           <StepBadge current={2} total={3} />
 
           <View className="flex-row gap-3">
-            <View className="flex-1">
-              <AppInput
-                label="Prénom"
-                labelClassName="!text-white"
-                value={data.firstName}
-                onChangeText={(v) => update({ firstName: v })}
-                placeholder="Un prénom"
-                placeholderTextColor="#919191"
-              />
-            </View>
-            <View className="flex-1">
-              <AppInput
-                label="Nom"
-                labelClassName="!text-white"
-                value={data.lastName}
-                onChangeText={(v) => update({ lastName: v })}
-                placeholder="Un nom"
-                placeholderTextColor="#919191"
-              />
-            </View>
+            <AppInput
+              label="Prénom"
+              labelClassName="!text-white"
+              value={data.firstName}
+              onChangeText={(v) => update({ firstName: v })}
+              placeholder="Un prénom"
+              placeholderTextColor="#919191"
+            />
+
+            <AppInput
+              label="Nom"
+              labelClassName="!text-white"
+              value={data.lastName}
+              onChangeText={(v) => update({ lastName: v })}
+              placeholder="Un nom"
+              placeholderTextColor="#919191"
+            />
           </View>
 
           <AppInput

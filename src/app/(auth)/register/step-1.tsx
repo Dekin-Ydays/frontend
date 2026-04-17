@@ -21,7 +21,7 @@ export default function RegisterStep1Screen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-4 pb-24 gap-12">
+        <View className="p-4 pb-24 gap-12">
           <View className="gap-3">
             <AppText variant="title" className="text-5xl">
               DEKIN
