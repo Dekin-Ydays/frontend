@@ -2,7 +2,7 @@ import { Pressable } from "react-native";
 import { SendDiagonal } from "iconoir-react-native";
 import { Icon } from "@/components/ui/icon";
 import { BottomBar } from "@/components/ui/bottom-bar";
-import { BottomTextInput } from "@/components/ui/bottom-text-input";
+import { BottomTextInput } from "@/components/ui/inputs/bottom-text-input";
 
 type MessageSenderProps = {
   value: string;

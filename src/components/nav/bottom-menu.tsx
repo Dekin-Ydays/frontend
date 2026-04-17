@@ -2,10 +2,11 @@ import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import type { AppIconComponent } from "@/components/ui/icon";
 import { useEffect, useRef } from "react";
 import { HomeSimple, Search, Send, User } from "iconoir-react-native";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Icon } from "../ui/icon";
+import { BottomTextInput } from "../ui/inputs/bottom-text-input";
 
 /*
 // Secondary components
@@ -36,12 +37,10 @@ type SearchBarProps = {
 
 function SearchBar({ onSearch }: SearchBarProps) {
   return (
-    <TextInput
+    <BottomTextInput
       placeholder="Rechercher..."
-      placeholderTextColor="#919191"
-      underlineColorAndroid="transparent"
       onChangeText={onSearch}
-      className={`h-16 flex-1 rounded-full bg-white/10 border border-white/5 px-5 text-white placeholder:text-gray backdrop-blur-sm outline-none focus:border-secondary transition-all duration-300`}
+      className="h-16 flex-1"
     />
   );
 }

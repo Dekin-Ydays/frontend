@@ -4,7 +4,7 @@ import { Send } from "iconoir-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { ProfilePicture } from "@/components/profile/profile-picture";
-import { AppInput } from "@/components/ui/app-input";
+import { AppInput } from "@/components/ui/inputs/app-input";
 import { Button } from "@/components/ui/button";
 import { AppText } from "@/components/ui/app-text";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";

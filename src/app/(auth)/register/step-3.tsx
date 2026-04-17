@@ -6,7 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { StepBadge } from "@/components/auth/step-badge";
-import { CodeInput } from "@/components/auth/code-input";
+import { CodeInput } from "@/components/ui/inputs/code-input";
 
 const CODE_LENGTH = 4;
 

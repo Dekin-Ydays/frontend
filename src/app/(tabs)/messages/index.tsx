@@ -5,7 +5,7 @@ import {
   MessageListItem,
   type MessageListItemProps,
 } from "@/components/messages/message-list-item";
-import { MessagesSearchInput } from "@/components/messages/messages-search-input";
+import { SearchInput } from "@/components/ui/inputs/search-input";
 import { MOCK_CONVERSATIONS } from "@/mocks/messages";
 
 
@@ -27,9 +27,10 @@ function MessageListHeader({
   return (
     <View className="mb-3">
       <View className="mt-2">
-        <MessagesSearchInput
+        <SearchInput
           value={searchQuery}
           onChangeText={onChangeSearchQuery}
+          placeholder="Rechercher un contact..."
         />
       </View>
     </View>

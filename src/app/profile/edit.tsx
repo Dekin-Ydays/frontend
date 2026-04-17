@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
-import { AppInput } from "@/components/ui/app-input";
+import { AppInput } from "@/components/ui/inputs/app-input";
 import { Button } from "@/components/ui/button";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { ProfilePicture } from "@/components/profile/profile-picture";

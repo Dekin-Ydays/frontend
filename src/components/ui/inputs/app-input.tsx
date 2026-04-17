@@ -5,11 +5,6 @@ import { Eye, EyeClosed } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 
-
-
-/*
-// Main component
-*/
 type AppInputType = "text" | "password" | "email" | "number" | "phone" | "url";
 
 type AppInputProps = Omit<TextInputProps, "className"> & {
@@ -36,9 +31,7 @@ const typeProps: Record<AppInputType, Partial<TextInputProps>> = {
     textContentType: "emailAddress",
     autoComplete: "email",
   },
-  number: {
-    keyboardType: "numeric",
-  },
+  number: { keyboardType: "numeric" },
   phone: {
     keyboardType: "phone-pad",
     textContentType: "telephoneNumber",
@@ -69,36 +62,23 @@ export function AppInput({
       <TextInput
         {...typeProps[type]}
         {...props}
-        secureTextEntry={
-          isPasswordType ? !isPasswordVisible : props.secureTextEntry
-        }
+        secureTextEntry={isPasswordType ? !isPasswordVisible : props.secureTextEntry}
         className={`h-[60px] w-full rounded-[20px] bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
       />
-
-      {isPasswordType ? (
+      {isPasswordType && (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={
-            isPasswordVisible
-              ? "Masquer le mot de passe"
-              : "Afficher le mot de passe"
-          }
-          onPress={() => setIsPasswordVisible((visible) => !visible)}
+          accessibilityLabel={isPasswordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          onPress={() => setIsPasswordVisible((v) => !v)}
           className="absolute right-4 h-16 justify-center"
         >
-          <Icon
-            icon={isPasswordVisible ? Eye : EyeClosed}
-            size={32}
-            color="#FFFFFF"
-          />
+          <Icon icon={isPasswordVisible ? Eye : EyeClosed} size={32} color="#FFFFFF" />
         </Pressable>
-      ) : null}
+      )}
     </View>
   );
 
-  if (!label) {
-    return input;
-  }
+  if (!label) return input;
 
   return (
     <View className={containerClassName}>

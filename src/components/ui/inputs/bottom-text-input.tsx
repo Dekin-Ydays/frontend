@@ -11,7 +11,7 @@ export function BottomTextInput({ className = "", ...props }: BottomTextInputPro
       placeholderTextColor="#919191"
       underlineColorAndroid="transparent"
       {...props}
-      className={`h-[60px] rounded-full bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white focus:border-secondary ${className}`}
+      className={`h-[60px] rounded-full bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white outline-none focus:border-secondary ${className}`}
     />
   );
 }

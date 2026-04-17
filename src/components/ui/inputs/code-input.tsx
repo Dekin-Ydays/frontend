@@ -51,7 +51,7 @@ export function CodeInput({ length = 4, value, onChange }: CodeInputProps) {
             maxLength={1}
             selectTextOnFocus
             underlineColorAndroid="transparent"
-            className="font-montserrat text-white text-sm text-center"
+            className="font-montserrat text-white text-sm text-center outline-none"
           />
         </View>
       ))}
