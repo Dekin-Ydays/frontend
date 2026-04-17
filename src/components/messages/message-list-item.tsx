@@ -2,9 +2,6 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   container: "flex-row items-center gap-3",
   avatarContainer: "relative",
@@ -15,9 +12,6 @@ const styles = {
   subtitle: "mt-0.5 text-lightgray",
 } as const;
 
-/*
-// Main component
-*/
 export type MessageListItemProps = {
   avatarUri: string;
   userName: string;

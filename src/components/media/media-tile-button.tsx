@@ -1,9 +1,6 @@
 import { Image, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   base: "relative overflow-hidden bg-white/5",
   image: "aspect-square w-full",
@@ -11,9 +8,6 @@ const styles = {
     "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4",
 } as const;
 
-/*
-// Main component
-*/
 type MediaTileButtonProps = {
   imageUri: string;
   title: string;

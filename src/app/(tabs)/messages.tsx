@@ -6,9 +6,6 @@ import {
 } from "@/components/messages/message-list-item";
 import { MessagesSearchInput } from "@/components/messages/messages-search-input";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   screen: "flex-1 bg-dark",
   content: "gap-4 px-4 pb-24 pt-24",
@@ -17,9 +14,6 @@ const styles = {
   itemSeparator: "h-4",
 } as const;
 
-/*
-// Mock data
-*/
 const avatarList = [
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
   "https://images.unsplash.com/photo-1542206395-9feb3edaa68d?auto=format&fit=crop&w=200&q=80",
@@ -82,9 +76,6 @@ const messages: MessageRow[] = [
   key: `message-${index + 1}`,
 }));
 
-/*
-// Secondary components
-*/
 type MessageListHeaderProps = {
   searchQuery: string;
   onChangeSearchQuery: (value: string) => void;
@@ -114,9 +105,6 @@ function renderItemSeparator() {
   return <View className={styles.itemSeparator} />;
 }
 
-/*
-// Main component
-*/
 export default function MessagesScreen() {
   const [searchQuery, setSearchQuery] = useState("");
 

@@ -7,9 +7,6 @@ import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 import { UserItem, type UserItemProps } from "../user-item";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   bar: "fixed top-0 left-0 right-0 z-50 bg-dark bg-gradient-to-t from-secondary/0 to-secondary/10 h-24 h-24 flex-row items-center justify-between px-4",
   row: "flex-row items-center gap-3",
@@ -17,9 +14,6 @@ const styles = {
   avatar: "h-12 w-12 rounded-full bg-secondary",
 } as const;
 
-/*
-// Secondary components
-*/
 type IconButtonProps = {
   icon: AppIconComponent;
   onPress?: () => void;
@@ -38,9 +32,6 @@ function IconButton({ icon, onPress, label }: IconButtonProps) {
   );
 }
 
-/*
-// Main component
-*/
 type TopHeaderProps = {
   title?: string;
   backButton?: boolean;

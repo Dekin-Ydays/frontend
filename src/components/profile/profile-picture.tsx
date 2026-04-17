@@ -2,9 +2,6 @@ import { Pressable, Image, View } from "react-native";
 import { Plus } from "iconoir-react-native";
 import { Icon } from "@/components/ui/icon";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   container: "relative",
   image: "bg-white/10",
@@ -12,9 +9,6 @@ const styles = {
     "absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full border-2 border-dark bg-primary",
 } as const;
 
-/*
-// Main component
-*/
 type ProfilePictureProps = {
   uri: string;
   size?: number;

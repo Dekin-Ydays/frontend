@@ -2,9 +2,6 @@ import { View, Pressable } from "react-native";
 import { AppText } from "./ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   container: "flex-row items-center gap-3",
   avatarContainer: "relative",
@@ -14,9 +11,6 @@ const styles = {
   transition: "transition-all duration-300",
 } as const;
 
-/*
-// Main component
-*/
 export type UserItemProps = {
   avatarUri: string;
   userName: string;

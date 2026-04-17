@@ -1,3 +1,7 @@
+import type { Landmark } from "@/types/pose-landmarks";
+
+export type { Landmark };
+
 export const SKELETON_CONNECTIONS = [
   // Face
   [0, 1],
@@ -37,13 +41,6 @@ export const SKELETON_CONNECTIONS = [
   [28, 32],
 ] as const;
 
-export interface Landmark {
-  x: number;
-  y: number;
-  z?: number;
-  visibility?: number;
-}
-
 export interface DrawOptions {
   width: number;
   height: number;
@@ -69,7 +66,6 @@ export function drawSkeleton(
     pointColor,
   } = options;
 
-  // Draw connections
   ctx.strokeStyle = lineColor;
   ctx.lineWidth = lineWidth;
   for (const [start, end] of SKELETON_CONNECTIONS) {
@@ -81,11 +77,10 @@ export function drawSkeleton(
     }
   }
 
-  // Draw points
   if (showPoints) {
     for (let i = 0; i < landmarks.length; i++) {
       const landmark = landmarks[i];
-      // Color coding: cyan (face 0-10), red (torso 11-22), yellow (legs 23-32)
+      // Fallback color by landmark group: cyan (face 0-10), red (torso 11-22), yellow (legs 23-32)
       if (pointColor) {
         ctx.fillStyle = pointColor;
       } else {

@@ -2,9 +2,6 @@ import type { ComponentType } from "react";
 import { Pressable } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Tailwind styles
-*/
 const styles = {
   base: "flex-row justify-center items-center gap-3 px-4 py-2 h-16 rounded-2xl w-full",
   primary: "bg-primary justify-between",
@@ -13,9 +10,6 @@ const styles = {
   disabled: "opacity-50 pointer-events-none",
 } as const;
 
-/*
-// Main component
-*/
 type ButtonProps = {
   variant: "primary" | "secondary";
   label?: string;
