@@ -15,11 +15,14 @@ const renderComment: ListRenderItem<CommentData> = ({ item }) => (
   <CommentItem item={item} />
 );
 
-export function CommentsBottomSheet({ visible, onClose }: CommentsBottomSheetProps) {
+export function CommentsBottomSheet({
+  visible,
+  onClose,
+}: CommentsBottomSheetProps) {
   const [inputValue, setInputValue] = useState("");
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} title="Commentaires">
+    <BottomSheet visible={visible} onClose={onClose}>
       <FlatList
         data={MOCK_COMMENTS}
         keyExtractor={(item) => item.id}

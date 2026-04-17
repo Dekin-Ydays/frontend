@@ -7,6 +7,7 @@ import {
   StyleSheet,
   useWindowDimensions,
   View,
+  ScrollView,
 } from "react-native";
 import Animated, {
   runOnJS,
@@ -17,7 +18,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppText } from "@/components/ui/app-text";
 
 const OPEN_SPRING = { damping: 28, stiffness: 400, mass: 0.7 } as const;
 const CLOSE_SPRING = { damping: 35, stiffness: 380, mass: 0.7 } as const;
@@ -28,10 +28,9 @@ type BottomSheetProps = {
   visible: boolean;
   onClose: () => void;
   children: ReactNode;
-  title?: string;
 };
 
-export function BottomSheet({ visible, onClose, children, title }: BottomSheetProps) {
+export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const { height: screenHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -96,26 +95,20 @@ export function BottomSheet({ visible, onClose, children, title }: BottomSheetPr
       />
 
       <KeyboardAvoidingView
-        style={styles.flex}
+        className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Pressable style={styles.flex} onPress={onClose} />
+        <Pressable className="flex-1" onPress={onClose} />
 
         <Animated.View style={sheetStyle}>
-          <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
+          <View className="relative bg-dark/80 backdrop-blur-sm p-4 gap-4 rounded-t-[30px]">
             <GestureDetector gesture={panGesture}>
-              <View style={styles.handleZone}>
-                <View style={styles.handle} />
+              <View className="flex items-center">
+                <View className="h-1.5 w-10 bg-white/20 rounded-full" />
               </View>
             </GestureDetector>
 
-            {title && (
-              <View style={styles.titleContainer}>
-                <AppText variant="title">{title}</AppText>
-              </View>
-            )}
-
-            {children}
+            <View className="flex-1">{children}</View>
           </View>
         </Animated.View>
       </KeyboardAvoidingView>
@@ -124,27 +117,5 @@ export function BottomSheet({ visible, onClose, children, title }: BottomSheetPr
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  backdrop: { backgroundColor: "rgba(0,0,0,0.65)" },
-  sheet: {
-    backgroundColor: "rgba(14,14,14,0.98)",
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    overflow: "hidden",
-  },
-  handleZone: {
-    alignItems: "center",
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(255,255,255,0.2)",
-  },
-  titleContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-  },
+  backdrop: { backgroundColor: "rgba(0,0,0,0.5)" },
 });

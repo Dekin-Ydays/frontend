@@ -10,16 +10,14 @@ export function SearchInput({
   ...props
 }: SearchInputProps) {
   return (
-    <View className="relative">
-      <View className="absolute left-4 z-10 h-14 justify-center">
-        <Icon icon={Search} size="lg" color="#919191" />
-      </View>
+    <View className="h-14 px-4 gap-5 flex-row items-center w-full rounded-lg bg-white font-montserrat text-dark outline-none">
+      <Icon icon={Search} size="lg" color="#919191" />
       <TextInput
         placeholder={placeholder}
         placeholderTextColor="#919191"
         underlineColorAndroid="transparent"
         {...props}
-        className="h-14 w-full rounded-[10px] bg-white pl-12 pr-5 font-montserrat text-dark outline-none"
+        className="h-14 w-full font-montserrat text-dark outline-none"
       />
     </View>
   );

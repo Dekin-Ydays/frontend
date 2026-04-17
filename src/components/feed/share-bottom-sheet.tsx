@@ -7,6 +7,7 @@ import { AppInput } from "@/components/ui/inputs/app-input";
 import { Button } from "@/components/ui/buttons/button";
 import { AppText } from "@/components/ui/app-text";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
+import { BottomBar } from "../ui/bottom-bar";
 
 /*
 // Secondary components
@@ -43,34 +44,32 @@ export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
   }, [query]);
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} title="Envoyer à">
-      <View className="px-5 gap-5">
-        <AppInput
-          placeholder="Rechercher une personne..."
-          placeholderTextColor="#919191"
-          value={query}
-          onChangeText={setQuery}
-        />
+    <BottomSheet visible={visible} onClose={onClose}>
+      <AppInput
+        placeholder="Rechercher une personne..."
+        placeholderTextColor="#919191"
+        value={query}
+        onChangeText={setQuery}
+      />
 
-        <FlatList
-          data={filteredUsers}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={{ justifyContent: "space-between" }}
-          style={{ maxHeight: 280 }}
-          renderItem={({ item }) => <UserCard item={item} />}
-        />
+      <FlatList
+        data={filteredUsers}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
+        style={{ maxHeight: 280 }}
+        renderItem={({ item }) => <UserCard item={item} />}
+      />
 
-        <View className="border-t border-white/5 pt-4">
-          <Button
-            variant="primary"
-            label="Envoyer"
-            Icon={Send}
-            onPress={onClose}
-          />
-        </View>
-      </View>
+      <BottomBar>
+        <Button
+          variant="primary"
+          label="Envoyer"
+          Icon={Send}
+          onPress={onClose}
+        />
+      </BottomBar>
     </BottomSheet>
   );
 }
