@@ -3,7 +3,7 @@ import { TopHeader } from "@/components/nav/top-header";
 
 export default function MessagesLayout() {
   return (
-    <Stack screenOptions={{ headerTransparent: true }}>
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="conversation"
         options={({ route }) => {
@@ -11,6 +11,7 @@ export default function MessagesLayout() {
             | { userName?: string; avatarUri?: string; isOnline?: string }
             | undefined;
           return {
+            headerShown: true,
             header: () => (
               <TopHeader
                 backButton

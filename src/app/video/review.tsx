@@ -21,7 +21,7 @@ export default function VideoReviewScreen() {
           >
             <ArrowLeft className="size-8 text-white" />
           </Pressable>
-          <AppText variant="title">Nouvelle vidéo</AppText>
+          <AppText variant="title">NOUVELLE VIDÉO</AppText>
         </View>
       </TopBar>
       <BottomBar className="!justify-between">

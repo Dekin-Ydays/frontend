@@ -8,7 +8,7 @@ export default function SettingsScreen() {
   const router = useRouter();
 
   return (
-    <ScrollView className="flex-1 bg-dark" contentContainerClassName={"px-4 pt-28 gap-3"}>
+    <ScrollView className="flex-1 bg-dark" contentContainerClassName={"px-4 pt-24 gap-3"}>
       <SettingsItem
         icon={QuestionMark}
         label="Demander de l'aide"

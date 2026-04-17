@@ -39,13 +39,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider className="bg-dark flex-1">
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" options={{ animation: "none" }} />
-          <Stack.Screen name="(tabs)" options={{ animation: "none" }} />
-          <Stack.Screen name="profile" options={{ animation: "slide_from_right", gestureEnabled: true }} />
-          <Stack.Screen name="messages" options={{ animation: "slide_from_right", gestureEnabled: true }} />
-          <Stack.Screen name="video" options={{ animation: "slide_from_right", gestureEnabled: true }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack screenOptions={{ headerShown: false, animation: "slide_from_right", gestureEnabled: true }}>
+          <Stack.Screen name="(auth)" options={{ animation: "none", gestureEnabled: false }} />
+          <Stack.Screen name="(tabs)" options={{ animation: "none", gestureEnabled: false }} />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

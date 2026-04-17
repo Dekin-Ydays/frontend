@@ -101,7 +101,7 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
         <Pressable className="flex-1" onPress={onClose} />
 
         <Animated.View style={sheetStyle}>
-          <View className="relative bg-dark/80 backdrop-blur-sm p-4 gap-4 rounded-t-[30px]">
+          <View className="relative bg-dark/80 backdrop-blur-sm p-4 gap-4 rounded-t-3xl">
             <GestureDetector gesture={panGesture}>
               <View className="flex items-center">
                 <View className="h-1.5 w-10 bg-white/20 rounded-full" />
