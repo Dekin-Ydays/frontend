@@ -45,7 +45,6 @@ export default function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="gérard@example.com"
-              placeholderTextColor="#919191"
             />
             <View className="gap-2.5">
               <AppInput
@@ -55,7 +54,6 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 placeholder="••••••••"
-                placeholderTextColor="#919191"
               />
               <Pressable>
                 <AppText className="!text-secondary">

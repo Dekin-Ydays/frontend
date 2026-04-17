@@ -1,7 +1,9 @@
+import { useCallback, useMemo } from "react";
+import { FlatList, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import type { Href } from "expo-router";
-import { useCallback } from "react";
-import { ProfileView } from "@/components/profile/profile-view";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { MediaTileButton } from "@/components/media/media-tile-button";
 import type { ProfileTabKey } from "@/types/profile";
 import { MOCK_POSTS, PROFILE_TABS } from "@/mocks/profiles";
 import { MOCK_AVATARS } from "@/mocks/avatars";
@@ -18,17 +20,34 @@ export default function ProfileScreen() {
     [router],
   );
 
+  const visiblePosts = useMemo(
+    () => MOCK_POSTS.filter((post) => post.category === activeTab),
+    [activeTab],
+  );
+
   return (
-    <ProfileView
-      avatarUri={AVATAR_URI}
-      name="Juan-Bautista"
-      stats="7 suivis | 13 followers"
-      posts={MOCK_POSTS}
-      tabs={PROFILE_TABS}
-      activeTab={activeTab}
-      onChangeTab={handleChangeTab}
-      isOwnProfile
-      onPressAdd={() => router.push("/video/creation" as Href)}
-    />
+    <View className="flex-1 bg-dark">
+      <ProfileHeader
+        avatarUri={AVATAR_URI}
+        name="Juan-Bautista"
+        stats="7 suivis | 13 followers"
+        isOwnProfile
+        tabs={PROFILE_TABS}
+        activeTab={activeTab}
+        onChangeTab={handleChangeTab}
+        onPressAdd={() => router.push("/video/creation" as Href)}
+      />
+      <FlatList
+        contentContainerClassName="px-4 pb-24 gap-4"
+        data={visiblePosts}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperClassName="gap-4"
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <MediaTileButton imageUri={item.imageUri} title={item.title} className="flex-1" />
+        )}
+      />
+    </View>
   );
 }

@@ -8,41 +8,10 @@ import {
 import { SearchInput } from "@/components/ui/inputs/search-input";
 import { MOCK_CONVERSATIONS } from "@/mocks/messages";
 
-
-
 type MessageRow = MessageListItemProps & { key: string };
-
-/*
-// Secondary components
-*/
-type MessageListHeaderProps = {
-  searchQuery: string;
-  onChangeSearchQuery: (value: string) => void;
-};
-
-function MessageListHeader({
-  searchQuery,
-  onChangeSearchQuery,
-}: MessageListHeaderProps) {
-  return (
-    <View className="mb-3">
-      <View className="mt-2">
-        <SearchInput
-          value={searchQuery}
-          onChangeText={onChangeSearchQuery}
-          placeholder="Rechercher un contact..."
-        />
-      </View>
-    </View>
-  );
-}
 
 function renderMessageItem({ item }: { item: MessageRow }) {
   return <MessageListItem {...item} />;
-}
-
-function renderItemSeparator() {
-  return <View className="h-4" />;
 }
 
 /*
@@ -72,34 +41,30 @@ export default function MessagesScreen() {
 
   const filteredMessages = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return messages;
-    }
-
-    return messages.filter((message) => {
-      return (
+    if (!normalizedQuery) return messages;
+    return messages.filter(
+      (message) =>
         message.userName.toLowerCase().includes(normalizedQuery) ||
-        message.messagePreview.toLowerCase().includes(normalizedQuery)
-      );
-    });
+        message.messagePreview.toLowerCase().includes(normalizedQuery),
+    );
   }, [searchQuery, messages]);
 
   return (
-    <FlatList
-      className="flex-1 bg-dark"
-      contentContainerClassName={"gap-4 px-4 pb-24"}
-      data={filteredMessages}
-      keyExtractor={(item) => item.key}
-      ListHeaderComponent={
-        <MessageListHeader
-          searchQuery={searchQuery}
-          onChangeSearchQuery={setSearchQuery}
+    <View className="flex-1 bg-dark">
+      <View className="px-4 pt-2 pb-3">
+        <SearchInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Rechercher un contact..."
         />
-      }
-      ItemSeparatorComponent={renderItemSeparator}
-      showsVerticalScrollIndicator={false}
-      renderItem={renderMessageItem}
-    />
+      </View>
+      <FlatList
+        contentContainerClassName="px-4 pb-24 gap-4"
+        data={filteredMessages}
+        keyExtractor={(item) => item.key}
+        showsVerticalScrollIndicator={false}
+        renderItem={renderMessageItem}
+      />
+    </View>
   );
 }

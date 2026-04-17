@@ -31,7 +31,6 @@ export default function RegisterStep2Screen() {
               value={data.firstName}
               onChangeText={(v) => update({ firstName: v })}
               placeholder="Un prénom"
-              placeholderTextColor="#919191"
             />
 
             <AppInput
@@ -40,7 +39,6 @@ export default function RegisterStep2Screen() {
               value={data.lastName}
               onChangeText={(v) => update({ lastName: v })}
               placeholder="Un nom"
-              placeholderTextColor="#919191"
             />
           </View>
 
@@ -50,7 +48,6 @@ export default function RegisterStep2Screen() {
             value={data.pseudo}
             onChangeText={(v) => update({ pseudo: v })}
             placeholder="monpseudo"
-            placeholderTextColor="#919191"
             autoCapitalize="none"
           />
 
@@ -60,7 +57,6 @@ export default function RegisterStep2Screen() {
             value={data.birthDate}
             onChangeText={(v) => update({ birthDate: v })}
             placeholder="jj/mm/aaaa"
-            placeholderTextColor="#919191"
             keyboardType="numbers-and-punctuation"
           />
 
@@ -71,7 +67,6 @@ export default function RegisterStep2Screen() {
             value={data.password}
             onChangeText={(v) => update({ password: v })}
             placeholder="••••••••"
-            placeholderTextColor="#919191"
           />
 
           <AppInput
@@ -81,7 +76,6 @@ export default function RegisterStep2Screen() {
             value=""
             onChangeText={() => {}}
             placeholder="••••••••"
-            placeholderTextColor="#919191"
           />
         </View>
       </ScrollView>

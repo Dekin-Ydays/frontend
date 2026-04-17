@@ -84,7 +84,11 @@ function ChatTimestamp({ time }: { time: string }) {
 }
 
 export default function ConversationScreen() {
-  useLocalSearchParams<{ userName: string; avatarUri: string; isOnline: string }>();
+  useLocalSearchParams<{
+    userName: string;
+    avatarUri: string;
+    isOnline: string;
+  }>();
 
   const [messages, setMessages] = useState<ChatItem[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
@@ -134,7 +138,7 @@ export default function ConversationScreen() {
         ref={listRef}
         data={messages}
         keyExtractor={(item) => item.id}
-        contentContainerClassName={"gap-2 px-4 pb-24"}
+        contentContainerClassName="p-4"
         ItemSeparatorComponent={() => <View className="h-1" />}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}

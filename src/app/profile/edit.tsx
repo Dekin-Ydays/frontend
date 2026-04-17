@@ -30,9 +30,9 @@ export default function EditProfileScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-4 pb-24 gap-6">
-          <View className="items-center gap-2.5">
-            <ProfilePicture uri={MOCK_AVATARS[0]} size={96} showAddButton />
+        <View className="p-4 pb-24 gap-12">
+          <View className="items-center gap-3">
+            <ProfilePicture uri={MOCK_AVATARS[0]} size="xl" showAddButton />
             <Pressable>
               <AppText className="!text-secondary text-sm">
                 Modifier la photo de profil
@@ -41,43 +41,33 @@ export default function EditProfileScreen() {
           </View>
 
           <View className="gap-6">
-            <View className="flex-row gap-2.5">
-              <View className="flex-1">
-                <AppInput
-                  label="Prénom"
-                  labelClassName="!text-white"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                  placeholderTextColor="#919191"
-                />
-              </View>
-              <View className="flex-1">
-                <AppInput
-                  label="Nom"
-                  labelClassName="!text-white"
-                  value={lastName}
-                  onChangeText={setLastName}
-                  placeholderTextColor="#919191"
-                />
-              </View>
+            <View className="flex-row gap-3">
+              <AppInput
+                label="Prénom"
+                labelClassName="!text-white"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+              <AppInput
+                label="Nom"
+                labelClassName="!text-white"
+                value={lastName}
+                onChangeText={setLastName}
+              />
             </View>
-
             <AppInput
               label="Pseudo"
               labelClassName="!text-white"
               value={pseudo}
               onChangeText={setPseudo}
               autoCapitalize="none"
-              placeholderTextColor="#919191"
             />
-
             <AppInput
               label="Email"
               labelClassName="!text-white"
               type="email"
               value={email}
               onChangeText={setEmail}
-              placeholderTextColor="#919191"
             />
           </View>
         </View>

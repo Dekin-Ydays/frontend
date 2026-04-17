@@ -39,7 +39,6 @@ export default function RegisterStep1Screen() {
               value={data.email}
               onChangeText={(v) => update({ email: v })}
               placeholder="gérard@example.com"
-              placeholderTextColor="#919191"
             />
 
             <Button

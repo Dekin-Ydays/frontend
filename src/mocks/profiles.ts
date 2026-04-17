@@ -10,6 +10,18 @@ export const MOCK_POSTS: ProfilePost[] = [
   { id: "4", title: "DPR IAN concert...", category: "performances", imageUri: POST_IMAGE },
   { id: "5", title: "Nouvelle danse de...", category: "realisations", imageUri: POST_IMAGE },
   { id: "6", title: "DPR IAN concert...", category: "favorites", imageUri: POST_IMAGE },
+  { id: "7", title: "Freestyle urbain...", category: "performances", imageUri: POST_IMAGE },
+  { id: "8", title: "Chorégraphie solo...", category: "realisations", imageUri: POST_IMAGE },
+  { id: "9", title: "Battle final...", category: "favorites", imageUri: POST_IMAGE },
+  { id: "10", title: "Hip-hop session...", category: "performances", imageUri: POST_IMAGE },
+  { id: "11", title: "Duo avec Marie...", category: "realisations", imageUri: POST_IMAGE },
+  { id: "12", title: "Waacking night...", category: "favorites", imageUri: POST_IMAGE },
+  { id: "13", title: "Locking challenge...", category: "performances", imageUri: POST_IMAGE },
+  { id: "14", title: "Ma première vidéo...", category: "realisations", imageUri: POST_IMAGE },
+  { id: "15", title: "Contemporary show...", category: "favorites", imageUri: POST_IMAGE },
+  { id: "16", title: "Salsa cubana...", category: "performances", imageUri: POST_IMAGE },
+  { id: "17", title: "Breaking set...", category: "realisations", imageUri: POST_IMAGE },
+  { id: "18", title: "Popping battle...", category: "favorites", imageUri: POST_IMAGE },
 ];
 
 export const PROFILE_TABS: ProfileTab[] = [

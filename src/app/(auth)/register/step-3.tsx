@@ -39,7 +39,7 @@ export default function RegisterStep3Screen() {
 
           <CodeInput length={CODE_LENGTH} value={code} onChange={setCode} />
 
-          <View className="items-center gap-2.5">
+          <View className="items-center gap-3">
             <AppText>Vous n'avez pas reçu le code ?</AppText>
             <Pressable>
               <AppText className="!text-secondary text-sm">

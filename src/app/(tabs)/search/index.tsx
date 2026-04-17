@@ -36,18 +36,16 @@ function filterByQuery<T>(
 */
 type ProfilesListProps = {
   data: SearchProfileItem[];
-  paddingBottom: number;
   onPress: (id: string) => void;
 };
 
-function ProfilesList({ data, paddingBottom, onPress }: ProfilesListProps) {
+function ProfilesList({ data, onPress }: ProfilesListProps) {
   return (
     <FlatList
       key="profiles"
       data={data}
       keyExtractor={(item) => item.id}
       contentContainerClassName="gap-4"
-      contentContainerStyle={{ paddingBottom }}
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
         <MessageListItem
@@ -63,10 +61,9 @@ function ProfilesList({ data, paddingBottom, onPress }: ProfilesListProps) {
 
 type DancesListProps = {
   data: SearchDanceItem[];
-  paddingBottom: number;
 };
 
-function DancesList({ data, paddingBottom }: DancesListProps) {
+function DancesList({ data }: DancesListProps) {
   return (
     <FlatList
       key="dances"
@@ -74,7 +71,6 @@ function DancesList({ data, paddingBottom }: DancesListProps) {
       numColumns={2}
       keyExtractor={(item) => item.id}
       contentContainerClassName="gap-4"
-      contentContainerStyle={{ paddingBottom }}
       columnWrapperClassName="gap-4"
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
@@ -98,7 +94,6 @@ export default function SearchScreen() {
   const searchQuery = (Array.isArray(q) ? q[0] : q) ?? "";
   const activeFilter = ((Array.isArray(category) ? category[0] : category) ??
     "Profils") as SearchFilter;
-  const listPaddingBottom = insets.bottom + 96;
 
   const filteredProfiles = useMemo(
     () => filterByQuery(MOCK_SEARCH_PROFILES, searchQuery, (p) => p.userName),
@@ -126,7 +121,7 @@ export default function SearchScreen() {
   );
 
   return (
-    <View className="flex-1 bg-dark p-4 bg-24 gap-4">
+    <View className="flex-1 bg-dark">
       <View className="flex-row gap-2">
         {SEARCH_FILTERS.map((filter) => (
           <RoundedButton
@@ -139,23 +134,13 @@ export default function SearchScreen() {
       </View>
 
       {activeFilter === "Profils" && (
-        <ProfilesList
-          data={filteredProfiles}
-          paddingBottom={listPaddingBottom}
-          onPress={handlePressProfile}
-        />
+        <ProfilesList data={filteredProfiles} onPress={handlePressProfile} />
       )}
       {activeFilter === "Performances" && (
-        <DancesList
-          data={filteredPerformances}
-          paddingBottom={listPaddingBottom}
-        />
+        <DancesList data={filteredPerformances} />
       )}
       {activeFilter === "Réalisations" && (
-        <DancesList
-          data={filteredRealisations}
-          paddingBottom={listPaddingBottom}
-        />
+        <DancesList data={filteredRealisations} />
       )}
     </View>
   );
