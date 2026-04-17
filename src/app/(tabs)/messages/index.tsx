@@ -51,7 +51,7 @@ export default function MessagesScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="px-4 pt-2 pb-3">
+      <View className="p-4">
         <SearchInput
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -59,7 +59,7 @@ export default function MessagesScreen() {
         />
       </View>
       <FlatList
-        contentContainerClassName="px-4 pb-24 gap-4"
+        contentContainerClassName="px-4 gap-4 pb-24"
         data={filteredMessages}
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}

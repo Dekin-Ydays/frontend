@@ -45,7 +45,7 @@ function ProfilesList({ data, onPress }: ProfilesListProps) {
       key="profiles"
       data={data}
       keyExtractor={(item) => item.id}
-      contentContainerClassName="gap-4"
+      contentContainerClassName="px-4 gap-4 pb-24"
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
         <MessageListItem
@@ -70,7 +70,7 @@ function DancesList({ data }: DancesListProps) {
       data={data}
       numColumns={2}
       keyExtractor={(item) => item.id}
-      contentContainerClassName="gap-4"
+      contentContainerClassName="px-4 gap-4 pb-24"
       columnWrapperClassName="gap-4"
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
@@ -84,7 +84,6 @@ function DancesList({ data }: DancesListProps) {
 // Main component
 */
 export default function SearchScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { q, category } = useLocalSearchParams<{
     q?: string;
@@ -122,7 +121,7 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="flex-row gap-2">
+      <View className="p-4 flex-row gap-2">
         {SEARCH_FILTERS.map((filter) => (
           <RoundedButton
             key={filter}

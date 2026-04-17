@@ -1,4 +1,4 @@
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 import { NavArrowRight } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 
@@ -27,9 +27,11 @@ export function SettingsItem({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className="flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-xl px-5 h-[60px]"
+      className="flex-row items-center gap-4 bg-white/10 border border-white/5 rounded-2xl px-5 h-16"
     >
-      <Icon className={iconClass} />
+      <View className="p-2 items-center justify-center rounded-full bg-white/10">
+        <Icon className={iconClass} />
+      </View>
       <AppText
         variant="bolderBaseText"
         className={`flex-1 ${danger ? "!text-dangerous" : ""}`}

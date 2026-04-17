@@ -13,7 +13,8 @@ const AVATAR_URI = MOCK_AVATARS[0];
 export default function ProfileScreen() {
   const router = useRouter();
   const { tab } = useLocalSearchParams<{ tab?: string }>();
-  const activeTab = ((Array.isArray(tab) ? tab[0] : tab) ?? "performances") as ProfileTabKey;
+  const activeTab = ((Array.isArray(tab) ? tab[0] : tab) ??
+    "performances") as ProfileTabKey;
 
   const handleChangeTab = useCallback(
     (t: ProfileTabKey) => router.setParams({ tab: t }),
@@ -38,14 +39,18 @@ export default function ProfileScreen() {
         onPressAdd={() => router.push("/video/creation" as Href)}
       />
       <FlatList
-        contentContainerClassName="px-4 pb-24 gap-4"
+        contentContainerClassName="px-4 gap-4 pb-24"
         data={visiblePosts}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperClassName="gap-4"
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <MediaTileButton imageUri={item.imageUri} title={item.title} className="flex-1" />
+          <MediaTileButton
+            imageUri={item.imageUri}
+            title={item.title}
+            className="flex-1"
+          />
         )}
       />
     </View>

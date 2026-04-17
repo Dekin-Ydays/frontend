@@ -32,7 +32,7 @@ export default function EditProfileScreen() {
       >
         <View className="p-4 pb-24 gap-12">
           <View className="items-center gap-3">
-            <ProfilePicture uri={MOCK_AVATARS[0]} size="xl" showAddButton />
+            <ProfilePicture uri={MOCK_AVATARS[0]} size={96} showAddButton />
             <Pressable>
               <AppText className="!text-secondary text-sm">
                 Modifier la photo de profil

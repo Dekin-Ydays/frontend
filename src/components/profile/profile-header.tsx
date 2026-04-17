@@ -30,7 +30,7 @@ export function ProfileHeader({
   onMessage,
 }: ProfileHeaderProps) {
   return (
-    <View className="gap-6p-4">
+    <View className="gap-6 p-4">
       <View className="flex-row items-center gap-4">
         <ProfilePicture
           uri={avatarUri}

@@ -1,14 +1,23 @@
 import { ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import type { Href } from "expo-router";
-import { QuestionMark, EditPencil, Bell, LogOut, NavArrowRight } from "iconoir-react-native";
+import {
+  QuestionMark,
+  EditPencil,
+  Bell,
+  LogOut,
+  NavArrowRight,
+} from "iconoir-react-native";
 import { SettingsItem } from "@/components/profile/settings-item";
 
 export default function SettingsScreen() {
   const router = useRouter();
 
   return (
-    <ScrollView className="flex-1 bg-dark" contentContainerClassName={"px-4 gap-3"}>
+    <ScrollView
+      className="flex-1 bg-dark"
+      contentContainerClassName={"p-4 pb-24 gap-4"}
+    >
       <SettingsItem
         icon={QuestionMark}
         label="Demander de l'aide"
