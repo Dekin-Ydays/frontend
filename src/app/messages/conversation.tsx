@@ -134,7 +134,7 @@ export default function ConversationScreen() {
         ref={listRef}
         data={messages}
         keyExtractor={(item) => item.id}
-        contentContainerClassName={"gap-2 px-4 pb-28"}
+        contentContainerClassName={"gap-2 px-4 pb-24"}
         ItemSeparatorComponent={() => <View className="h-1" />}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}

@@ -28,7 +28,7 @@ export default function VideoFormScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-5 pb-36 gap-y-6">
+        <View className="px-5 pb-24 gap-y-6">
           <View className="items-center gap-y-3">
             <Image
               source={{ uri: MOCK_THUMBNAIL_URI }}
