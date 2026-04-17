@@ -1,10 +1,10 @@
 import { useState } from "react";
+import type { ComponentType } from "react";
 import { Image, Pressable, View } from "react-native";
 import { Heart, ChatLines, ShareIos, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { RoundedButton } from "@/components/ui/buttons/rounded-button";
-import type { AppIconComponent } from "@/components/ui/app-icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
 import { ShareBottomSheet } from "@/components/feed/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
@@ -14,15 +14,15 @@ export type { FeedPostData };
 // Secondary components
 */
 type ActionButtonProps = {
-  icon: AppIconComponent;
+  icon: ComponentType<{ className?: string }>;
   count: string;
   onPress?: () => void;
 };
 
-function ActionButton({ icon, count, onPress }: ActionButtonProps) {
+function ActionButton({ icon: Icon, count, onPress }: ActionButtonProps) {
   return (
     <Pressable className="items-center gap-1" onPress={onPress}>
-      <AppIcon icon={icon} size="lg" color="#FFFFFF" />
+      <Icon className="size-8 text-white" />
       <AppText className="text-sm text-white font-montserrat-semibold">
         {count}
       </AppText>
@@ -76,7 +76,7 @@ export function FeedPost({ post }: FeedPostProps) {
                 {post.title}
               </AppText>
               <View className="flex-row items-center gap-1">
-                <AppIcon icon={MusicNote} size="sm" color="#bdbdbd" />
+                <MusicNote className="size-4 text-[#bdbdbd]" />
                 <AppText className="text-xs text-[#bdbdbd]">
                   {post.musicName}
                 </AppText>

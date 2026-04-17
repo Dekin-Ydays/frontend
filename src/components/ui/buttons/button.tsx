@@ -31,14 +31,14 @@ export function Button({
       disabled={disabled || !onPress}
       className={`flex-row items-center gap-3 px-5 h-16 rounded-2xl w-full ${variant === "primary" ? "bg-primary justify-between" : "bg-white items-center justify-center"} ${disabled ? "opacity-50" : ""} ${className ?? ""}`}
     >
-      {Icon && !iconRight && <Icon className="h-8 w-8 text-dark" />}
+      {Icon && !iconRight && <Icon className="size-8 text-dark" />}
 
       {label && (
         <AppText variant="title" className="!text-dark">
           {label}
         </AppText>
       )}
-      {Icon && iconRight && <Icon className="h-8 w-8 text-dark" />}
+      {Icon && iconRight && <Icon className="size-8 text-dark" />}
     </Pressable>
   );
 }

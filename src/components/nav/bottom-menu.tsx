@@ -1,4 +1,5 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import type { ComponentType } from "react";
 import { useEffect, useRef } from "react";
 import { HomeSimple, Search, Send, User } from "iconoir-react-native";
 import { Pressable, View } from "react-native";
@@ -9,13 +10,11 @@ import { BottomBar } from "../ui/bottom-bar";
 /*
 // Secondary components
 */
-import type { AppIconComponent } from "iconoir-react-native";
-
 type MenuButtonProps = {
   label: string;
   isActive: boolean;
   onPress: () => void;
-  icon: AppIconComponent;
+  icon: ComponentType<{ className?: string }>;
 };
 
 function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {

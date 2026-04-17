@@ -37,7 +37,7 @@ export function RoundedButton({
       disabled={disabled || !onPress}
       className={`flex-row justify-center items-center gap-2 px-4 py-2 rounded-full w-fit ${bgColor} ${disabled ? "opacity-50" : ""} ${className ?? ""}`}
     >
-      {Icon && <Icon className={`h-4 w-4 ${color}`} />}
+      {Icon && <Icon className={`size-4 ${color}`} />}
       {label && (
         <AppText variant="baseText" className={color}>
           {label}

@@ -1,4 +1,4 @@
-import type { AppIconComponent } from "iconoir-react-native";
+import type { ComponentType } from "react";
 import { EditPencil, MoreHoriz, ArrowLeft } from "iconoir-react-native";
 import { Pressable, View, Image } from "react-native";
 import { useRouter } from "expo-router";
@@ -10,7 +10,7 @@ import { TopBar } from "../ui/top-bar";
 // Secondary components
 */
 type IconButtonProps = {
-  icon: AppIconComponent;
+  icon: ComponentType<{ className?: string }>;
   onPress?: () => void;
   label: string;
 };
