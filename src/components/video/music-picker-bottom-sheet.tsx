@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { MusicNote } from "iconoir-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { AppInput } from "@/components/ui/inputs/app-input";
 import { AppText } from "@/components/ui/app-text";
@@ -55,7 +54,6 @@ export function MusicPickerBottomSheet({
   onClose,
   onSelect,
 }: MusicPickerBottomSheetProps) {
-  const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMusic = MOCK_MUSIC_LIST.filter(
@@ -70,11 +68,8 @@ export function MusicPickerBottomSheet({
   };
 
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
-      <View
-        className="bg-[rgba(14,14,14,0.97)] rounded-t-[40px] overflow-hidden px-5 pb-6 gap-5"
-        style={{ paddingBottom: insets.bottom + 24 }}
-      >
+    <BottomSheet visible={visible} onClose={onClose} title="Choisir une musique">
+      <View className="px-5 gap-5">
         <AppInput
           placeholder="Rechercher une musique..."
           placeholderTextColor="#919191"

@@ -2,9 +2,9 @@ import { useState } from "react";
 import { View } from "react-native";
 import { ShareIos } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttons/button";
 import { BottomBar } from "@/components/ui/bottom-bar";
-import { ShareBottomSheet } from "@/components/ui/share-bottom-sheet";
+import { ShareBottomSheet } from "@/components/social/share-bottom-sheet";
 
 export default function ScoreResultScreen() {
   const score = 90;

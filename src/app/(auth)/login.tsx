@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { AppInput } from "@/components/ui/inputs/app-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttons/button";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { AuthConnectionMenu } from "@/components/auth/auth-connection-menu";
 import type { Href } from "expo-router";

@@ -1,10 +1,11 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from "react-native";
 import Animated, {
@@ -15,76 +16,68 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AppText } from "@/components/ui/app-text";
 
-/*
-// Constants
-*/
-const SPRING_CONFIG = { damping: 50, stiffness: 400, mass: 0.8 } as const;
-const DISMISS_VELOCITY = 800;
-const DISMISS_DISTANCE = 120;
+const OPEN_SPRING = { damping: 28, stiffness: 400, mass: 0.7 } as const;
+const CLOSE_SPRING = { damping: 35, stiffness: 380, mass: 0.7 } as const;
+const DISMISS_VELOCITY = 700;
+const DISMISS_DISTANCE = 100;
 
-/*
-// Types
-*/
 type BottomSheetProps = {
   visible: boolean;
   onClose: () => void;
-  /**
-   * Content rendered inside the sliding sheet container.
-   */
   children: ReactNode;
+  title?: string;
 };
 
-/*
-// Main component
-*/
-export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
+export function BottomSheet({ visible, onClose, children, title }: BottomSheetProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const translateY = useSharedValue(600);
+  const { height: screenHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  const translateY = useSharedValue(screenHeight);
   const backdropOpacity = useSharedValue(0);
-  const panStartY = useSharedValue(0);
+  const gestureStartY = useSharedValue(0);
 
   useEffect(() => {
     if (visible) {
-      translateY.value = 600;
+      translateY.value = screenHeight;
       backdropOpacity.value = 0;
       setModalVisible(true);
-      // Entrance animation is triggered by onShow once the Modal is mounted
     } else {
-      backdropOpacity.value = withTiming(0, { duration: 250 });
-      translateY.value = withSpring(600, SPRING_CONFIG, (done) => {
-        if (done) runOnJS(setModalVisible)(false);
+      backdropOpacity.value = withTiming(0, { duration: 200 });
+      translateY.value = withSpring(screenHeight, CLOSE_SPRING, (finished) => {
+        if (finished) runOnJS(setModalVisible)(false);
       });
     }
-  }, [visible]);
+  }, [visible, screenHeight]);
 
-  const handleShow = () => {
-    translateY.value = withSpring(0, SPRING_CONFIG);
-    backdropOpacity.value = withTiming(1, { duration: 300 });
-  };
+  const handleShow = useCallback(() => {
+    translateY.value = withSpring(0, OPEN_SPRING);
+    backdropOpacity.value = withTiming(1, { duration: 250 });
+  }, []);
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
-      panStartY.value = translateY.value;
+      gestureStartY.value = translateY.value;
     })
     .onUpdate((e) => {
-      translateY.value = Math.max(0, panStartY.value + e.translationY);
+      translateY.value = Math.max(0, gestureStartY.value + e.translationY);
     })
     .onEnd((e) => {
-      const dismissed =
-        e.translationY > DISMISS_DISTANCE || e.velocityY > DISMISS_VELOCITY;
-      if (dismissed) {
+      if (e.translationY > DISMISS_DISTANCE || e.velocityY > DISMISS_VELOCITY) {
         runOnJS(onClose)();
       } else {
-        translateY.value = withSpring(0, SPRING_CONFIG);
+        translateY.value = withSpring(0, OPEN_SPRING);
       }
     });
 
-  const sheetAnimStyle = useAnimatedStyle(() => ({
+  const sheetStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
-  const backdropAnimStyle = useAnimatedStyle(() => ({
+  const backdropStyle = useAnimatedStyle(() => ({
     opacity: backdropOpacity.value,
   }));
 
@@ -97,53 +90,61 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      {/* Backdrop — visual only, touches handled by the Pressable above the sheet */}
       <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: "rgba(0,0,0,0.7)" },
-          backdropAnimStyle,
-        ]}
+        style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}
         pointerEvents="none"
       />
 
-      {/* Keyboard-aware layout */}
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* Tap-to-close area above the sheet */}
-        <Pressable style={{ flex: 1 }} onPress={onClose} />
+        <Pressable style={styles.flex} onPress={onClose} />
 
-        {/* Sliding sheet */}
-        <Animated.View style={sheetAnimStyle}>
-          {/* Draggable handle — only this zone triggers dismiss gesture */}
-          <GestureDetector gesture={panGesture}>
-            <View style={styles.handleZone}>
-              <View style={styles.handle} />
-            </View>
-          </GestureDetector>
+        <Animated.View style={sheetStyle}>
+          <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
+            <GestureDetector gesture={panGesture}>
+              <View style={styles.handleZone}>
+                <View style={styles.handle} />
+              </View>
+            </GestureDetector>
 
-          {children}
+            {title && (
+              <View style={styles.titleContainer}>
+                <AppText variant="title">{title}</AppText>
+              </View>
+            )}
+
+            {children}
+          </View>
         </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
   );
 }
 
-/*
-// Styles
-*/
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
+  backdrop: { backgroundColor: "rgba(0,0,0,0.65)" },
+  sheet: {
+    backgroundColor: "rgba(14,14,14,0.98)",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    overflow: "hidden",
+  },
   handleZone: {
     alignItems: "center",
-    paddingTop: 14,
-    paddingBottom: 6,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   handle: {
-    width: 40,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.3)",
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  titleContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
   },
 });

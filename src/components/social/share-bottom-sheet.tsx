@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
 import { FlatList, Pressable, View } from "react-native";
 import { Send } from "iconoir-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { AppInput } from "@/components/ui/inputs/app-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttons/button";
 import { AppText } from "@/components/ui/app-text";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 
@@ -35,7 +34,6 @@ type ShareBottomSheetProps = {
 // Main component
 */
 export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
-  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState("");
 
   const filteredUsers = useMemo(() => {
@@ -45,11 +43,8 @@ export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
   }, [query]);
 
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
-      <View
-        className="bg-[rgba(14,14,14,0.97)] rounded-t-[40px] overflow-hidden px-5 pb-6 gap-5"
-        style={{ paddingBottom: insets.bottom + 24 }}
-      >
+    <BottomSheet visible={visible} onClose={onClose} title="Envoyer à">
+      <View className="px-5 gap-5">
         <AppInput
           placeholder="Rechercher une personne..."
           placeholderTextColor="#919191"

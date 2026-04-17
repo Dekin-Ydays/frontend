@@ -3,7 +3,7 @@ import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import type { Href } from "expo-router";
-import { RoundedButton } from "@/components/ui/rounded-button";
+import { RoundedButton } from "@/components/ui/buttons/rounded-button";
 import { MediaTileButton } from "@/components/media/media-tile-button";
 import { MessageListItem } from "@/components/messages/message-list-item";
 import { AppText } from "@/components/ui/app-text";

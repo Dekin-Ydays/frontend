@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { ArrowRight } from "iconoir-react-native";
 import { View } from "react-native";
 import { AppInput } from "@/components/ui/inputs/app-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttons/button";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { StepBadge } from "@/components/auth/step-badge";
 import { useRegister } from "@/contexts/register-context";

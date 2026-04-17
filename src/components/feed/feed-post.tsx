@@ -3,15 +3,13 @@ import { Image, Pressable, useWindowDimensions, View } from "react-native";
 import { Heart, ChatLines, ShareIos, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
-import { RoundedButton } from "@/components/ui/rounded-button";
+import { RoundedButton } from "@/components/ui/buttons/rounded-button";
 import { Icon } from "@/components/ui/icon";
 import type { AppIconComponent } from "@/components/ui/icon";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
-import { ShareBottomSheet } from "@/components/ui/share-bottom-sheet";
+import { ShareBottomSheet } from "@/components/social/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
 export type { FeedPostData };
-
-
 
 /*
 // Proportional ratios from Figma (reference screen: 852px tall)
@@ -65,12 +63,11 @@ export function FeedPost({ post }: FeedPostProps) {
   const progressTop = height * PROGRESS_TOP_RATIO;
 
   return (
-    <View className="flex-1 bg-dark">
+    <View className="flex-1 !pb-24">
       {/* Background video/image — rounded card, not full bleed */}
       <Image
         source={{ uri: post.imageUri }}
-        className="absolute left-0 right-0 top-0 rounded-[20px]"
-        style={{ height: videoHeight }}
+        className="absolute left-0 right-0 top-0 rounded-[20px] h-full"
         resizeMode="cover"
       />
 
@@ -82,7 +79,10 @@ export function FeedPost({ post }: FeedPostProps) {
       />
 
       {/* Right-side action buttons */}
-      <View className="absolute right-5 items-center gap-[15px]" style={{ top: actionsTop }}>
+      <View
+        className="absolute right-5 items-center gap-[15px]"
+        style={{ top: actionsTop }}
+      >
         <ActionButton icon={Heart} count={post.likeCount} />
         <ActionButton
           icon={ChatLines}
@@ -97,7 +97,10 @@ export function FeedPost({ post }: FeedPostProps) {
       </View>
 
       {/* Bottom info: user row + description */}
-      <View className="absolute left-5 right-5 gap-2.5" style={{ top: infoTop }}>
+      <View
+        className="absolute left-5 right-5 gap-2.5"
+        style={{ top: infoTop }}
+      >
         {/* User row */}
         <View className="flex-row items-center gap-2.5">
           <ProfilePicture uri={post.avatarUri} size={46} />
@@ -127,7 +130,10 @@ export function FeedPost({ post }: FeedPostProps) {
       >
         <View style={{ width: 268 }}>
           <View className="h-[2px] w-full rounded-full bg-white/20" />
-          <View className="absolute top-0 left-0 h-[2px] rounded-full bg-white/60" style={{ width: 194 }} />
+          <View
+            className="absolute top-0 left-0 h-[2px] rounded-full bg-white/60"
+            style={{ width: 194 }}
+          />
         </View>
       </View>
 

@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttons/button";
 import { AuthScreen } from "@/components/auth/auth-screen";
 import { StepBadge } from "@/components/auth/step-badge";
 import { CodeInput } from "@/components/ui/inputs/code-input";

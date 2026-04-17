@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { FlatList, View } from "react-native";
 import { ChatBubble, EditPencil } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { RoundedButton } from "@/components/ui/rounded-button";
+import { RoundedButton } from "@/components/ui/buttons/rounded-button";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 import { ProfileTabButton } from "@/components/profile/profile-tab-button";
 import { MediaTileButton } from "@/components/media/media-tile-button";
