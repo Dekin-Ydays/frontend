@@ -14,7 +14,7 @@ export function ProfileTabs({
   onChangeTab,
 }: ProfileTabsProps) {
   return (
-    <View className="flex-row items-center gap-3 p-4 bg-dark">
+    <View className="flex-row items-center gap-3 p-4">
       {tabs.map((tab) => (
         <ProfileTabButton
           key={tab.key}

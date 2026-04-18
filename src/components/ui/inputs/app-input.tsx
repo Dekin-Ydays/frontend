@@ -56,7 +56,7 @@ export function AppInput({
   const isPasswordType = type === "password";
 
   const input = (
-    <View className="relative flex-1">
+    <View className="relative w-full">
       <TextInput
         {...typeProps[type]}
         {...props}

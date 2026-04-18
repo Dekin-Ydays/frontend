@@ -36,21 +36,22 @@ export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <AppInput
-        placeholder="Rechercher une personne..."
-        value={query}
-        onChangeText={setQuery}
-      />
+      <View className="p-4 gap-4 flex-1">
+        <AppInput
+          placeholder="Rechercher une personne..."
+          value={query}
+          onChangeText={setQuery}
+        />
 
-      <FlatList
-        data={filteredUsers}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        showsVerticalScrollIndicator={false}
-        columnWrapperStyle={{ justifyContent: "space-between" }}
-        style={{ maxHeight: 280 }}
-        renderItem={({ item }) => <UserCard item={item} />}
-      />
+        <FlatList
+          data={filteredUsers}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
+          renderItem={({ item }) => <UserCard item={item} />}
+        />
+      </View>
 
       <BottomBar>
         <Button

@@ -7,7 +7,6 @@ import {
   StyleSheet,
   useWindowDimensions,
   View,
-  ScrollView,
 } from "react-native";
 import Animated, {
   runOnJS,
@@ -16,7 +15,11 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const OPEN_SPRING = { damping: 28, stiffness: 400, mass: 0.7 } as const;
@@ -89,28 +92,37 @@ export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <Animated.View
-        style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}
-      >
-        <Pressable className="flex-1" onPress={onClose} />
-      </Animated.View>
-
-      <KeyboardAvoidingView
-        className="flex-1 justify-end"
-        pointerEvents="box-none"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <Animated.View style={sheetStyle}>
-          <View className="flex-1 relative bg-dark/80 backdrop-blur-sm gap-4 rounded-t-3xl">
-            <GestureDetector gesture={panGesture}>
-              <View className="flex items-center bg-transparent">
-                <View className="h-1.5 w-10 bg-white/20 rounded-full" />
-              </View>
-            </GestureDetector>
-            <View className="flex-1">{children}</View>
-          </View>
+      {/* C'est ici que la magie opère pour débloquer le scroll des enfants */}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.backdrop, backdropStyle]}
+        >
+          <Pressable className="flex-1" onPress={onClose} />
         </Animated.View>
-      </KeyboardAvoidingView>
+
+        <KeyboardAvoidingView
+          className="flex-1 justify-end"
+          pointerEvents="box-none"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <Animated.View style={sheetStyle}>
+            <View
+              style={{
+                height: screenHeight * 0.6,
+                paddingBottom: insets.bottom,
+              }}
+              className="bg-dark/80 backdrop-blur-sm rounded-t-3xl overflow-hidden"
+            >
+              <GestureDetector gesture={panGesture}>
+                <View className="items-center p-4">
+                  <View className="h-1.5 w-10 bg-white/20 rounded-full" />
+                </View>
+              </GestureDetector>
+              <View className="flex-1">{children}</View>
+            </View>
+          </Animated.View>
+        </KeyboardAvoidingView>
+      </GestureHandlerRootView>
     </Modal>
   );
 }

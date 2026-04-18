@@ -59,22 +59,22 @@ export function MusicPickerBottomSheet({
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <View className="gap-4">
+      <View className="p-4">
         <AppInput
           placeholder="Rechercher une musique..."
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        <FlatList
-          data={filteredMusic}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View className="h-2" />}
-          renderItem={({ item }) => (
-            <MusicListItem item={item} onSelect={handleSelect} />
-          )}
-        />
       </View>
+      <FlatList
+        data={filteredMusic}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <MusicListItem item={item} onSelect={handleSelect} />
+        )}
+        contentContainerClassName="p-4 gap-4 pb-24"
+      />
     </BottomSheet>
   );
 }
