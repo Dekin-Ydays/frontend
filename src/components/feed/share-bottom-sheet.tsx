@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/buttons/button";
 import { AppText } from "@/components/ui/app-text";
 import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 import { BottomBar } from "../ui/bottom-bar";
+import { filterByQuery } from "@/lib/search";
 
 /*
 // Secondary components
@@ -37,17 +38,15 @@ type ShareBottomSheetProps = {
 export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
   const [query, setQuery] = useState("");
 
-  const filteredUsers = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return MOCK_SHARE_USERS;
-    return MOCK_SHARE_USERS.filter((u) => u.userName.toLowerCase().includes(q));
-  }, [query]);
+  const filteredUsers = useMemo(
+    () => filterByQuery(MOCK_SHARE_USERS, query, (u) => u.userName),
+    [query],
+  );
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <AppInput
         placeholder="Rechercher une personne..."
-        placeholderTextColor="#919191"
         value={query}
         onChangeText={setQuery}
       />

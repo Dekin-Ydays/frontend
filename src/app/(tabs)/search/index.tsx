@@ -17,19 +17,7 @@ import {
   MOCK_SEARCH_PROFILES,
   SEARCH_FILTERS,
 } from "@/mocks/search";
-
-/*
-// Utils
-*/
-function filterByQuery<T>(
-  items: T[],
-  query: string,
-  getField: (item: T) => string,
-): T[] {
-  const q = query.toLowerCase().trim();
-  if (!q) return items;
-  return items.filter((item) => getField(item).toLowerCase().includes(q));
-}
+import { filterByQuery } from "@/lib/search";
 
 /*
 // Secondary components

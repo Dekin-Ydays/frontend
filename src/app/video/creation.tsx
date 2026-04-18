@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Image, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Xmark, MusicNote, RefreshDouble } from "iconoir-react-native";
+import { Xmark, MusicNote } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
-import { BottomBar } from "@/components/ui/bottom-bar";
 import type { MusicItem } from "@/types/video";
 import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
 import { MusicPickerBottomSheet } from "@/components/video/music-picker-bottom-sheet";
+import { VideoRecordingControls } from "@/components/video/video-recording-controls";
 import { TopBar } from "@/components/ui/top-bar";
 
 export default function VideoCreationScreen() {
@@ -16,7 +16,7 @@ export default function VideoCreationScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="flex-1 bg-[#1a1a1a]" />
+      <View className="flex-1 bg-charcoal" />
 
       <TopBar>
         <View className="flex-row items-center gap-5">
@@ -36,26 +36,10 @@ export default function VideoCreationScreen() {
         </Pressable>
       </TopBar>
 
-      <BottomBar className="!justify-between">
-        <View className="rounded-full border-2 border-white overflow-hidden h-[60px] w-[60px]">
-          <Image
-            source={{ uri: MOCK_THUMBNAIL_URI }}
-            className="h-full w-full"
-            resizeMode="cover"
-          />
-        </View>
-
-        <Pressable
-          className="h-[60px] w-[60px] rounded-full bg-[#E84545] items-center justify-center"
-          onPress={() => router.push("/video/perform")}
-        >
-          <View className="h-[48px] w-[48px] rounded-full bg-[#E84545]" />
-        </Pressable>
-
-        <Pressable className="h-[60px] w-[60px] rounded-full bg-white/10 border border-white/5 backdrop-blur-sm items-center justify-center">
-          <RefreshDouble className="size-8 text-white" />
-        </Pressable>
-      </BottomBar>
+      <VideoRecordingControls
+        thumbnailUri={MOCK_THUMBNAIL_URI}
+        onRecord={() => router.push("/video/perform")}
+      />
 
       <MusicPickerBottomSheet
         visible={musicModalVisible}

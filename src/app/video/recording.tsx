@@ -7,7 +7,7 @@ export default function VideoRecordingScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="flex-1 bg-[#1a1a1a]" />
+      <View className="flex-1 bg-charcoal" />
 
       <BottomBar>
         <Pressable

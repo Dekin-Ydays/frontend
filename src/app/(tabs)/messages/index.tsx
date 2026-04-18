@@ -7,6 +7,7 @@ import {
 } from "@/components/messages/message-list-item";
 import { SearchInput } from "@/components/ui/inputs/search-input";
 import { MOCK_CONVERSATIONS } from "@/mocks/messages";
+import { filterByQuery } from "@/lib/search";
 
 type MessageRow = MessageListItemProps & { key: string };
 
@@ -39,15 +40,14 @@ export default function MessagesScreen() {
     [router],
   );
 
-  const filteredMessages = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) return messages;
-    return messages.filter(
-      (message) =>
-        message.userName.toLowerCase().includes(normalizedQuery) ||
-        message.messagePreview.toLowerCase().includes(normalizedQuery),
-    );
-  }, [searchQuery, messages]);
+  const filteredMessages = useMemo(
+    () =>
+      filterByQuery(messages, searchQuery, [
+        (m) => m.userName,
+        (m) => m.messagePreview,
+      ]),
+    [searchQuery, messages],
+  );
 
   return (
     <View className="flex-1 bg-dark">

@@ -6,6 +6,7 @@ import { AppInput } from "@/components/ui/inputs/app-input";
 import { AppText } from "@/components/ui/app-text";
 import type { MusicItem } from "@/types/video";
 import { MOCK_MUSIC_LIST } from "@/mocks/videos";
+import { filterByQuery } from "@/lib/search";
 
 /*
 // Secondary components
@@ -55,11 +56,10 @@ export function MusicPickerBottomSheet({
 }: MusicPickerBottomSheetProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredMusic = MOCK_MUSIC_LIST.filter(
-    (m) =>
-      m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.artist.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredMusic = filterByQuery(MOCK_MUSIC_LIST, searchQuery, [
+    (m) => m.title,
+    (m) => m.artist,
+  ]);
 
   const handleSelect = (item: MusicItem) => {
     onSelect(item);
@@ -71,7 +71,6 @@ export function MusicPickerBottomSheet({
       <View className="gap-4">
         <AppInput
           placeholder="Rechercher une musique..."
-          placeholderTextColor="#919191"
           value={searchQuery}
           onChangeText={setSearchQuery}
         />

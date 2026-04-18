@@ -8,7 +8,6 @@ import { RoundedButton } from "@/components/ui/buttons/rounded-button";
 import { CommentsBottomSheet } from "./comments-bottom-sheet";
 import { ShareBottomSheet } from "@/components/feed/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
-export type { FeedPostData };
 
 /*
 // Secondary components

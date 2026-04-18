@@ -48,7 +48,7 @@ export default function VideoFormScreen() {
               value={title}
               onChangeText={setTitle}
               placeholder="Ma danse"
-              placeholderTextColor="#919191"
+
             />
 
             <AppInput
@@ -57,7 +57,7 @@ export default function VideoFormScreen() {
               value={description}
               onChangeText={setDescription}
               placeholder="je me lance dans la danse"
-              placeholderTextColor="#919191"
+
             />
           </View>
         </View>

@@ -49,6 +49,7 @@ export function AppInput({
   label,
   labelClassName,
   className,
+  placeholderTextColor = "#919191",
   ...props
 }: AppInputProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -59,10 +60,11 @@ export function AppInput({
       <TextInput
         {...typeProps[type]}
         {...props}
+        placeholderTextColor={placeholderTextColor}
         secureTextEntry={
           isPasswordType ? !isPasswordVisible : props.secureTextEntry
         }
-        className={`h-16 w-full rounded-3xl bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white placeholder:text-gray outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
+        className={`h-16 w-full rounded-3xl bg-white/10 border border-white/5 backdrop-blur-sm px-5 font-montserrat text-white outline-none focus:border-secondary transition-all duration-300 ${isPasswordType ? "pr-14" : ""} ${className ?? ""}`}
       />
       {isPasswordType && (
         <Pressable

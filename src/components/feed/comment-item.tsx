@@ -28,7 +28,6 @@ export function CommentItem({ item, onReply }: CommentItemProps) {
             <AppText variant="secondaryText">{item.likes}</AppText>
           </View>
         </View>
-        s
       </View>
     </View>
   );

@@ -7,12 +7,12 @@ import {
   View,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { AppText } from "@/components/ui/app-text";
 import {
   ChatBubble,
   type ChatBubbleProps,
 } from "@/components/messages/chat-bubble";
 import { ChatDateSeparator } from "@/components/messages/chat-date-separator";
+import { ChatTimestamp } from "@/components/messages/chat-timestamp";
 import { MessageSender } from "@/components/messages/message-sender";
 import { MOCK_AVATARS } from "@/mocks/avatars";
 
@@ -35,62 +35,58 @@ type DateItem = {
 
 type ChatItem = TimestampItem | MessageItem | DateItem;
 
-const AVATAR_URI = MOCK_AVATARS[0];
-
-const initialMessages: ChatItem[] = [
-  { type: "timestamp", id: "t1", time: "11:30" },
-  {
-    type: "message",
-    id: "m1",
-    text: "Adri1 ramène l'enceinte pour ce soir",
-    isOwn: false,
-    avatarUri: AVATAR_URI,
-    showAvatar: true,
-  },
-  {
-    type: "message",
-    id: "m2",
-    text: "et vite",
-    isOwn: false,
-    avatarUri: AVATAR_URI,
-    showAvatar: false,
-  },
-  { type: "timestamp", id: "t2", time: "11:30" },
-  {
-    type: "message",
-    id: "m3",
-    text: "J'te fais ça de suite",
-    isOwn: true,
-  },
-  { type: "message", id: "m4", text: "Ok", isOwn: true },
-  { type: "date", id: "d1", date: "Jeudi 18 novembre" },
-  { type: "timestamp", id: "t3", time: "11:30" },
-  {
-    type: "message",
-    id: "m5",
-    text: "Ohhhh",
-    isOwn: false,
-    avatarUri: AVATAR_URI,
-    showAvatar: true,
-  },
-];
-
-function ChatTimestamp({ time }: { time: string }) {
-  return (
-    <AppText variant="secondaryText" className="text-right text-xs">
-      {time}
-    </AppText>
-  );
+function buildInitialMessages(avatarUri: string): ChatItem[] {
+  return [
+    { type: "timestamp", id: "t1", time: "11:30" },
+    {
+      type: "message",
+      id: "m1",
+      text: "Adri1 ramène l'enceinte pour ce soir",
+      isOwn: false,
+      avatarUri,
+      showAvatar: true,
+    },
+    {
+      type: "message",
+      id: "m2",
+      text: "et vite",
+      isOwn: false,
+      avatarUri,
+      showAvatar: false,
+    },
+    { type: "timestamp", id: "t2", time: "11:30" },
+    {
+      type: "message",
+      id: "m3",
+      text: "J'te fais ça de suite",
+      isOwn: true,
+    },
+    { type: "message", id: "m4", text: "Ok", isOwn: true },
+    { type: "date", id: "d1", date: "Jeudi 18 novembre" },
+    { type: "timestamp", id: "t3", time: "11:30" },
+    {
+      type: "message",
+      id: "m5",
+      text: "Ohhhh",
+      isOwn: false,
+      avatarUri,
+      showAvatar: true,
+    },
+  ];
 }
 
 export default function ConversationScreen() {
-  useLocalSearchParams<{
+  const { avatarUri: paramAvatarUri } = useLocalSearchParams<{
     userName: string;
     avatarUri: string;
     isOnline: string;
   }>();
 
-  const [messages, setMessages] = useState<ChatItem[]>(initialMessages);
+  const avatarUri = paramAvatarUri ?? MOCK_AVATARS[0];
+
+  const [messages, setMessages] = useState<ChatItem[]>(() =>
+    buildInitialMessages(avatarUri),
+  );
   const [inputValue, setInputValue] = useState("");
   const listRef = useRef<FlatList>(null);
 
@@ -100,12 +96,11 @@ export default function ConversationScreen() {
 
     const now = new Date();
     const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
-    const newId = `m${Date.now()}`;
 
     setMessages((prev) => [
       ...prev,
       { type: "timestamp", id: `t${Date.now()}`, time },
-      { type: "message", id: newId, text, isOwn: true },
+      { type: "message", id: `m${Date.now()}`, text, isOwn: true },
     ]);
     setInputValue("");
 
