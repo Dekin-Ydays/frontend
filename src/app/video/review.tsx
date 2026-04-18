@@ -34,7 +34,7 @@ export default function VideoReviewScreen() {
         </Pressable>
 
         <Pressable
-          className="h-[60px] w-[60px] rounded-full bg-white border border-white/5 items-center justify-center"
+          className="h-16 w-16 rounded-full bg-white border border-white/5 items-center justify-center"
           accessibilityRole="button"
           accessibilityLabel="Lire"
         >

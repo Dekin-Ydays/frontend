@@ -83,8 +83,8 @@ export function FeedPost({ post }: FeedPostProps) {
         pointerEvents="none"
       >
         <View className="w-[268px]">
-          <View className="h-[2px] w-full rounded-full bg-white/20" />
-          <View className="absolute top-0 left-0 h-[2px] w-[194px] rounded-full bg-white/60" />
+          <View className="h-0.5 w-full rounded-full bg-white/20" />
+          <View className="absolute top-0 left-0 h-0.5 w-[194px] rounded-full bg-white/60" />
         </View>
       </View>
 

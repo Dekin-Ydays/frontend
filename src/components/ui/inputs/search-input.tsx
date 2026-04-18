@@ -9,7 +9,7 @@ export function SearchInput({
   ...props
 }: SearchInputProps) {
   return (
-    <View className="h-14 px-4 gap-5 flex-row items-center w-full rounded-xl bg-white font-montserrat text-dark outline-none">
+    <View className="h-14 px-5 gap-5 flex-row items-center w-full rounded-xl bg-white font-montserrat text-dark outline-none">
       <Search className="size-8 text-gray" />
       <TextInput
         placeholder={placeholder}

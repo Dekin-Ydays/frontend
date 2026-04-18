@@ -28,7 +28,7 @@ export function MessageSender({
         accessibilityRole="button"
         accessibilityLabel="Envoyer"
         onPress={onSend}
-        className="h-[60px] w-[60px] items-center justify-center rounded-full bg-white/10 border border-white/5 backdrop-blur-sm"
+        className="h-16 w-16 items-center justify-center rounded-full bg-white/10 border border-white/5 backdrop-blur-sm"
       >
         <SendDiagonal className="size-8 text-white" />
       </Pressable>

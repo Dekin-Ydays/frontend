@@ -21,7 +21,7 @@ function MusicListItem({
       onPress={() => onSelect(item)}
     >
       <View className="flex-row items-center gap-2.5 flex-1">
-        <View className="h-[46px] w-[46px] rounded-[5px] bg-white/10" />
+        <View className="h-12 w-12 rounded-md bg-white/10" />
         <View className="flex-1 ml-2.5 gap-1">
           <AppText variant="bolderBaseText" className="text-sm">
             {item.title}

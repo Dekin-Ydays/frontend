@@ -28,11 +28,11 @@ export default function VideoFormScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-4 pb-24 gap-6">
+        <View className="p-4 pb-24 gap-6">
           <View className="items-center gap-3">
             <Image
               source={{ uri: MOCK_THUMBNAIL_URI }}
-              className="h-[184px] w-[96px] rounded-[20px] bg-white/10"
+              className="h-44 w-24 rounded-3xl bg-white/10"
               resizeMode="cover"
             />
             <View className="flex-row items-center gap-1.5">

@@ -29,7 +29,7 @@ function ProfilesList({ data, onPress }: ProfilesListProps) {
       key="profiles"
       data={data}
       keyExtractor={(item) => item.id}
-      contentContainerClassName="px-4 gap-4 pb-24"
+      contentContainerClassName="p-4 gap-4 pb-24"
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (
         <MessageListItem
@@ -54,7 +54,7 @@ function DancesList({ data }: DancesListProps) {
       data={data}
       numColumns={2}
       keyExtractor={(item) => item.id}
-      contentContainerClassName="px-4 gap-4 pb-24"
+      contentContainerClassName="p-4 gap-4 pb-24"
       columnWrapperClassName="gap-4"
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => (

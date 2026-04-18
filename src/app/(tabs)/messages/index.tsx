@@ -56,7 +56,7 @@ export default function MessagesScreen() {
         />
       </View>
       <FlatList
-        contentContainerClassName="px-4 gap-4 pb-24"
+        contentContainerClassName="p-4 gap-4 pb-24"
         data={filteredMessages}
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}

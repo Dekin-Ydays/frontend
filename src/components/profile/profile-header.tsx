@@ -3,17 +3,12 @@ import { ChatBubble, EditPencil } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 import { RoundedButton } from "@/components/ui/buttons/rounded-button";
 import { ProfilePicture } from "@/components/profile/profile-picture";
-import { ProfileTabButton } from "@/components/profile/profile-tab-button";
-import type { ProfileTab, ProfileTabKey } from "@/types/profile";
 
 type ProfileHeaderProps = {
   avatarUri: string;
   name: string;
   stats: string;
   isOwnProfile?: boolean;
-  tabs: ProfileTab[];
-  activeTab: ProfileTabKey;
-  onChangeTab: (tab: ProfileTabKey) => void;
   onPressAdd?: () => void;
   onMessage?: () => void;
 };
@@ -23,9 +18,6 @@ export function ProfileHeader({
   name,
   stats,
   isOwnProfile = false,
-  tabs,
-  activeTab,
-  onChangeTab,
   onPressAdd,
   onMessage,
 }: ProfileHeaderProps) {
@@ -59,17 +51,6 @@ export function ProfileHeader({
           />
         </View>
       )}
-
-      <View className="flex-row items-center gap-3">
-        {tabs.map((tab) => (
-          <ProfileTabButton
-            key={tab.key}
-            label={tab.label}
-            isActive={activeTab === tab.key}
-            onPress={() => onChangeTab(tab.key)}
-          />
-        ))}
-      </View>
     </View>
   );
 }
