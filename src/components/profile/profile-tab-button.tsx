@@ -2,10 +2,6 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
 
-
-/*
-// Main component
-*/
 type ProfileTabButtonProps = {
   label: string;
   isActive: boolean;

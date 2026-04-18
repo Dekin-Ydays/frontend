@@ -7,9 +7,6 @@ import { useRouter } from "expo-router";
 import { BottomTextInput } from "../ui/inputs/bottom-text-input";
 import { BottomBar } from "../ui/bottom-bar";
 
-/*
-// Secondary components
-*/
 type MenuButtonProps = {
   label: string;
   isActive: boolean;
@@ -33,9 +30,6 @@ function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
   );
 }
 
-/*
-// Main component
-*/
 export function BottomMenu({
   state,
   descriptors,

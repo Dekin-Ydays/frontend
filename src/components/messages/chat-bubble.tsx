@@ -3,10 +3,6 @@ import { AppText } from "@/components/ui/app-text";
 import { ProfilePicture } from "@/components/profile/profile-picture";
 
 
-
-/*
-// Main component
-*/
 export type ChatBubbleProps = {
   text: string;
   isOwn: boolean;

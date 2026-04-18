@@ -10,7 +10,7 @@ export default function VideoReviewScreen() {
 
   return (
     <View className="flex-1 bg-dark">
-      <View className="flex-1 bg-charcoal" />
+      <View className="flex-1 bg-dark" />
 
       <TopBar>
         <View className="flex-row items-center gap-5">

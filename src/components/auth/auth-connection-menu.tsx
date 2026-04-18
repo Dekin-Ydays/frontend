@@ -4,9 +4,6 @@ import type { Href } from "expo-router";
 import { AppText } from "@/components/ui/app-text";
 import { BottomBar } from "../ui/bottom-bar";
 
-/*
-// Secondary components
-*/
 type TabButtonProps = {
   label: string;
   isActive: boolean;
@@ -27,9 +24,6 @@ function TabButton({ label, isActive, onPress }: TabButtonProps) {
   );
 }
 
-/*
-// Main component
-*/
 type AuthConnectionMenuProps = {
   activeTab: "login" | "register";
 };

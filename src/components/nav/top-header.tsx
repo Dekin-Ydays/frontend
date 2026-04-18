@@ -6,9 +6,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "../ui/app-text";
 import { UserItem, type UserItemProps } from "@/components/profile/user-item";
 
-/*
-// Secondary components
-*/
 type IconButtonProps = {
   icon: ComponentType<{ className?: string }>;
   onPress?: () => void;
@@ -27,9 +24,6 @@ function IconButton({ icon: Icon, onPress, label }: IconButtonProps) {
   );
 }
 
-/*
-// Main component
-*/
 type TopHeaderProps = {
   title?: string;
   backButton?: boolean;

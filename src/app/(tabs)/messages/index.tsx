@@ -15,9 +15,6 @@ function renderMessageItem({ item }: { item: MessageRow }) {
   return <MessageListItem {...item} />;
 }
 
-/*
-// Main component
-*/
 export default function MessagesScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");

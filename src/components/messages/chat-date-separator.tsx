@@ -2,10 +2,6 @@ import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
 
-
-/*
-// Main component
-*/
 type ChatDateSeparatorProps = {
   date: string;
 };

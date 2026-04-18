@@ -1,9 +1,6 @@
 import { Pressable, Image, View } from "react-native";
 import { Plus } from "iconoir-react-native";
 
-/*
-// Main component
-*/
 type ProfilePictureProps = {
   uri: string;
   size?: number;

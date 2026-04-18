@@ -10,9 +10,6 @@ import { type ShareUser, MOCK_SHARE_USERS } from "@/mocks/send";
 import { BottomBar } from "../ui/bottom-bar";
 import { filterByQuery } from "@/lib/search";
 
-/*
-// Secondary components
-*/
 function UserCard({ item }: { item: ShareUser }) {
   return (
     <Pressable className="flex-1 items-center gap-2.5 py-2">
@@ -24,17 +21,11 @@ function UserCard({ item }: { item: ShareUser }) {
   );
 }
 
-/*
-// Props
-*/
 type ShareBottomSheetProps = {
   visible: boolean;
   onClose: () => void;
 };
 
-/*
-// Main component
-*/
 export function ShareBottomSheet({ visible, onClose }: ShareBottomSheetProps) {
   const [query, setQuery] = useState("");
 

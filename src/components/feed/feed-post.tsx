@@ -9,9 +9,6 @@ import { CommentsBottomSheet } from "./comments-bottom-sheet";
 import { ShareBottomSheet } from "@/components/feed/share-bottom-sheet";
 import type { FeedPostData } from "@/types/feed";
 
-/*
-// Secondary components
-*/
 type ActionButtonProps = {
   icon: ComponentType<{ className?: string }>;
   count: string;
@@ -29,9 +26,6 @@ function ActionButton({ icon: Icon, count, onPress }: ActionButtonProps) {
   );
 }
 
-/*
-// Main component
-*/
 type FeedPostProps = {
   post: FeedPostData;
 };

@@ -1,9 +1,6 @@
 import { Image, Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Main component
-*/
 type MediaTileButtonProps = {
   imageUri: string;
   title: string;

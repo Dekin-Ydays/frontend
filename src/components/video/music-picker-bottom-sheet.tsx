@@ -8,9 +8,6 @@ import type { MusicItem } from "@/types/video";
 import { MOCK_MUSIC_LIST } from "@/mocks/videos";
 import { filterByQuery } from "@/lib/search";
 
-/*
-// Secondary components
-*/
 function MusicListItem({
   item,
   onSelect,
@@ -37,18 +34,12 @@ function MusicListItem({
   );
 }
 
-/*
-// Props
-*/
 type MusicPickerBottomSheetProps = {
   visible: boolean;
   onClose: () => void;
   onSelect: (item: MusicItem) => void;
 };
 
-/*
-// Main component
-*/
 export function MusicPickerBottomSheet({
   visible,
   onClose,

@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from "react";
 import { FlatList, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import type { Href } from "expo-router";
 import { RoundedButton } from "@/components/ui/buttons/rounded-button";
@@ -19,9 +18,6 @@ import {
 } from "@/mocks/search";
 import { filterByQuery } from "@/lib/search";
 
-/*
-// Secondary components
-*/
 type ProfilesListProps = {
   data: SearchProfileItem[];
   onPress: (id: string) => void;
@@ -68,9 +64,6 @@ function DancesList({ data }: DancesListProps) {
   );
 }
 
-/*
-// Main component
-*/
 export default function SearchScreen() {
   const router = useRouter();
   const { q, category } = useLocalSearchParams<{

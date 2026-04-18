@@ -2,9 +2,6 @@ import { Pressable, View } from "react-native";
 import { NavArrowRight } from "iconoir-react-native";
 import { AppText } from "@/components/ui/app-text";
 
-/*
-// Main component
-*/
 type SettingsItemProps = {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
