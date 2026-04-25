@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 import {
   SKELETON_CONNECTIONS,
   drawSkeleton,
+  projectSkeleton,
   Landmark,
   DrawOptions,
 } from '../../src/utils/skeleton-renderer';
@@ -140,5 +141,91 @@ describe('drawSkeleton', () => {
   it('handles empty landmarks without errors', () => {
     const options: DrawOptions = { width: 100, height: 100 };
     expect(() => drawSkeleton(asCanvasCtx(ctx), [], options)).not.toThrow();
+  });
+
+  it('emits exactly one moveTo/lineTo per projected line and one arc per projected joint', () => {
+    const partial = Array.from({ length: 33 }, (_, i) => ({
+      x: i / 33,
+      y: i / 33,
+      visibility: i === 5 ? 0.1 : 1,
+    }));
+    const options: DrawOptions = {
+      width: 100,
+      height: 100,
+      visibilityThreshold: 0.5,
+    };
+
+    const projected = projectSkeleton(partial, 100, 100, {
+      visibilityThreshold: 0.5,
+    });
+    drawSkeleton(asCanvasCtx(ctx), partial, options);
+
+    expect(ctx.moveTo).toHaveBeenCalledTimes(projected.lines.length);
+    expect(ctx.lineTo).toHaveBeenCalledTimes(projected.lines.length);
+    expect(ctx.arc).toHaveBeenCalledTimes(projected.joints.length);
+  });
+});
+
+describe('projectSkeleton', () => {
+  function fullBody(visibility = 1): Landmark[] {
+    const arr: Landmark[] = [];
+    for (let i = 0; i < 33; i++) {
+      arr.push({ x: 0.25, y: 0.5, z: 0, visibility });
+    }
+    return arr;
+  }
+
+  it('returns empty result for missing or zero-sized inputs', () => {
+    expect(projectSkeleton(undefined, 100, 100)).toEqual({
+      lines: [],
+      joints: [],
+    });
+    expect(projectSkeleton([], 100, 100)).toEqual({ lines: [], joints: [] });
+    expect(projectSkeleton(fullBody(), 0, 100)).toEqual({
+      lines: [],
+      joints: [],
+    });
+    expect(projectSkeleton(fullBody(), 100, 0)).toEqual({
+      lines: [],
+      joints: [],
+    });
+  });
+
+  it('multiplies normalized coords by the canvas size', () => {
+    const projected = projectSkeleton(fullBody(), 200, 100);
+    expect(projected.joints[0]).toMatchObject({ cx: 50, cy: 50, index: 0 });
+    expect(projected.joints).toHaveLength(33);
+    expect(projected.lines.length).toBe(SKELETON_CONNECTIONS.length);
+    expect(projected.lines[0]).toMatchObject({
+      p1: { x: 50, y: 50 },
+      p2: { x: 50, y: 50 },
+    });
+  });
+
+  it('drops joints whose visibility falls below the threshold', () => {
+    const visible = fullBody(1);
+    visible[0] = { ...visible[0], visibility: 0.1 };
+    const projected = projectSkeleton(visible, 100, 100, {
+      visibilityThreshold: 0.5,
+    });
+    expect(projected.joints.find((j) => j.index === 0)).toBeUndefined();
+  });
+
+  it('drops connections whose endpoint visibility is below threshold', () => {
+    const partial = fullBody(1);
+    partial[0] = { ...partial[0], visibility: 0.1 };
+    const projected = projectSkeleton(partial, 100, 100);
+    // SKELETON_CONNECTIONS[0] is [0, 1] — must be dropped because of joint 0
+    expect(projected.lines.find((l) => l.key === 'l0')).toBeUndefined();
+  });
+
+  it('treats undefined visibility as fully visible', () => {
+    const noVis: Landmark[] = Array.from({ length: 33 }, () => ({
+      x: 0.5,
+      y: 0.5,
+    }));
+    const projected = projectSkeleton(noVis, 50, 50);
+    expect(projected.joints).toHaveLength(33);
+    expect(projected.lines.length).toBe(SKELETON_CONNECTIONS.length);
   });
 });

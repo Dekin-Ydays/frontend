@@ -80,6 +80,29 @@ export interface CompareVideosRequest {
   config?: ComparisonConfig;
 }
 
+export interface StorageStatus {
+  ready: boolean;
+  endpoint: string;
+  bucket: string;
+  error?: string;
+}
+
+export interface PoseExtractionHealth {
+  ready: boolean;
+  workerScript: { path: string; present: boolean };
+  model: { path: string; present: boolean };
+  pythonBin: string;
+  storage?: StorageStatus;
+}
+
+export async function getPoseHealth(): Promise<PoseExtractionHealth> {
+  const response = await fetch(`${API_BASE_URL}/pose/health`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch pose health');
+  }
+  return response.json();
+}
+
 export async function listClients(): Promise<Client[]> {
   const response = await fetch(`${API_BASE_URL}/pose/clients`);
   if (!response.ok) {
@@ -143,27 +166,123 @@ export interface ProcessedVideo {
   sourceVideo: UploadedVideoFile;
 }
 
+export type ProcessVideoProgress =
+  | { phase: 'uploading'; loaded: number; total: number; ratio: number }
+  | { phase: 'processing'; framesProcessed?: number; totalFrames?: number };
+
+export function newJobId(): string {
+  const cryptoObj = (globalThis as { crypto?: Crypto }).crypto;
+  if (cryptoObj && typeof cryptoObj.randomUUID === 'function') {
+    return cryptoObj.randomUUID();
+  }
+  // Fallback (RN/older browsers): RFC4122-shape v4 from Math.random.
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+export interface ExtractionProgressEvent {
+  jobId: string;
+  phase: 'started' | 'frames' | 'completed' | 'failed';
+  framesProcessed?: number;
+  totalFrames?: number;
+  error?: string;
+  at: number;
+}
+
+/**
+ * Subscribe to server-side extraction progress events via SSE.
+ * If `jobId` is provided, only events with a matching jobId are forwarded.
+ * Returns an unsubscribe function. Returns a no-op closer if EventSource
+ * is unavailable (e.g. React Native, where there is no global EventSource).
+ */
+export function subscribeExtractionProgress(
+  onEvent: (event: ExtractionProgressEvent) => void,
+  jobId?: string,
+): () => void {
+  if (typeof EventSource === 'undefined') {
+    return () => {};
+  }
+  const source = new EventSource(`${API_BASE_URL}/pose/extraction/events`);
+  const handler = (raw: MessageEvent) => {
+    try {
+      const parsed = JSON.parse(raw.data) as ExtractionProgressEvent;
+      if (jobId && parsed.jobId !== jobId) return;
+      onEvent(parsed);
+    } catch {
+      // ignore malformed payloads
+    }
+  };
+  source.addEventListener('extraction-progress', handler as EventListener);
+  source.addEventListener('message', handler as EventListener);
+  return () => {
+    source.removeEventListener('extraction-progress', handler as EventListener);
+    source.removeEventListener('message', handler as EventListener);
+    source.close();
+  };
+}
+
 /**
  * Upload a video file and trigger server-side MediaPipe pose extraction.
  * Accepts either a web File or a React Native file descriptor ({ uri, name, type }).
+ * Emits progress: an "uploading" phase with byte counts, then a "processing"
+ * phase once bytes are flushed and the server is running heavy-model extraction.
  */
-export async function processVideo(
+export function processVideo(
   file: File | { uri: string; name: string; type: string },
+  onProgress?: (event: ProcessVideoProgress) => void,
+  jobId?: string,
 ): Promise<ProcessedVideo> {
-  const formData = new FormData();
-  formData.append('file', file as unknown as Blob);
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const url = jobId
+      ? `${API_BASE_URL}/pose/video/process?jobId=${encodeURIComponent(jobId)}`
+      : `${API_BASE_URL}/pose/video/process`;
+    xhr.open('POST', url);
 
-  const response = await fetch(`${API_BASE_URL}/pose/video/process`, {
-    method: 'POST',
-    body: formData,
+    xhr.upload.onprogress = (event) => {
+      if (!onProgress) return;
+      if (event.lengthComputable) {
+        onProgress({
+          phase: 'uploading',
+          loaded: event.loaded,
+          total: event.total,
+          ratio: event.total > 0 ? event.loaded / event.total : 0,
+        });
+      }
+    };
+
+    xhr.upload.onload = () => {
+      onProgress?.({ phase: 'processing' });
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText) as ProcessedVideo);
+        } catch (err) {
+          reject(
+            err instanceof Error ? err : new Error('Invalid response payload'),
+          );
+        }
+      } else {
+        reject(
+          new Error(
+            `Failed to process video: ${xhr.status} ${xhr.responseText || ''}`.trim(),
+          ),
+        );
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error during video upload'));
+    xhr.ontimeout = () => reject(new Error('Video upload timed out'));
+
+    const formData = new FormData();
+    formData.append('file', file as unknown as Blob);
+    xhr.send(formData);
   });
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => '');
-    throw new Error(`Failed to process video: ${response.status} ${text}`);
-  }
-
-  return response.json();
 }
 
 export async function compareVideos(

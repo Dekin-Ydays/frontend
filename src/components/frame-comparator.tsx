@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { AppText } from "./ui/app-text";
 import { getVideo, VideoFrame } from "@/services/video-parser-api";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { VideoSelector } from "./video-selector";
 import { FrameControls } from "./frame-controls";
+import { FrameComparatorNative } from "./frame-comparator-native";
 import { useVideoPlayer } from "@/hooks/use-video-player";
 
 interface FrameComparatorState {
@@ -37,10 +38,18 @@ const VideoSelectorSection = ({
   </View>
 );
 
-export function FrameComparator() {
+interface FrameComparatorProps {
+  initialReferenceId?: string;
+  initialComparisonId?: string;
+}
+
+export function FrameComparator({
+  initialReferenceId,
+  initialComparisonId,
+}: FrameComparatorProps = {}) {
   const [state, setState] = useState<FrameComparatorState>({
-    video1Id: null,
-    video2Id: null,
+    video1Id: initialReferenceId ?? null,
+    video2Id: initialComparisonId ?? null,
     frames1: [],
     frames2: [],
     loading1: false,
@@ -138,13 +147,23 @@ export function FrameComparator() {
   const handleSelectVideo1 = (videoId: string) => loadVideo(videoId, true);
   const handleSelectVideo2 = (videoId: string) => loadVideo(videoId, false);
 
+  useEffect(() => {
+    if (initialReferenceId) {
+      void loadVideo(initialReferenceId, true);
+    }
+    if (initialComparisonId) {
+      void loadVideo(initialComparisonId, false);
+    }
+    // Run only on mount with the seed ids; subsequent picks go through handlers.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (Platform.OS !== "web") {
     return (
-      <View style={styles.container}>
-        <AppText variant="baseText">
-          Frame comparator is currently only supported on web.
-        </AppText>
-      </View>
+      <FrameComparatorNative
+        initialReferenceId={initialReferenceId}
+        initialComparisonId={initialComparisonId}
+      />
     );
   }
 

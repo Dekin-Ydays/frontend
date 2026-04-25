@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -15,6 +15,8 @@ import {
   COMPARISON_PRESETS,
 } from "@/services/video-parser-api";
 import { ScoreVisualization } from "./score-visualization";
+import { VideoSelector } from "./video-selector";
+import { FrameComparator } from "./frame-comparator";
 
 type PresetType = keyof typeof COMPARISON_PRESETS;
 
@@ -72,21 +74,41 @@ const ComparisonForm = ({
   <View style={styles.inputContainer}>
     <AppText variant="bolderBaseText">Compare Videos</AppText>
 
-    <VideoInput
-      label="Reference Video ID"
-      value={referenceId}
-      onChangeText={setReferenceId}
-      placeholder="Enter reference video ID"
-      hint="The video to compare against (teacher/reference)"
-    />
+    <View style={styles.inputGroup}>
+      <AppText variant="bolderBaseText">Reference Video</AppText>
+      <AppText variant="baseText">
+        The video to compare against (teacher/reference)
+      </AppText>
+      <VideoSelector
+        selectedVideoId={referenceId || null}
+        onSelectVideo={setReferenceId}
+      />
+      <VideoInput
+        label="…or paste an ID"
+        value={referenceId}
+        onChangeText={setReferenceId}
+        placeholder="Reference video ID"
+        hint=""
+      />
+    </View>
 
-    <VideoInput
-      label="Comparison Video ID"
-      value={comparisonId}
-      onChangeText={setComparisonId}
-      placeholder="Enter comparison video ID"
-      hint="The video to analyze (student/comparison)"
-    />
+    <View style={styles.inputGroup}>
+      <AppText variant="bolderBaseText">Comparison Video</AppText>
+      <AppText variant="baseText">
+        The video to analyze (student/comparison)
+      </AppText>
+      <VideoSelector
+        selectedVideoId={comparisonId || null}
+        onSelectVideo={setComparisonId}
+      />
+      <VideoInput
+        label="…or paste an ID"
+        value={comparisonId}
+        onChangeText={setComparisonId}
+        placeholder="Comparison video ID"
+        hint=""
+      />
+    </View>
 
     <View style={styles.inputGroup}>
       <AppText variant="bolderBaseText">Comparison Preset</AppText>
@@ -130,10 +152,17 @@ const ComparisonForm = ({
 
 interface ComparisonResultsProps {
   result: ScoringResult;
+  referenceId: string;
+  comparisonId: string;
   onClear: () => void;
 }
 
-const ComparisonResults = ({ result, onClear }: ComparisonResultsProps) => (
+const ComparisonResults = ({
+  result,
+  referenceId,
+  comparisonId,
+  onClear,
+}: ComparisonResultsProps) => (
   <View style={styles.resultContainer}>
     <View style={styles.resultHeader}>
       <AppText variant="bolderBaseText">Comparison Results</AppText>
@@ -143,15 +172,44 @@ const ComparisonResults = ({ result, onClear }: ComparisonResultsProps) => (
     </View>
 
     <ScoreVisualization result={result} />
+
+    <View style={styles.overlaySection}>
+      <AppText variant="bolderBaseText">Skeleton overlay</AppText>
+      <AppText variant="baseText">
+        Reference (green) vs comparison (red), frame by frame.
+      </AppText>
+      <FrameComparator
+        initialReferenceId={referenceId}
+        initialComparisonId={comparisonId}
+      />
+    </View>
   </View>
 );
 
-export function VideoComparison() {
-  const [referenceId, setReferenceId] = useState("");
-  const [comparisonId, setComparisonId] = useState("");
+interface VideoComparisonProps {
+  initialReferenceId?: string;
+  initialComparisonId?: string;
+  onCompareSuccess?: (referenceId: string, comparisonId: string) => void;
+}
+
+export function VideoComparison({
+  initialReferenceId = "",
+  initialComparisonId = "",
+  onCompareSuccess,
+}: VideoComparisonProps = {}) {
+  const [referenceId, setReferenceId] = useState(initialReferenceId);
+  const [comparisonId, setComparisonId] = useState(initialComparisonId);
   const [selectedPreset, setSelectedPreset] = useState<PresetType>("dance");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScoringResult | null>(null);
+
+  useEffect(() => {
+    if (initialReferenceId) setReferenceId(initialReferenceId);
+  }, [initialReferenceId]);
+
+  useEffect(() => {
+    if (initialComparisonId) setComparisonId(initialComparisonId);
+  }, [initialComparisonId]);
 
   const handleCompare = async () => {
     if (!referenceId.trim() || !comparisonId.trim()) {
@@ -164,13 +222,16 @@ export function VideoComparison() {
 
     try {
       const config: ComparisonConfig = COMPARISON_PRESETS[selectedPreset];
+      const trimmedReference = referenceId.trim();
+      const trimmedComparison = comparisonId.trim();
       const comparisonResult = await compareVideos({
-        referenceVideoId: referenceId.trim(),
-        comparisonVideoId: comparisonId.trim(),
+        referenceVideoId: trimmedReference,
+        comparisonVideoId: trimmedComparison,
         config,
       });
 
       setResult(comparisonResult);
+      onCompareSuccess?.(trimmedReference, trimmedComparison);
     } catch (error) {
       Alert.alert(
         "Comparison Failed",
@@ -201,7 +262,12 @@ export function VideoComparison() {
           onCompare={handleCompare}
         />
       ) : (
-        <ComparisonResults result={result} onClear={handleClear} />
+        <ComparisonResults
+          result={result}
+          referenceId={referenceId}
+          comparisonId={comparisonId}
+          onClear={handleClear}
+        />
       )}
     </View>
   );
@@ -297,5 +363,11 @@ const styles = StyleSheet.create({
   clearButtonText: {
     color: "#007AFF",
     fontWeight: "600",
+  },
+  overlaySection: {
+    padding: 20,
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(128, 128, 128, 0.15)",
   },
 });

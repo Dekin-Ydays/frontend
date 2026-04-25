@@ -9,7 +9,12 @@ import {
   getVideo,
   listClients,
   listVideos,
+  newJobId,
+  processVideo,
+  subscribeExtractionProgress,
   uploadVideoFile,
+  type ExtractionProgressEvent,
+  type ProcessVideoProgress,
 } from '../video-parser-api';
 
 vi.mock('@/services/video-parser-endpoints', () => ({
@@ -115,6 +120,215 @@ describe('video-parser-api', () => {
     await expect(uploadVideoFile(file)).rejects.toThrow(
       'Failed to upload video file',
     );
+  });
+});
+
+describe('subscribeExtractionProgress', () => {
+  type Listener = (event: { data: string }) => void;
+
+  class FakeEventSource {
+    static instances: FakeEventSource[] = [];
+    listeners = new Map<string, Set<Listener>>();
+    closed = false;
+    constructor(public url: string) {
+      FakeEventSource.instances.push(this);
+    }
+    addEventListener(name: string, fn: Listener) {
+      const set = this.listeners.get(name) ?? new Set();
+      set.add(fn);
+      this.listeners.set(name, set);
+    }
+    removeEventListener(name: string, fn: Listener) {
+      this.listeners.get(name)?.delete(fn);
+    }
+    close() {
+      this.closed = true;
+    }
+    emit(name: string, data: unknown) {
+      const payload = { data: JSON.stringify(data) };
+      this.listeners.get(name)?.forEach((fn) => fn(payload));
+    }
+  }
+
+  let originalEventSource: unknown;
+
+  beforeEach(() => {
+    originalEventSource = (globalThis as { EventSource?: unknown }).EventSource;
+    (globalThis as { EventSource: unknown }).EventSource = FakeEventSource;
+    FakeEventSource.instances = [];
+  });
+
+  afterEach(() => {
+    (globalThis as { EventSource: unknown }).EventSource = originalEventSource;
+  });
+
+  it('forwards every event when no jobId is provided', () => {
+    const events: ExtractionProgressEvent[] = [];
+    const unsubscribe = subscribeExtractionProgress((evt) => events.push(evt));
+    const source = FakeEventSource.instances[0]!;
+    source.emit('extraction-progress', {
+      jobId: 'a',
+      phase: 'started',
+      at: 1,
+    });
+    source.emit('extraction-progress', {
+      jobId: 'b',
+      phase: 'frames',
+      framesProcessed: 10,
+      at: 2,
+    });
+    expect(events.map((e) => e.jobId)).toEqual(['a', 'b']);
+    unsubscribe();
+    expect(source.closed).toBe(true);
+  });
+
+  it('drops events that do not match the requested jobId', () => {
+    const events: ExtractionProgressEvent[] = [];
+    subscribeExtractionProgress((evt) => events.push(evt), 'mine');
+    const source = FakeEventSource.instances[0]!;
+    source.emit('extraction-progress', {
+      jobId: 'someone-else',
+      phase: 'started',
+      at: 1,
+    });
+    source.emit('extraction-progress', {
+      jobId: 'mine',
+      phase: 'frames',
+      framesProcessed: 5,
+      at: 2,
+    });
+    expect(events).toEqual([
+      { jobId: 'mine', phase: 'frames', framesProcessed: 5, at: 2 },
+    ]);
+  });
+
+  it('returns a no-op unsubscribe when EventSource is unavailable', () => {
+    (globalThis as { EventSource?: unknown }).EventSource = undefined;
+    const unsubscribe = subscribeExtractionProgress(() => {});
+    expect(typeof unsubscribe).toBe('function');
+    expect(() => unsubscribe()).not.toThrow();
+  });
+});
+
+describe('processVideo', () => {
+  type Handler = ((event?: unknown) => void) | null;
+
+  class FakeXHR {
+    static instances: FakeXHR[] = [];
+    method = '';
+    url = '';
+    body: unknown = null;
+    status = 0;
+    responseText = '';
+    onload: Handler = null;
+    onerror: Handler = null;
+    ontimeout: Handler = null;
+    upload: { onprogress: Handler; onload: Handler } = {
+      onprogress: null,
+      onload: null,
+    };
+    constructor() {
+      FakeXHR.instances.push(this);
+    }
+    open(method: string, url: string) {
+      this.method = method;
+      this.url = url;
+    }
+    send(body: unknown) {
+      this.body = body;
+    }
+  }
+
+  let originalXHR: unknown;
+
+  beforeEach(() => {
+    originalXHR = (globalThis as { XMLHttpRequest?: unknown }).XMLHttpRequest;
+    (globalThis as { XMLHttpRequest: unknown }).XMLHttpRequest = FakeXHR;
+    FakeXHR.instances = [];
+  });
+
+  afterEach(() => {
+    (globalThis as { XMLHttpRequest: unknown }).XMLHttpRequest = originalXHR;
+  });
+
+  function makeFile(): File {
+    return new File([new Uint8Array([1, 2, 3])], 'clip.mp4', {
+      type: 'video/mp4',
+    });
+  }
+
+  it('appends the jobId as a query string when provided', () => {
+    void processVideo(makeFile(), undefined, 'abc-123');
+    const xhr = FakeXHR.instances[0]!;
+    expect(xhr.method).toBe('POST');
+    expect(xhr.url).toBe(
+      'http://api.test/pose/video/process?jobId=abc-123',
+    );
+    expect(xhr.body).toBeInstanceOf(FormData);
+  });
+
+  it('omits the query string when no jobId is given', () => {
+    void processVideo(makeFile());
+    expect(FakeXHR.instances[0]!.url).toBe(
+      'http://api.test/pose/video/process',
+    );
+  });
+
+  it('emits uploading progress, then processing once the upload completes, and resolves with the parsed result', async () => {
+    const events: ProcessVideoProgress[] = [];
+    const result = { videoId: 'v1', frameCount: 12, fps: 30, width: 640, height: 480, sourceVideo: {} };
+    const promise = processVideo(makeFile(), (e) => events.push(e));
+    const xhr = FakeXHR.instances[0]!;
+
+    // Two upload-progress events, then upload complete, then HTTP response.
+    xhr.upload.onprogress?.({ lengthComputable: true, loaded: 50, total: 100 });
+    xhr.upload.onprogress?.({ lengthComputable: true, loaded: 100, total: 100 });
+    xhr.upload.onload?.();
+    xhr.status = 200;
+    xhr.responseText = JSON.stringify(result);
+    xhr.onload?.();
+
+    await expect(promise).resolves.toEqual(result);
+    expect(events.map((e) => e.phase)).toEqual([
+      'uploading',
+      'uploading',
+      'processing',
+    ]);
+    const first = events[0] as Extract<
+      ProcessVideoProgress,
+      { phase: 'uploading' }
+    >;
+    expect(first.ratio).toBe(0.5);
+    expect(first.loaded).toBe(50);
+    expect(first.total).toBe(100);
+  });
+
+  it('rejects with a descriptive error on a non-2xx response', async () => {
+    const promise = processVideo(makeFile());
+    const xhr = FakeXHR.instances[0]!;
+    xhr.status = 500;
+    xhr.responseText = 'boom';
+    xhr.onload?.();
+    await expect(promise).rejects.toThrow(/Failed to process video: 500.*boom/);
+  });
+
+  it('rejects on network errors', async () => {
+    const promise = processVideo(makeFile());
+    FakeXHR.instances[0]!.onerror?.();
+    await expect(promise).rejects.toThrow(/Network error/);
+  });
+});
+
+describe('newJobId', () => {
+  it('produces unique RFC4122-shaped strings', () => {
+    const ids = new Set<string>();
+    for (let i = 0; i < 50; i++) ids.add(newJobId());
+    expect(ids.size).toBe(50);
+    for (const id of ids) {
+      expect(id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+    }
   });
 });
 
