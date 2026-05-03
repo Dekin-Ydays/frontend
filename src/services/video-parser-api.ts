@@ -130,6 +130,15 @@ export async function getLatestPose(clientId: string): Promise<PoseFrame> {
   return response.json();
 }
 
+/**
+ * Absolute URL for the raw source video stored in MinIO. Plug this directly
+ * into an HTML `<video src=…>` or RN `<Video source={{ uri }}>`. The server
+ * streams the bytes; no presigned-URL hop required.
+ */
+export function getSourceVideoUrl(videoId: string): string {
+  return `${API_BASE_URL}/pose/video/${encodeURIComponent(videoId)}/source`;
+}
+
 export async function getVideo(videoId: string): Promise<Video> {
   const response = await fetch(`${API_BASE_URL}/pose/video/${videoId}`);
   if (!response.ok) {

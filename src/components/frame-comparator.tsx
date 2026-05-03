@@ -1,7 +1,11 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { View, StyleSheet, ActivityIndicator, Platform } from "react-native";
 import { AppText } from "./ui/app-text";
-import { getVideo, VideoFrame } from "@/services/video-parser-api";
+import {
+  getSourceVideoUrl,
+  getVideo,
+  VideoFrame,
+} from "@/services/video-parser-api";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { VideoSelector } from "./video-selector";
 import { FrameControls } from "./frame-controls";
@@ -58,6 +62,8 @@ export function FrameComparator({
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const referenceVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [referenceVideoAvailable, setReferenceVideoAvailable] = useState(true);
   const CANVAS_WIDTH = 640;
   const CANVAS_HEIGHT = 480;
 
@@ -105,7 +111,17 @@ export function FrameComparator({
     jumpToEnd,
   } = useVideoPlayer({
     totalFrames: maxFrames,
-    onFrameChange: (index) => renderFrame(index, state.frames1, state.frames2),
+    onFrameChange: (index) => {
+      renderFrame(index, state.frames1, state.frames2);
+      const ts = state.frames1[index]?.timestamp;
+      const video = referenceVideoRef.current;
+      if (video && referenceVideoAvailable && typeof ts === "number") {
+        const target = ts / 1000;
+        if (Math.abs(video.currentTime - target) > 0.05) {
+          video.currentTime = target;
+        }
+      }
+    },
   });
 
   const loadVideo = async (videoId: string, isFirst: boolean) => {
@@ -158,6 +174,10 @@ export function FrameComparator({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    setReferenceVideoAvailable(true);
+  }, [state.video1Id]);
+
   if (Platform.OS !== "web") {
     return (
       <FrameComparatorNative
@@ -201,6 +221,26 @@ export function FrameComparator({
         (state.frames1.length > 0 || state.frames2.length > 0) && (
           <>
             <View style={styles.canvasContainer}>
+              {state.video1Id && referenceVideoAvailable ? (
+                <video
+                  ref={referenceVideoRef}
+                  src={getSourceVideoUrl(state.video1Id)}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    pointerEvents: "none",
+                    backgroundColor: "#000",
+                  }}
+                  muted
+                  playsInline
+                  preload="auto"
+                  onError={() => setReferenceVideoAvailable(false)}
+                />
+              ) : null}
               <canvas
                 ref={canvasRef}
                 width={CANVAS_WIDTH}
@@ -274,6 +314,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   canvasContainer: {
+    position: "relative",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#000",
@@ -281,6 +322,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   canvas: {
+    position: "relative",
     maxWidth: "100%",
     height: "auto",
     borderRadius: 8,

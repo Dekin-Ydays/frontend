@@ -6,15 +6,84 @@ import {
   View,
 } from "react-native";
 import { Canvas, Circle, Line, vec } from "@shopify/react-native-skia";
+import {
+  VideoView,
+  useVideoPlayer as useExpoVideoPlayer,
+} from "expo-video";
 
 import { AppText } from "./ui/app-text";
 import { VideoSelector } from "./video-selector";
 import { FrameControls } from "./frame-controls";
 import { useVideoPlayer } from "@/hooks/use-video-player";
-import { getVideo, VideoFrame } from "@/services/video-parser-api";
+import {
+  getSourceVideoUrl,
+  getVideo,
+  VideoFrame,
+} from "@/services/video-parser-api";
 import { projectSkeleton } from "@/utils/skeleton-renderer";
 
 const CANVAS_ASPECT_RATIO = 4 / 3;
+
+interface ReferenceVideoOverlayProps {
+  referenceId: string;
+  referenceFrames: VideoFrame[];
+  currentFrameIndex: number;
+}
+
+function ReferenceVideoOverlay({
+  referenceId,
+  referenceFrames,
+  currentFrameIndex,
+}: ReferenceVideoOverlayProps) {
+  const [available, setAvailable] = useState(true);
+
+  useEffect(() => {
+    setAvailable(true);
+  }, [referenceId]);
+
+  const source = getSourceVideoUrl(referenceId);
+  const player = useExpoVideoPlayer(source, (p) => {
+    p.muted = true;
+    p.loop = false;
+  });
+
+  useEffect(() => {
+    if (!player) return;
+    const subscription = player.addListener(
+      "statusChange",
+      ({ status, error }) => {
+        if (status === "error" || error) {
+          setAvailable(false);
+        }
+      },
+    );
+    return () => subscription.remove();
+  }, [player]);
+
+  useEffect(() => {
+    if (!player || !available) return;
+    const ts = referenceFrames[currentFrameIndex]?.timestamp;
+    if (typeof ts !== "number") return;
+    try {
+      player.currentTime = ts / 1000;
+    } catch {
+      // currentTime can throw if the source isn't loaded yet; ignore
+      // and let the next frame change retry.
+    }
+  }, [player, available, referenceFrames, currentFrameIndex]);
+
+  if (!available) return null;
+
+  return (
+    <VideoView
+      player={player}
+      style={styles.underlayVideo}
+      contentFit="contain"
+      nativeControls={false}
+      pointerEvents="none"
+    />
+  );
+}
 
 interface FrameComparatorNativeProps {
   initialReferenceId?: string;
@@ -154,6 +223,13 @@ export function FrameComparatorNative({
             style={styles.canvasWrapper}
             onLayout={handleCanvasLayout}
           >
+            {referenceId ? (
+              <ReferenceVideoOverlay
+                referenceId={referenceId}
+                referenceFrames={referenceFrames}
+                currentFrameIndex={currentFrameIndex}
+              />
+            ) : null}
             <Canvas style={styles.canvas} pointerEvents="none">
               {referenceDrawn.lines.map((l) => (
                 <Line
@@ -241,8 +317,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: "center",
     overflow: "hidden",
+    position: "relative",
   },
   canvas: {
     flex: 1,
+  },
+  underlayVideo: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#000",
   },
 });
