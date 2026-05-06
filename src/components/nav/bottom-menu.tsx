@@ -1,50 +1,33 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import type { AppIconComponent } from "@/components/ui/icon";
+import type { ComponentType } from "react";
 import { useEffect, useRef } from "react";
 import { Camera, HomeSimple, Search, Send, User } from "iconoir-react-native";
-import { Pressable, TextInput, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Icon } from "../ui/icon";
-
-const styles = {
-  bar: "absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/0 to-black/80 h-24 items-center justify-center",
-  row: "flex-row items-center justify-center gap-3 px-4 w-full",
-  container:
-    "h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1",
-  pressable: "flex items-center justify-center h-full w-16 rounded-full",
-  pressableActive: "!bg-white/20",
-  textInput:
-    "h-16 w-full rounded-full bg-white/10 border border-white/5 px-4 text-white placeholder:text-gray outline-none focus:border-secondary",
-  transition: "transition-all duration-300",
-} as const;
+import { Pressable, View } from "react-native";
+import { useRouter } from "expo-router";
+import type { Href } from "expo-router";
+import { BottomTextInput } from "../ui/inputs/bottom-text-input";
+import { BottomBar } from "../ui/bottom-bar";
 
 type MenuButtonProps = {
   label: string;
   isActive: boolean;
   onPress: () => void;
-  icon: AppIconComponent;
+  icon: ComponentType<{ className?: string }>;
 };
 
 function MenuButton({ label, isActive, onPress, icon }: MenuButtonProps) {
+  const Icon = icon;
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className={`${styles.pressable} ${isActive ? styles.pressableActive : ""} ${styles.transition}`}
+      className={`flex items-center justify-center h-full w-16 rounded-full ${isActive ? "!bg-white/5" : ""} transition-all duration-300`}
     >
-      <Icon icon={icon} size={32} color={isActive ? "#3CFFD0" : "#FFFFFF"} />
+      <Icon
+        className={`size-8 ${isActive ? "text-secondary" : "text-white"}`}
+      />
     </Pressable>
-  );
-}
-
-function SearchBar() {
-  return (
-    <TextInput
-      placeholder="Rechercher une danse..."
-      underlineColorAndroid="transparent"
-      className={`${styles.textInput} ${styles.transition}`}
-    />
   );
 }
 
@@ -53,11 +36,12 @@ export function BottomMenu({
   descriptors,
   navigation,
 }: BottomTabBarProps) {
-  const insets = useSafeAreaInsets();
+  const router = useRouter();
   const activeRoute = state.routes[state.index]?.name;
   const isFocused = (name: string) => activeRoute === name;
   const isSearchActive = activeRoute === "search";
-  const lastNonSearchRoute = useRef<string>("index");
+  const isCameraActive = activeRoute === "camera";
+  const lastNonSearchRoute = useRef<string>("feed");
 
   useEffect(() => {
     if (activeRoute && activeRoute !== "search") {
@@ -65,53 +49,62 @@ export function BottomMenu({
     }
   }, [activeRoute]);
 
+  if (isCameraActive) {
+    return null;
+  }
+
   return (
-    <View className={styles.bar} style={{ paddingBottom: insets.bottom }}>
-      <View className={styles.row}>
-        {!isSearchActive && (
-          <View className={styles.container}>
-            <MenuButton
-              label={descriptors.index?.options?.title ?? "Home"}
-              isActive={isFocused("index")}
-              onPress={() => navigation.navigate("index")}
-              icon={HomeSimple}
-            />
-            <MenuButton
-              label={descriptors.camera?.options?.title ?? "Camera"}
-              isActive={isFocused("camera")}
-              onPress={() => navigation.navigate("camera")}
-              icon={Camera}
-            />
-            <MenuButton
-              label={descriptors.messages?.options?.title ?? "Messages"}
-              isActive={isFocused("messages")}
-              onPress={() => navigation.navigate("messages")}
-              icon={Send}
-            />
-            <MenuButton
-              label={descriptors.profile?.options?.title ?? "Profil"}
-              isActive={isFocused("profile")}
-              onPress={() => navigation.navigate("profile")}
-              icon={User}
-            />
-          </View>
-        )}
-        <View className={styles.container}>
+    <BottomBar>
+      {!isSearchActive && (
+        <View className="h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1">
           <MenuButton
-            label={descriptors.search?.options?.title ?? "Recherche"}
-            isActive={isFocused("search")}
-            onPress={() => {
-              if (isSearchActive) {
-                navigation.navigate(lastNonSearchRoute.current);
-                return;
-              }
-              navigation.navigate("search");
-            }}
-            icon={Search}
+            label={descriptors["feed"]?.options?.title ?? "Home"}
+            isActive={isFocused("feed")}
+            onPress={() => navigation.navigate("feed")}
+            icon={HomeSimple}
+          />
+          <MenuButton
+            label={descriptors["camera"]?.options?.title ?? "Camera"}
+            isActive={isFocused("camera")}
+            onPress={() => router.push("/camera" as Href)}
+            icon={Camera}
+          />
+          <MenuButton
+            label={descriptors["messages"]?.options?.title ?? "Messages"}
+            isActive={isFocused("messages")}
+            onPress={() => navigation.navigate("messages")}
+            icon={Send}
+          />
+          <MenuButton
+            label={descriptors["profile"]?.options?.title ?? "Profil"}
+            isActive={isFocused("profile")}
+            onPress={() => navigation.navigate("profile")}
+            icon={User}
           />
         </View>
-        {isSearchActive && <SearchBar />}
+      )}
+
+      <View className="h-16 backdrop-blur-sm w-fit flex-row items-center justify-center rounded-full bg-white/10 border border-white/5 p-1">
+        <MenuButton
+          label={descriptors["search"]?.options?.title ?? "Recherche"}
+          isActive={isFocused("search")}
+          onPress={() => {
+            if (isSearchActive) {
+              navigation.navigate(lastNonSearchRoute.current);
+              return;
+            }
+            navigation.navigate("search");
+          }}
+          icon={Search}
+        />
       </View>
-    </View>
+
+      {isSearchActive && (
+        <BottomTextInput
+          placeholder="Rechercher..."
+          onChangeText={(q) => router.setParams({ q })}
+        />
+      )}
+    </BottomBar>
   );
 }

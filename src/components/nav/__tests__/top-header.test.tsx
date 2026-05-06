@@ -6,9 +6,9 @@ import { vi } from "vitest";
 import { TopHeader } from "../top-header";
 
 vi.mock("iconoir-react-native", () => ({
+  ArrowLeft: () => null,
   EditPencil: () => null,
   MoreHoriz: () => null,
-  NavArrowLeft: () => null,
 }));
 
 vi.mock("expo-router", () => ({
