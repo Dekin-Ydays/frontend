@@ -1,0 +1,127 @@
+import { useCallback, useMemo } from "react";
+import { FlatList, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import type { Href } from "expo-router";
+import { RoundedButton } from "@/components/ui/buttons/rounded-button";
+import { MediaTileButton } from "@/components/media/media-tile-button";
+import { MessageListItem } from "@/components/messages/message-list-item";
+import type {
+  SearchFilter,
+  SearchProfileItem,
+  SearchDanceItem,
+} from "@/types/search";
+import {
+  MOCK_PERFORMANCES,
+  MOCK_REALISATIONS,
+  MOCK_SEARCH_PROFILES,
+  SEARCH_FILTERS,
+} from "@/mocks/search";
+import { filterByQuery } from "@/lib/search";
+
+type ProfilesListProps = {
+  data: SearchProfileItem[];
+  onPress: (id: string) => void;
+};
+
+function ProfilesList({ data, onPress }: ProfilesListProps) {
+  return (
+    <FlatList
+      key="profiles"
+      data={data}
+      keyExtractor={(item) => item.id}
+      contentContainerClassName="p-4 gap-4 pb-24"
+      showsVerticalScrollIndicator={false}
+      renderItem={({ item }) => (
+        <MessageListItem
+          avatarUri={item.avatarUri}
+          userName={item.userName}
+          messagePreview={item.stats}
+          onPress={() => onPress(item.id)}
+        />
+      )}
+    />
+  );
+}
+
+type DancesListProps = {
+  data: SearchDanceItem[];
+};
+
+function DancesList({ data }: DancesListProps) {
+  return (
+    <FlatList
+      key="dances"
+      data={data}
+      numColumns={2}
+      keyExtractor={(item) => item.id}
+      contentContainerClassName="p-4 gap-4 pb-24"
+      columnWrapperClassName="gap-4"
+      showsVerticalScrollIndicator={false}
+      renderItem={({ item }) => (
+        <MediaTileButton imageUri={item.imageUri} title={item.title} />
+      )}
+    />
+  );
+}
+
+export default function SearchScreen() {
+  const router = useRouter();
+  const { q, category } = useLocalSearchParams<{
+    q?: string;
+    category?: string;
+  }>();
+
+  const searchQuery = (Array.isArray(q) ? q[0] : q) ?? "";
+  const activeFilter = ((Array.isArray(category) ? category[0] : category) ??
+    "Profils") as SearchFilter;
+
+  const filteredProfiles = useMemo(
+    () => filterByQuery(MOCK_SEARCH_PROFILES, searchQuery, (p) => p.userName),
+    [searchQuery],
+  );
+
+  const filteredPerformances = useMemo(
+    () => filterByQuery(MOCK_PERFORMANCES, searchQuery, (d) => d.title),
+    [searchQuery],
+  );
+
+  const filteredRealisations = useMemo(
+    () => filterByQuery(MOCK_REALISATIONS, searchQuery, (d) => d.title),
+    [searchQuery],
+  );
+
+  const handleFilterChange = useCallback(
+    (filter: SearchFilter) => router.setParams({ category: filter }),
+    [router],
+  );
+
+  const handlePressProfile = useCallback(
+    (id: string) => router.push(`/profile/${id}` as Href),
+    [router],
+  );
+
+  return (
+    <View className="flex-1 bg-dark">
+      <View className="p-4 flex-row gap-2">
+        {SEARCH_FILTERS.map((filter) => (
+          <RoundedButton
+            key={filter}
+            variant={activeFilter === filter ? "primary" : "secondary"}
+            label={filter}
+            onPress={() => handleFilterChange(filter)}
+          />
+        ))}
+      </View>
+
+      {activeFilter === "Profils" && (
+        <ProfilesList data={filteredProfiles} onPress={handlePressProfile} />
+      )}
+      {activeFilter === "Performances" && (
+        <DancesList data={filteredPerformances} />
+      )}
+      {activeFilter === "Réalisations" && (
+        <DancesList data={filteredRealisations} />
+      )}
+    </View>
+  );
+}

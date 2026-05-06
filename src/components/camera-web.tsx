@@ -5,15 +5,28 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { router } from "expo-router";
+import { MusicNote, RefreshDouble, Xmark } from "iconoir-react-native";
 import type {
   PoseLandmarker,
   PoseLandmarkerResult,
 } from "@mediapipe/tasks-vision";
 
 import { AppText } from "./ui/app-text";
+import { BottomBar } from "./ui/bottom-bar";
+import { MusicPickerBottomSheet } from "./video/music-picker-bottom-sheet";
 import { PipelineHealthBanner } from "./pipeline-health-banner";
+import { TopBar } from "./ui/top-bar";
+import { MOCK_THUMBNAIL_URI } from "@/mocks/videos";
+import type { MusicItem } from "@/types/video";
 import {
   processRecordedVideo,
   type RecordedVideoProcessingStatus,
@@ -74,6 +87,8 @@ export function CameraWeb() {
 
   const [modelReady, setModelReady] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
+  const [musicModalVisible, setMusicModalVisible] = useState(false);
+  const [selectedMusic, setSelectedMusic] = useState<MusicItem | null>(null);
   const [poseDetected, setPoseDetected] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -160,6 +175,7 @@ export function CameraWeb() {
       video.pause();
       video.srcObject = null;
     }
+    setPoseDetected(false);
   }, [stopLoop]);
 
   useEffect(() => releaseStream, [releaseStream]);
@@ -274,13 +290,10 @@ export function CameraWeb() {
         type: finalMime,
       });
       try {
-        await processRecordedVideo(
-          file,
-          {
-            now: () => performance.now(),
-            onStatus: (next) => setStatus(next),
-          },
-        );
+        await processRecordedVideo(file, {
+          now: () => performance.now(),
+          onStatus: (next) => setStatus(next),
+        });
       } catch {
         // processRecordedVideo emits the error status before rejecting.
       }
@@ -323,31 +336,34 @@ export function CameraWeb() {
   }, [status]);
 
   const reset = useCallback(() => {
-    setStatus({ kind: "ready" });
+    setStatus(streamRef.current ? { kind: "ready" } : { kind: "idle" });
   }, []);
 
-  const elapsedSeconds = useMemo(() => (elapsedMs / 1000).toFixed(1), [
-    elapsedMs,
-  ]);
+  const resetCamera = useCallback(() => {
+    releaseStream();
+    setElapsedMs(0);
+    setProcessingElapsedMs(0);
+    setStatus({ kind: "idle" });
+  }, [releaseStream]);
+
+  const closeCamera = useCallback(() => {
+    releaseStream();
+    router.replace("/feed");
+  }, [releaseStream]);
+
+  const elapsedSeconds = useMemo(
+    () => (elapsedMs / 1000).toFixed(1),
+    [elapsedMs],
+  );
 
   if (Platform.OS !== "web") {
     return null;
   }
 
   const cameraStarted = streamRef.current !== null;
-
+  const isBusy = status.kind === "uploading" || status.kind === "processing";
   return (
-    <View style={styles.container}>
-      <AppText variant="bolderBaseText">Record &amp; Analyze (Web)</AppText>
-      {!modelReady && !modelError ? (
-        <AppText variant="baseText">Loading lite pose model…</AppText>
-      ) : null}
-      {modelError ? (
-        <AppText variant="baseText">Model error: {modelError}</AppText>
-      ) : null}
-
-      <PipelineHealthBanner />
-
+    <View className="flex-1 bg-dark">
       <View style={styles.stage}>
         <video
           ref={videoRef}
@@ -357,52 +373,82 @@ export function CameraWeb() {
           style={{ display: "none" }}
         />
         <canvas ref={canvasRef} style={styles.canvas} />
+
         {!cameraStarted ? (
-          <View style={styles.placeholder} pointerEvents="none">
+          <View className="absolute inset-0 items-center justify-center bg-dark">
+            <AppText variant="title" className="text-center">
+              NOUVELLE VIDEO
+            </AppText>
+            <AppText variant="secondaryText" className="mt-2 text-center">
+              {modelReady
+                ? "Appuyez sur le bouton central pour demarrer la camera"
+                : modelError
+                  ? "Le modele de detection n'a pas pu etre charge"
+                  : "Chargement du modele de detection"}
+            </AppText>
+          </View>
+        ) : null}
+      </View>
+
+      <TopBar>
+        <View className="flex-row items-center gap-5">
+          <Pressable
+            onPress={closeCamera}
+            accessibilityRole="button"
+            accessibilityLabel="Fermer la camera"
+          >
+            <Xmark className="size-8 text-white" />
+          </Pressable>
+          <AppText variant="title">NOUVELLE VIDEO</AppText>
+        </View>
+        <Pressable
+          className="flex-row items-center gap-1.5 h-8 px-5 rounded-full bg-white/10"
+          onPress={() => setMusicModalVisible(true)}
+        >
+          <MusicNote className="size-5 text-white" />
+          <AppText className="text-sm">
+            {selectedMusic ? selectedMusic.title : "Musique"}
+          </AppText>
+        </Pressable>
+      </TopBar>
+
+      <View className="absolute top-28 left-4 right-4">
+        {modelError ? (
+          <View className="bg-dark/80 border border-dangerous/50 rounded-2xl p-4">
+            <AppText variant="baseText">Model error: {modelError}</AppText>
+          </View>
+        ) : (
+          <PipelineHealthBanner />
+        )}
+      </View>
+
+      <View className="absolute left-4 right-4 bottom-32 items-center">
+        {cameraStarted &&
+        (status.kind === "ready" || status.kind === "recording") ? (
+          <View className="bg-dark/80 border border-white/10 rounded-full px-5 py-2 flex-row items-center gap-2">
+            <View
+              className={`h-2.5 w-2.5 rounded-full ${
+                status.kind === "recording"
+                  ? "bg-dangerous"
+                  : poseDetected
+                    ? "bg-secondary"
+                    : "bg-gray"
+              }`}
+            />
             <AppText variant="baseText">
-              Click &quot;Start camera&quot; to begin
+              {status.kind === "recording"
+                ? `REC ${elapsedSeconds}s`
+                : poseDetected
+                  ? "Pose detectee"
+                  : "Cadre vide"}
             </AppText>
           </View>
         ) : null}
 
-        {status.kind === "recording" ? (
-          <View style={styles.recordingBadge} pointerEvents="none">
-            <View style={styles.recordingDot} />
-            <AppText variant="baseText">REC {elapsedSeconds}s</AppText>
-          </View>
-        ) : null}
-      </View>
-
-      <View style={styles.statusRow}>
-        <AppText variant="baseText">
-          {modelReady && cameraStarted
-            ? poseDetected
-              ? "Pose detected"
-              : "No pose detected — step into frame"
-            : "Camera idle"}
-        </AppText>
-      </View>
-
-      <View style={styles.controls}>
-        {!cameraStarted ? (
-          <Pressable
-            onPress={startCamera}
-            disabled={!modelReady}
-            style={[
-              styles.primaryButton,
-              !modelReady && styles.buttonDisabled,
-            ]}
-          >
-            <AppText variant="baseText">Start camera</AppText>
-          </Pressable>
-        ) : status.kind === "recording" ? (
-          <Pressable onPress={stopRecording} style={styles.stopButton}>
-            <AppText variant="baseText">Stop &amp; upload</AppText>
-          </Pressable>
-        ) : status.kind === "uploading" ? (
-          <View style={styles.statusBox}>
+        {status.kind === "uploading" ? (
+          <View className="bg-dark/80 border border-white/10 rounded-2xl p-4 gap-3 w-full max-w-[640px]">
             <AppText variant="bolderBaseText">
-              Uploading… {Math.round(status.ratio * 100)}%
+              Uploading... {Math.round(status.ratio * 100)}%
             </AppText>
             <View style={styles.progressTrack}>
               <View
@@ -414,13 +460,18 @@ export function CameraWeb() {
             </View>
             <AppText variant="baseText">
               {formatBytes(status.loaded ?? 0)} /{" "}
-              {status.total === undefined ? "unknown" : formatBytes(status.total)}
+              {status.total === undefined
+                ? "unknown"
+                : formatBytes(status.total)}
             </AppText>
           </View>
-        ) : status.kind === "processing" ? (
-          <View style={styles.statusBox}>
+        ) : null}
+
+        {status.kind === "processing" ? (
+          <View className="bg-dark/80 border border-white/10 rounded-2xl p-4 gap-3 w-full max-w-[640px]">
             <AppText variant="bolderBaseText">
-              Running precise pose extraction… {(processingElapsedMs / 1000).toFixed(1)}s
+              Running precise pose extraction...{" "}
+              {(processingElapsedMs / 1000).toFixed(1)}s
             </AppText>
             <AppText variant="baseText">
               {status.framesProcessed !== undefined
@@ -453,17 +504,19 @@ export function CameraWeb() {
               )}
             </View>
           </View>
-        ) : status.kind === "done" ? (
-          <View style={styles.statusBox}>
+        ) : null}
+
+        {status.kind === "done" ? (
+          <View className="bg-dark/80 border border-white/10 rounded-2xl p-4 gap-3 w-full max-w-[640px]">
             <AppText variant="bolderBaseText">
               Processed video {status.result.videoId}
             </AppText>
             <AppText variant="baseText">
               {status.result.frameCount} frames at{" "}
-              {status.result.fps.toFixed(1)} fps (
-              {status.result.width}×{status.result.height})
+              {status.result.fps.toFixed(1)} fps ({status.result.width}x
+              {status.result.height})
             </AppText>
-            <View style={styles.ctaRow}>
+            <View className="flex-row flex-wrap gap-2">
               <Pressable
                 onPress={() =>
                   router.push({
@@ -471,9 +524,9 @@ export function CameraWeb() {
                     params: { reference: status.result.videoId },
                   })
                 }
-                style={styles.primaryButton}
+                className="h-10 px-5 rounded-full bg-white/10 items-center justify-center"
               >
-                <AppText variant="baseText">Use as reference →</AppText>
+                <AppText variant="baseText">Use as reference</AppText>
               </Pressable>
               <Pressable
                 onPress={() =>
@@ -482,129 +535,121 @@ export function CameraWeb() {
                     params: { comparison: status.result.videoId },
                   })
                 }
-                style={styles.primaryButton}
+                className="h-10 px-5 rounded-full bg-white/10 items-center justify-center"
               >
-                <AppText variant="baseText">Use as comparison →</AppText>
+                <AppText variant="baseText">Use as comparison</AppText>
+              </Pressable>
+              <Pressable
+                onPress={reset}
+                className="h-10 px-5 rounded-full bg-white/10 items-center justify-center"
+              >
+                <AppText variant="baseText">Record another</AppText>
               </Pressable>
             </View>
-            <Pressable onPress={reset} style={styles.secondaryButton}>
-              <AppText variant="baseText">Record another</AppText>
-            </Pressable>
           </View>
-        ) : (
-          <Pressable onPress={startRecording} style={styles.recordButton}>
-            <AppText variant="baseText">Start recording</AppText>
-          </Pressable>
-        )}
+        ) : null}
 
         {status.kind === "error" ? (
-          <View style={styles.statusBox}>
+          <View className="bg-dark/80 border border-dangerous/50 rounded-2xl p-4 gap-3 w-full max-w-[640px]">
             <AppText variant="baseText">Error: {status.message}</AppText>
-            <Pressable onPress={reset} style={styles.secondaryButton}>
+            <Pressable
+              onPress={reset}
+              className="h-10 px-5 rounded-full bg-white/10 items-center justify-center self-start"
+            >
               <AppText variant="baseText">Dismiss</AppText>
             </Pressable>
           </View>
         ) : null}
       </View>
+
+      <BottomBar className="!justify-between">
+        <View className="rounded-full border-2 border-white overflow-hidden h-16 w-16">
+          <Image
+            source={{ uri: MOCK_THUMBNAIL_URI }}
+            className="h-full w-full"
+            resizeMode="cover"
+          />
+        </View>
+
+        {!cameraStarted ? (
+          <Pressable
+            onPress={startCamera}
+            disabled={!modelReady || !!modelError}
+            className={`h-16 w-16 rounded-full bg-dangerous items-center justify-center ${
+              !modelReady || modelError ? "opacity-50" : ""
+            }`}
+            accessibilityRole="button"
+            accessibilityLabel="Demarrer la camera"
+          >
+            <View className="h-12 w-12 rounded-full bg-dangerous border-2 border-white/70" />
+          </Pressable>
+        ) : status.kind === "recording" ? (
+          <Pressable
+            onPress={stopRecording}
+            className="h-16 w-16 rounded-full bg-white border border-white/5 items-center justify-center"
+            accessibilityRole="button"
+            accessibilityLabel="Arreter l'enregistrement"
+          >
+            <View className="h-6 w-6 rounded-md bg-dangerous" />
+          </Pressable>
+        ) : isBusy ? (
+          <View className="h-16 w-16 rounded-full bg-white/10 border border-white/5 items-center justify-center">
+            <ActivityIndicator color="#fff" />
+          </View>
+        ) : status.kind === "done" || status.kind === "error" ? (
+          <Pressable
+            onPress={reset}
+            className="h-16 w-16 rounded-full bg-white/10 border border-white/5 items-center justify-center"
+            accessibilityRole="button"
+            accessibilityLabel="Reinitialiser"
+          >
+            <RefreshDouble className="size-8 text-white" />
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={startRecording}
+            className="h-16 w-16 rounded-full bg-dangerous items-center justify-center"
+            accessibilityRole="button"
+            accessibilityLabel="Demarrer l'enregistrement"
+          >
+            <View className="h-12 w-12 rounded-full bg-dangerous border-2 border-white/70" />
+          </Pressable>
+        )}
+
+        {status.kind === "recording" || isBusy ? (
+          <View className="h-16 w-16" />
+        ) : (
+          <Pressable
+            className="h-16 w-16 rounded-full bg-white/10 border border-white/5 backdrop-blur-sm items-center justify-center"
+            onPress={resetCamera}
+            accessibilityRole="button"
+            accessibilityLabel="Reinitialiser la camera"
+          >
+            <RefreshDouble className="size-8 text-white" />
+          </Pressable>
+        )}
+      </BottomBar>
+
+      <MusicPickerBottomSheet
+        visible={musicModalVisible}
+        onClose={() => setMusicModalVisible(false)}
+        onSelect={(item) => setSelectedMusic(item)}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    gap: 16,
-  },
   stage: {
-    position: "relative",
-    backgroundColor: "#111",
-    borderRadius: 12,
-    overflow: "hidden",
-    minHeight: 360,
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#0E0E0E",
     alignItems: "center",
     justifyContent: "center",
   },
   canvas: {
     width: "100%",
-    maxWidth: 640,
-    height: "auto",
-    borderRadius: 12,
-    backgroundColor: "#000",
-  },
-  placeholder: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  recordingBadge: {
-    position: "absolute",
-    top: 12,
-    left: 12,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    borderRadius: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  recordingDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#ef4444",
-  },
-  statusRow: {
-    minHeight: 20,
-  },
-  controls: {
-    gap: 12,
-  },
-  ctaRow: {
-    flexDirection: "row",
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  primaryButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    backgroundColor: "#007AFF",
-    alignItems: "center",
-  },
-  recordButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    backgroundColor: "#ef4444",
-    alignItems: "center",
-  },
-  stopButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    backgroundColor: "#0a0a0a",
-    borderWidth: 1,
-    borderColor: "#ef4444",
-    alignItems: "center",
-  },
-  secondaryButton: {
-    marginTop: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: "rgba(128,128,128,0.15)",
-    alignSelf: "flex-start",
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  statusBox: {
-    backgroundColor: "rgba(128,128,128,0.1)",
-    padding: 12,
-    borderRadius: 8,
-    gap: 6,
+    height: "100%",
+    backgroundColor: "#0E0E0E",
   },
   progressTrack: {
     height: 8,
@@ -614,7 +659,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 4,
   },
   progressIndeterminate: {

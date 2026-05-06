@@ -1,11 +1,12 @@
 import "@/global.css";
 import "@/utils/suppress-noisy-logs";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Montserrat_400Regular,
   Montserrat_500Medium,
@@ -27,7 +28,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync("#0E0E0E");
-
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
@@ -38,8 +38,25 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider className="bg-dark flex-1">
-      <Slot />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider className="bg-dark flex-1">
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_right",
+            gestureEnabled: true,
+          }}
+        >
+          <Stack.Screen
+            name="(auth)"
+            options={{ animation: "none", gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="(tabs)"
+            options={{ animation: "none", gestureEnabled: false }}
+          />
+        </Stack>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
