@@ -42,6 +42,18 @@ describe('video-parser-api', () => {
     await expect(listVideos()).rejects.toThrow('Failed to fetch videos');
   });
 
+  it('includes response details when an endpoint fails', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      text: async () => 'database unavailable',
+    });
+
+    await expect(listVideos()).rejects.toThrow(
+      'Failed to fetch videos: database unavailable',
+    );
+  });
+
   it('returns a specific error for missing latest pose', async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, status: 404 });
     await expect(getLatestPose('missing')).rejects.toThrow(
@@ -316,6 +328,15 @@ describe('processVideo', () => {
     const promise = processVideo(makeFile());
     FakeXHR.instances[0]!.onerror?.();
     await expect(promise).rejects.toThrow(/Network error/);
+  });
+
+  it('rejects when the process response body is not valid JSON', async () => {
+    const promise = processVideo(makeFile());
+    const xhr = FakeXHR.instances[0]!;
+    xhr.status = 200;
+    xhr.responseText = '{not json';
+    xhr.onload?.();
+    await expect(promise).rejects.toThrow('Invalid response payload');
   });
 });
 

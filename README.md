@@ -41,7 +41,7 @@ Press `w` in Expo CLI.
 
 ### iOS (native modules)
 
-Important: Expo Go cannot run custom native modules used here (`react-native-vision-camera`, `react-native-mediapipe-posedetection`, etc.).
+Important: Expo Go cannot run the native camera module used here (`react-native-vision-camera`).
 
 Use a development build:
 

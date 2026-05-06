@@ -2,6 +2,46 @@ import { getVideoParserHttpBaseUrl } from '@/services/video-parser-endpoints';
 
 const API_BASE_URL = getVideoParserHttpBaseUrl();
 
+type StatusMessages = Partial<Record<number, string>>;
+
+async function responseText(response: Response): Promise<string> {
+  if (typeof response.text !== 'function') return '';
+
+  try {
+    return (await response.text()).trim();
+  } catch {
+    return '';
+  }
+}
+
+async function responseErrorMessage(
+  response: Response,
+  fallback: string,
+  statusMessages: StatusMessages = {},
+): Promise<string> {
+  const base = statusMessages[response.status] ?? fallback;
+  const detail = await responseText(response);
+  return detail ? `${base}: ${detail}` : base;
+}
+
+async function readJsonResponse<T>(
+  response: Response,
+  fallbackError: string,
+  statusMessages?: StatusMessages,
+): Promise<T> {
+  if (!response.ok) {
+    throw new Error(
+      await responseErrorMessage(response, fallbackError, statusMessages),
+    );
+  }
+
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new Error(`${fallbackError}: invalid response payload`);
+  }
+}
+
 export interface Landmark {
   x: number;
   y: number;
@@ -97,37 +137,24 @@ export interface PoseExtractionHealth {
 
 export async function getPoseHealth(): Promise<PoseExtractionHealth> {
   const response = await fetch(`${API_BASE_URL}/pose/health`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch pose health');
-  }
-  return response.json();
+  return readJsonResponse(response, 'Failed to fetch pose health');
 }
 
 export async function listClients(): Promise<Client[]> {
   const response = await fetch(`${API_BASE_URL}/pose/clients`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch clients');
-  }
-  return response.json();
+  return readJsonResponse(response, 'Failed to fetch clients');
 }
 
 export async function listVideos(): Promise<VideoMetadata[]> {
   const response = await fetch(`${API_BASE_URL}/pose/videos`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch videos');
-  }
-  return response.json();
+  return readJsonResponse(response, 'Failed to fetch videos');
 }
 
 export async function getLatestPose(clientId: string): Promise<PoseFrame> {
   const response = await fetch(`${API_BASE_URL}/pose/latest/${clientId}`);
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('No pose data available for this client');
-    }
-    throw new Error('Failed to fetch latest pose');
-  }
-  return response.json();
+  return readJsonResponse(response, 'Failed to fetch latest pose', {
+    404: 'No pose data available for this client',
+  });
 }
 
 /**
@@ -141,13 +168,9 @@ export function getSourceVideoUrl(videoId: string): string {
 
 export async function getVideo(videoId: string): Promise<Video> {
   const response = await fetch(`${API_BASE_URL}/pose/video/${videoId}`);
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('Video not found');
-    }
-    throw new Error('Failed to fetch video');
-  }
-  return response.json();
+  return readJsonResponse(response, 'Failed to fetch video', {
+    404: 'Video not found',
+  });
 }
 
 export async function uploadVideoFile(file: File): Promise<UploadedVideoFile> {
@@ -159,11 +182,7 @@ export async function uploadVideoFile(file: File): Promise<UploadedVideoFile> {
     body: formData,
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to upload video file');
-  }
-
-  return response.json();
+  return readJsonResponse(response, 'Failed to upload video file');
 }
 
 export interface ProcessedVideo {
@@ -271,15 +290,13 @@ export function processVideo(
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           resolve(JSON.parse(xhr.responseText) as ProcessedVideo);
-        } catch (err) {
-          reject(
-            err instanceof Error ? err : new Error('Invalid response payload'),
-          );
+        } catch {
+          reject(new Error('Invalid response payload'));
         }
       } else {
         reject(
           new Error(
-            `Failed to process video: ${xhr.status} ${xhr.responseText || ''}`.trim(),
+            formatProcessVideoError(xhr.status, xhr.responseText),
           ),
         );
       }
@@ -294,6 +311,13 @@ export function processVideo(
   });
 }
 
+function formatProcessVideoError(status: number, responseBody: string): string {
+  const detail = responseBody.trim();
+  return detail
+    ? `Failed to process video: ${status} ${detail}`
+    : `Failed to process video: ${status}`;
+}
+
 export async function compareVideos(
   request: CompareVideosRequest
 ): Promise<ScoringResult> {
@@ -305,14 +329,9 @@ export async function compareVideos(
     body: JSON.stringify(request),
   });
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('One or both videos not found');
-    }
-    throw new Error('Failed to compare videos');
-  }
-
-  return response.json();
+  return readJsonResponse(response, 'Failed to compare videos', {
+    404: 'One or both videos not found',
+  });
 }
 
 export function getScoreColor(score: number): string {

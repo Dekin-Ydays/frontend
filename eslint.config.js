@@ -18,10 +18,7 @@ module.exports = defineConfig([
     ignores: ["dist/*"],
   },
   {
-    files: [
-      "src/components/mediapipe-demo.tsx",
-      "src/components/native-pose-modules.ts",
-    ],
+    files: ["src/app/(tabs)/camera.tsx"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },

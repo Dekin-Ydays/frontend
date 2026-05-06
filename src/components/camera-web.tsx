@@ -15,11 +15,9 @@ import type {
 import { AppText } from "./ui/app-text";
 import { PipelineHealthBanner } from "./pipeline-health-banner";
 import {
-  newJobId,
-  processVideo,
-  ProcessedVideo,
-  subscribeExtractionProgress,
-} from "@/services/video-parser-api";
+  processRecordedVideo,
+  type RecordedVideoProcessingStatus,
+} from "@/services/recorded-video-processing";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
 
@@ -28,15 +26,7 @@ type Status =
   | { kind: "starting-camera" }
   | { kind: "ready" }
   | { kind: "recording"; startedAt: number }
-  | { kind: "uploading"; ratio: number; loaded: number; total: number }
-  | {
-      kind: "processing";
-      startedAt: number;
-      framesProcessed?: number;
-      totalFrames?: number;
-    }
-  | { kind: "done"; result: ProcessedVideo }
-  | { kind: "error"; message: string };
+  | RecordedVideoProcessingStatus;
 
 function formatBytes(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} MB`;
@@ -279,59 +269,20 @@ export function CameraWeb() {
         return;
       }
 
-      setStatus({
-        kind: "uploading",
-        ratio: 0,
-        loaded: 0,
-        total: blob.size,
-      });
       const ext = extensionFromMime(finalMime);
       const file = new File([blob], `recording-${Date.now()}.${ext}`, {
         type: finalMime,
       });
-      const jobId = newJobId();
-      let unsubscribeProgress: (() => void) | null = null;
       try {
-        unsubscribeProgress = subscribeExtractionProgress((evt) => {
-          if (evt.phase === "frames") {
-            setStatus((prev) =>
-              prev.kind === "processing"
-                ? {
-                    kind: "processing",
-                    startedAt: prev.startedAt,
-                    framesProcessed: evt.framesProcessed,
-                    totalFrames: evt.totalFrames ?? prev.totalFrames,
-                  }
-                : prev,
-            );
-          }
-        }, jobId);
-
-        const result = await processVideo(
+        await processRecordedVideo(
           file,
-          (event) => {
-            if (event.phase === "uploading") {
-              setStatus({
-                kind: "uploading",
-                ratio: event.ratio,
-                loaded: event.loaded,
-                total: event.total,
-              });
-            } else {
-              setStatus({ kind: "processing", startedAt: performance.now() });
-            }
+          {
+            now: () => performance.now(),
+            onStatus: (next) => setStatus(next),
           },
-          jobId,
         );
-        setStatus({ kind: "done", result });
-      } catch (err) {
-        setStatus({
-          kind: "error",
-          message:
-            err instanceof Error ? err.message : "Failed to upload video",
-        });
-      } finally {
-        unsubscribeProgress?.();
+      } catch {
+        // processRecordedVideo emits the error status before rejecting.
       }
     };
 
@@ -462,7 +413,8 @@ export function CameraWeb() {
               />
             </View>
             <AppText variant="baseText">
-              {formatBytes(status.loaded)} / {formatBytes(status.total)}
+              {formatBytes(status.loaded ?? 0)} /{" "}
+              {status.total === undefined ? "unknown" : formatBytes(status.total)}
             </AppText>
           </View>
         ) : status.kind === "processing" ? (

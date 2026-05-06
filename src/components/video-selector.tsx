@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -10,8 +10,8 @@ import {
 import * as Clipboard from "expo-clipboard";
 import { Copy } from "iconoir-react-native";
 import { AppText } from "./ui/app-text";
-import { listVideos, VideoMetadata } from "@/services/video-parser-api";
 import { Icon } from "@/components/ui/icon";
+import { useVideoList } from "@/hooks/use-video-list";
 
 interface VideoSelectorProps {
   selectedVideoId: string | null;
@@ -35,34 +35,26 @@ export function VideoSelector({
   selectedVideoId,
   onSelectVideo,
 }: VideoSelectorProps) {
-  const [videos, setVideos] = useState<VideoMetadata[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { videos, loading, error, refresh } = useVideoList();
 
   useEffect(() => {
-    fetchVideos();
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
   }, []);
-
-  const fetchVideos = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const videoList = await listVideos();
-      setVideos(videoList);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch videos");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCopyId = async (id: string) => {
     await Clipboard.setStringAsync(id);
     setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = setTimeout(() => setCopiedId(null), 2000);
   };
 
   const selectedVideo = videos.find((v) => v.id === selectedVideoId);
@@ -120,7 +112,7 @@ export function VideoSelector({
       {error && (
         <View style={styles.errorContainer}>
           <AppText variant="baseText">{error}</AppText>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchVideos}>
+          <TouchableOpacity style={styles.retryButton} onPress={refresh}>
             <AppText variant="baseText">Retry</AppText>
           </TouchableOpacity>
         </View>

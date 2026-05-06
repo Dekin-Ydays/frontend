@@ -18,11 +18,9 @@ import { AppText } from "@/components/ui/app-text";
 import { CameraWeb } from "@/components/camera-web";
 import { PipelineHealthBanner } from "@/components/pipeline-health-banner";
 import {
-  newJobId,
-  processVideo,
-  ProcessedVideo,
-  subscribeExtractionProgress,
-} from "@/services/video-parser-api";
+  processRecordedVideo,
+  type RecordedVideoProcessingStatus,
+} from "@/services/recorded-video-processing";
 
 type VisionCameraModule = typeof import("react-native-vision-camera");
 type CameraInstance = InstanceType<VisionCameraModule["Camera"]>;
@@ -37,20 +35,11 @@ try {
 type Status =
   | { kind: "idle" }
   | { kind: "recording" }
-  | { kind: "uploading"; ratio: number }
-  | {
-      kind: "processing";
-      startedAt: number;
-      framesProcessed?: number;
-      totalFrames?: number;
-    }
-  | { kind: "done"; result: ProcessedVideo }
-  | { kind: "error"; message: string };
+  | RecordedVideoProcessingStatus;
 
 export default function CameraScreen() {
   const isFocused = useIsFocused();
   const [hasPermission, setHasPermission] = useState(false);
-  const [hasMicPermission, setHasMicPermission] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [processingElapsedMs, setProcessingElapsedMs] = useState(0);
   const cameraRef = useRef<CameraInstance | null>(null);
@@ -78,54 +67,23 @@ export default function CameraScreen() {
     (async () => {
       if (!VisionCamera) return;
       const cam = await VisionCamera.Camera.requestCameraPermission();
-      const mic = await VisionCamera.Camera.requestMicrophonePermission();
       setHasPermission(cam === "granted");
-      setHasMicPermission(mic === "granted");
     })();
   }, []);
 
   const uploadRecording = useCallback(async (filePath: string) => {
-    setStatus({ kind: "uploading", ratio: 0 });
     const uri = filePath.startsWith("file://") ? filePath : `file://${filePath}`;
-    const jobId = newJobId();
-    const unsubscribeProgress = subscribeExtractionProgress((evt) => {
-      if (evt.phase === "frames") {
-        setStatus((prev) =>
-          prev.kind === "processing"
-            ? {
-                kind: "processing",
-                startedAt: prev.startedAt,
-                framesProcessed: evt.framesProcessed,
-                totalFrames: evt.totalFrames ?? prev.totalFrames,
-              }
-            : prev,
-        );
-      }
-    }, jobId);
     try {
-      const result = await processVideo(
+      await processRecordedVideo(
         {
           uri,
           name: `recording-${Date.now()}.mp4`,
           type: "video/mp4",
         },
-        (event) => {
-          if (event.phase === "uploading") {
-            setStatus({ kind: "uploading", ratio: event.ratio });
-          } else {
-            setStatus({ kind: "processing", startedAt: Date.now() });
-          }
-        },
-        jobId,
+        { onStatus: (next) => setStatus(next) },
       );
-      setStatus({ kind: "done", result });
-    } catch (err) {
-      setStatus({
-        kind: "error",
-        message: err instanceof Error ? err.message : String(err),
-      });
-    } finally {
-      unsubscribeProgress();
+    } catch {
+      // processRecordedVideo emits the error status before rejecting.
     }
   }, []);
 
@@ -172,11 +130,11 @@ export default function CameraScreen() {
     );
   }
 
-  if (!hasPermission || !hasMicPermission) {
+  if (!hasPermission) {
     return (
       <View style={styles.message}>
         <AppText variant="baseText">
-          Camera and microphone permissions are required.
+          Camera permission is required.
         </AppText>
       </View>
     );
@@ -198,7 +156,7 @@ export default function CameraScreen() {
         device={device}
         isActive={isFocused && status.kind !== "done"}
         video={true}
-        audio={true}
+        audio={false}
       />
 
       <View style={styles.overlay}>

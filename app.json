@@ -44,20 +44,6 @@
         }
       ],
       [
-        "react-native-fast-tflite",
-        {
-          "enableCoreMLDelegate": true
-        }
-      ],
-      [
-        "react-native-mediapipe-posedetection",
-        {
-          "assetsPaths": [
-            "./assets/models/"
-          ]
-        }
-      ],
-      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
@@ -67,7 +53,6 @@
         }
       ],
       "expo-font",
-      "expo-asset",
       "expo-video",
       "expo-web-browser"
     ],
