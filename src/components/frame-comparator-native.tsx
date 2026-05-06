@@ -6,10 +6,7 @@ import {
   View,
 } from "react-native";
 import { Canvas, Circle, Line, vec } from "@shopify/react-native-skia";
-import {
-  VideoView,
-  useVideoPlayer as useExpoVideoPlayer,
-} from "expo-video";
+import { VideoView, useVideoPlayer as useExpoVideoPlayer } from "expo-video";
 
 import { AppText } from "./ui/app-text";
 import { VideoSelector } from "./video-selector";
@@ -128,9 +125,7 @@ export function FrameComparatorNative({
         }
       } catch (err) {
         setError(
-          err instanceof Error
-            ? err.message
-            : `Failed to load ${target} video`,
+          err instanceof Error ? err.message : `Failed to load ${target} video`,
         );
       } finally {
         setLoading(false);
@@ -184,8 +179,7 @@ export function FrameComparatorNative({
     [comparisonFrames, currentFrameIndex, canvasSize],
   );
 
-  const hasContent =
-    referenceFrames.length > 0 || comparisonFrames.length > 0;
+  const hasContent = referenceFrames.length > 0 || comparisonFrames.length > 0;
 
   return (
     <View style={styles.container}>
@@ -219,10 +213,7 @@ export function FrameComparatorNative({
 
       {hasContent ? (
         <>
-          <View
-            style={styles.canvasWrapper}
-            onLayout={handleCanvasLayout}
-          >
+          <View style={styles.canvasWrapper} onLayout={handleCanvasLayout}>
             {referenceId ? (
               <ReferenceVideoOverlay
                 referenceId={referenceId}
