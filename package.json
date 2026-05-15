@@ -8,6 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "build:web": "expo export --platform web && npx workbox-cli generateSW workbox-config.js",
+    "deploy:web": "npm run build:web && npx eas-cli@latest deploy --prod --environment production",
     "lint": "expo lint",
     "draft": "npx eas-cli@latest workflow:run create-draft.yml",
     "development-builds": "npx eas-cli@latest workflow:run create-development-builds.yml",
@@ -68,6 +70,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "workbox-cli": "^7.4.1"
   }
 }

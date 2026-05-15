@@ -1,0 +1,17 @@
+name: Deploy Web
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy_web:
+    name: Build and deploy web PWA
+    environment: production
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Build web PWA
+        run: npm run build:web
+      - name: Deploy to EAS Hosting
+        run: npx eas-cli@latest deploy --prod --environment production --non-interactive
