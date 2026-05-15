@@ -69,7 +69,7 @@ export function PipelineHealthBanner() {
         </AppText>
       ) : null}
       <AppText variant="baseText">
-        Recordings will upload but extraction will fail until this is fixed.
+        Recordings cannot be processed until this is fixed.
       </AppText>
     </View>
   );

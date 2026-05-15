@@ -18,7 +18,7 @@ export default function ProfileScreen() {
         stats="7 suivis | 13 followers"
         tabs={PROFILE_TABS}
         isOwnProfile
-        onPressAdd={() => router.push("/camera" as Href)}
+        onPressAdd={() => router.push("/guided-recording" as Href)}
       />
     </View>
   );

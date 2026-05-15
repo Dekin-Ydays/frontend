@@ -66,7 +66,7 @@ export function BottomMenu({
           <MenuButton
             label={descriptors["camera"]?.options?.title ?? "Camera"}
             isActive={isFocused("camera")}
-            onPress={() => router.push("/camera" as Href)}
+            onPress={() => router.push("/guided-recording" as Href)}
             icon={Camera}
           />
           <MenuButton

@@ -2,14 +2,16 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   ActivityIndicator,
   Image,
+  LayoutChangeEvent,
   Platform,
   Pressable,
   StyleSheet,
   View,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { MusicNote, RefreshDouble, Xmark } from "iconoir-react-native";
+import { Canvas, Circle, Line, vec } from "@shopify/react-native-skia";
 
 import { AppText } from "@/components/ui/app-text";
 import { BottomBar } from "@/components/ui/bottom-bar";
@@ -23,6 +25,9 @@ import {
   processRecordedVideo,
   type RecordedVideoProcessingStatus,
 } from "@/services/recorded-video-processing";
+import { getVideo, type VideoFrame } from "@/services/video-parser-api";
+import { referenceFrameAtElapsedMs } from "@/utils/reference-playback";
+import { projectSkeleton } from "@/utils/skeleton-renderer";
 
 type VisionCameraModule = typeof import("react-native-vision-camera");
 type CameraInstance = InstanceType<VisionCameraModule["Camera"]>;
@@ -41,6 +46,11 @@ type Status =
 
 export default function CameraScreen() {
   const isFocused = useIsFocused();
+  const { reference } = useLocalSearchParams<{ reference?: string }>();
+  const guidedReferenceId = useMemo(() => {
+    const raw = Array.isArray(reference) ? reference[0] : reference;
+    return raw?.trim() ?? "";
+  }, [reference]);
   const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
     "back",
   );
@@ -50,7 +60,90 @@ export default function CameraScreen() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [elapsedMs, setElapsedMs] = useState(0);
   const [processingElapsedMs, setProcessingElapsedMs] = useState(0);
+  const [referenceFrames, setReferenceFrames] = useState<VideoFrame[]>([]);
+  const [referenceLoading, setReferenceLoading] = useState(false);
+  const [referenceError, setReferenceError] = useState<string | null>(null);
+  const [overlaySize, setOverlaySize] = useState({ width: 0, height: 0 });
   const cameraRef = useRef<CameraInstance | null>(null);
+  const hasGuidedReference = guidedReferenceId.length > 0;
+
+  useEffect(() => {
+    if (!guidedReferenceId) {
+      setReferenceFrames([]);
+      setReferenceError(null);
+      setReferenceLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setReferenceLoading(true);
+    setReferenceError(null);
+    setReferenceFrames([]);
+
+    getVideo(guidedReferenceId)
+      .then((video) => {
+        if (cancelled) return;
+        if (video.frames.length === 0) {
+          setReferenceError("Reference video has no skeleton frames");
+          return;
+        }
+        setReferenceFrames(video.frames);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setReferenceError(
+          err instanceof Error ? err.message : "Failed to load reference video",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setReferenceLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [guidedReferenceId]);
+
+  const handleOverlayLayout = useCallback((event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setOverlaySize({ width, height });
+  }, []);
+
+  const referenceFrame = useMemo(
+    () =>
+      referenceFrameAtElapsedMs(
+        referenceFrames,
+        status.kind === "recording" ? elapsedMs : 0,
+      ),
+    [elapsedMs, referenceFrames, status.kind],
+  );
+
+  const referenceSkeleton = useMemo(
+    () =>
+      projectSkeleton(
+        referenceFrame?.landmarks,
+        overlaySize.width,
+        overlaySize.height,
+        { visibilityThreshold: 0.5 },
+      ),
+    [overlaySize, referenceFrame],
+  );
+
+  const handleProcessingStatus = useCallback(
+    (next: RecordedVideoProcessingStatus) => {
+      setStatus(next);
+      if (next.kind === "done" && guidedReferenceId) {
+        router.push({
+          pathname: "/compare",
+          params: {
+            reference: guidedReferenceId,
+            comparison: next.result.videoId,
+          },
+        });
+      }
+    },
+    [guidedReferenceId],
+  );
 
   useEffect(() => {
     if (status.kind !== "recording") {
@@ -102,16 +195,23 @@ export default function CameraScreen() {
           name: `recording-${Date.now()}.mp4`,
           type: "video/mp4",
         },
-        { onStatus: (next) => setStatus(next) },
+        { onStatus: handleProcessingStatus },
       );
     } catch {
       // processRecordedVideo emits the error status before rejecting.
     }
-  }, []);
+  }, [handleProcessingStatus]);
 
   const startRecording = useCallback(() => {
     const cam = cameraRef.current;
     if (!cam) return;
+    if (hasGuidedReference && referenceFrames.length === 0) {
+      setStatus({
+        kind: "error",
+        message: referenceError ?? "Reference skeleton is not ready",
+      });
+      return;
+    }
     setStatus({ kind: "recording", startedAt: Date.now() });
     cam.startRecording({
       onRecordingFinished: (video: { path: string }) => {
@@ -121,7 +221,12 @@ export default function CameraScreen() {
         setStatus({ kind: "error", message: error.message });
       },
     });
-  }, [uploadRecording]);
+  }, [
+    hasGuidedReference,
+    referenceError,
+    referenceFrames.length,
+    uploadRecording,
+  ]);
 
   const stopRecording = useCallback(async () => {
     const cam = cameraRef.current;
@@ -144,9 +249,19 @@ export default function CameraScreen() {
   const elapsedSeconds = useMemo(() => (elapsedMs / 1000).toFixed(1), [
     elapsedMs,
   ]);
+  const referenceReady =
+    !hasGuidedReference ||
+    (!referenceLoading && !referenceError && referenceFrames.length > 0);
+  const referenceStatus = referenceError
+    ? `Reference error: ${referenceError}`
+    : referenceLoading
+      ? "Loading reference skeleton"
+      : referenceFrames.length > 0
+        ? `${referenceFrames.length} reference frames`
+        : "Reference skeleton not ready";
 
   if (Platform.OS === "web") {
-    return <CameraWeb />;
+    return <CameraWeb referenceId={guidedReferenceId} />;
   }
 
   if (!VisionCamera) {
@@ -178,7 +293,7 @@ export default function CameraScreen() {
   }
 
   return (
-    <View className="flex-1 bg-dark">
+    <View className="flex-1 bg-dark" onLayout={handleOverlayLayout}>
       <VisionCamera.Camera
         ref={cameraRef}
         style={StyleSheet.absoluteFill}
@@ -187,6 +302,29 @@ export default function CameraScreen() {
         video
         audio={false}
       />
+
+      {hasGuidedReference ? (
+        <Canvas style={styles.referenceOverlay} pointerEvents="none">
+          {referenceSkeleton.lines.map((line) => (
+            <Line
+              key={`reference-line-${line.key}`}
+              p1={vec(line.p1.x, line.p1.y)}
+              p2={vec(line.p2.x, line.p2.y)}
+              strokeWidth={4}
+              color="#9BFF68"
+            />
+          ))}
+          {referenceSkeleton.joints.map((joint) => (
+            <Circle
+              key={`reference-joint-${joint.key}`}
+              cx={joint.cx}
+              cy={joint.cy}
+              r={5}
+              color="#FFFFFF"
+            />
+          ))}
+        </Canvas>
+      ) : null}
 
       <TopBar>
         <View className="flex-row items-center gap-5">
@@ -210,8 +348,17 @@ export default function CameraScreen() {
         </Pressable>
       </TopBar>
 
-      <View className="absolute top-28 left-4 right-4">
+      <View className="absolute top-28 left-4 right-4 gap-2">
         <PipelineHealthBanner />
+        {hasGuidedReference ? (
+          <View
+            className={`bg-dark/80 border rounded-2xl p-3 ${
+              referenceError ? "border-dangerous/50" : "border-white/10"
+            }`}
+          >
+            <AppText variant="baseText">{referenceStatus}</AppText>
+          </View>
+        ) : null}
       </View>
 
       <View className="absolute left-4 right-4 bottom-32 items-center">
@@ -313,7 +460,10 @@ export default function CameraScreen() {
         {status.kind === "idle" ? (
           <Pressable
             onPress={startRecording}
-            className="h-16 w-16 rounded-full bg-dangerous items-center justify-center"
+            disabled={!referenceReady}
+            className={`h-16 w-16 rounded-full bg-dangerous items-center justify-center ${
+              referenceReady ? "" : "opacity-50"
+            }`}
             accessibilityRole="button"
             accessibilityLabel="Demarrer l'enregistrement"
           >
@@ -367,3 +517,9 @@ export default function CameraScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  referenceOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+});

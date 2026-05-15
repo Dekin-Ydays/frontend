@@ -31,6 +31,8 @@ import {
   processRecordedVideo,
   type RecordedVideoProcessingStatus,
 } from "@/services/recorded-video-processing";
+import { getVideo, type VideoFrame } from "@/services/video-parser-api";
+import { referenceFrameAtElapsedMs } from "@/utils/reference-playback";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
 
@@ -40,6 +42,10 @@ type Status =
   | { kind: "ready" }
   | { kind: "recording"; startedAt: number }
   | RecordedVideoProcessingStatus;
+
+interface CameraWebProps {
+  referenceId?: string;
+}
 
 function formatBytes(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} MB`;
@@ -76,7 +82,7 @@ function extensionFromMime(mime: string | undefined): string {
   return "webm";
 }
 
-export function CameraWeb() {
+export function CameraWeb({ referenceId }: CameraWebProps = {}) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
@@ -93,6 +99,73 @@ export function CameraWeb() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [elapsedMs, setElapsedMs] = useState(0);
   const [processingElapsedMs, setProcessingElapsedMs] = useState(0);
+  const [referenceFrames, setReferenceFrames] = useState<VideoFrame[]>([]);
+  const [referenceLoading, setReferenceLoading] = useState(false);
+  const [referenceError, setReferenceError] = useState<string | null>(null);
+  const guidedReferenceId = referenceId?.trim() ?? "";
+  const hasGuidedReference = guidedReferenceId.length > 0;
+
+  useEffect(() => {
+    if (!guidedReferenceId) {
+      setReferenceFrames([]);
+      setReferenceError(null);
+      setReferenceLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setReferenceLoading(true);
+    setReferenceError(null);
+    setReferenceFrames([]);
+
+    getVideo(guidedReferenceId)
+      .then((video) => {
+        if (cancelled) return;
+        if (video.frames.length === 0) {
+          setReferenceError("Reference video has no skeleton frames");
+          return;
+        }
+        setReferenceFrames(video.frames);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setReferenceError(
+          err instanceof Error ? err.message : "Failed to load reference video",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setReferenceLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [guidedReferenceId]);
+
+  const referenceFrame = useMemo(
+    () =>
+      referenceFrameAtElapsedMs(
+        referenceFrames,
+        status.kind === "recording" ? elapsedMs : 0,
+      ),
+    [elapsedMs, referenceFrames, status.kind],
+  );
+
+  const handleProcessingStatus = useCallback(
+    (next: RecordedVideoProcessingStatus) => {
+      setStatus(next);
+      if (next.kind === "done" && guidedReferenceId) {
+        router.push({
+          pathname: "/compare",
+          params: {
+            reference: guidedReferenceId,
+            comparison: next.result.videoId,
+          },
+        });
+      }
+    },
+    [guidedReferenceId],
+  );
 
   const handleDetectionResults = useCallback(
     ({
@@ -109,14 +182,28 @@ export function CameraWeb() {
       const list = results.landmarks ?? [];
       if (list.length > 0) {
         setPoseDetected(true);
-        for (const landmarks of list) {
-          drawSkeleton(ctx, landmarks, { width, height });
+        if (!hasGuidedReference) {
+          for (const landmarks of list) {
+            drawSkeleton(ctx, landmarks, { width, height });
+          }
         }
       } else {
         setPoseDetected(false);
       }
+
+      if (referenceFrame) {
+        drawSkeleton(ctx, referenceFrame.landmarks, {
+          width,
+          height,
+          lineColor: "#9BFF68",
+          pointColor: "#FFFFFF",
+          lineWidth: 4,
+          pointRadius: 5,
+          visibilityThreshold: 0.5,
+        });
+      }
     },
-    [],
+    [hasGuidedReference, referenceFrame],
   );
 
   const { startLoop, stopLoop, resetTimestamp } = usePoseDetectionLoop({
@@ -244,6 +331,13 @@ export function CameraWeb() {
       setStatus({ kind: "error", message: "Camera not started" });
       return;
     }
+    if (hasGuidedReference && referenceFrames.length === 0) {
+      setStatus({
+        kind: "error",
+        message: referenceError ?? "Reference skeleton is not ready",
+      });
+      return;
+    }
     if (typeof MediaRecorder === "undefined") {
       setStatus({
         kind: "error",
@@ -292,7 +386,7 @@ export function CameraWeb() {
       try {
         await processRecordedVideo(file, {
           now: () => performance.now(),
-          onStatus: (next) => setStatus(next),
+          onStatus: handleProcessingStatus,
         });
       } catch {
         // processRecordedVideo emits the error status before rejecting.
@@ -303,7 +397,12 @@ export function CameraWeb() {
     recorderRef.current = recorder;
     setStatus({ kind: "recording", startedAt: performance.now() });
     setElapsedMs(0);
-  }, []);
+  }, [
+    handleProcessingStatus,
+    hasGuidedReference,
+    referenceError,
+    referenceFrames.length,
+  ]);
 
   const stopRecording = useCallback(() => {
     const recorder = recorderRef.current;
@@ -362,6 +461,16 @@ export function CameraWeb() {
 
   const cameraStarted = streamRef.current !== null;
   const isBusy = status.kind === "uploading" || status.kind === "processing";
+  const referenceReady =
+    !hasGuidedReference ||
+    (!referenceLoading && !referenceError && referenceFrames.length > 0);
+  const referenceStatus = referenceError
+    ? `Reference error: ${referenceError}`
+    : referenceLoading
+      ? "Loading reference skeleton"
+      : referenceFrames.length > 0
+        ? `${referenceFrames.length} reference frames`
+        : "Reference skeleton not ready";
   return (
     <View className="flex-1 bg-dark">
       <View style={styles.stage}>
@@ -412,7 +521,7 @@ export function CameraWeb() {
         </Pressable>
       </TopBar>
 
-      <View className="absolute top-28 left-4 right-4">
+      <View className="absolute top-28 left-4 right-4 gap-2">
         {modelError ? (
           <View className="bg-dark/80 border border-dangerous/50 rounded-2xl p-4">
             <AppText variant="baseText">Model error: {modelError}</AppText>
@@ -420,6 +529,15 @@ export function CameraWeb() {
         ) : (
           <PipelineHealthBanner />
         )}
+        {hasGuidedReference ? (
+          <View
+            className={`bg-dark/80 border rounded-2xl p-3 ${
+              referenceError ? "border-dangerous/50" : "border-white/10"
+            }`}
+          >
+            <AppText variant="baseText">{referenceStatus}</AppText>
+          </View>
+        ) : null}
       </View>
 
       <View className="absolute left-4 right-4 bottom-32 items-center">
@@ -608,7 +726,10 @@ export function CameraWeb() {
         ) : (
           <Pressable
             onPress={startRecording}
-            className="h-16 w-16 rounded-full bg-dangerous items-center justify-center"
+            disabled={!referenceReady}
+            className={`h-16 w-16 rounded-full bg-dangerous items-center justify-center ${
+              referenceReady ? "" : "opacity-50"
+            }`}
             accessibilityRole="button"
             accessibilityLabel="Demarrer l'enregistrement"
           >

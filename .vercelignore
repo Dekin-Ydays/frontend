@@ -1,0 +1,13 @@
+# Vercel only needs the Expo web source and package metadata.
+# Keep local native builds, generated output, and agent/tooling state out of uploads.
+android/
+ios/
+dist/
+web-build/
+.expo/
+.eas/
+.direnv/
+.jj/
+.claude/
+coverage/
+*.tsbuildinfo

@@ -6,6 +6,7 @@ import {
   getLatestPose,
   getScoreColor,
   getScoreLabel,
+  getSourceVideoUrl,
   getVideo,
   listClients,
   listVideos,
@@ -42,6 +43,22 @@ describe('video-parser-api', () => {
     await expect(listVideos()).rejects.toThrow('Failed to fetch videos');
   });
 
+  it('returns the parser video summary contract', async () => {
+    const videos = [
+      {
+        id: 'video-1',
+        startTime: '2026-05-15T09:00:00.000Z',
+        endTime: '2026-05-15T09:00:10.000Z',
+        frameCount: 120,
+        duration: 10000,
+      },
+    ];
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => videos });
+
+    await expect(listVideos()).resolves.toEqual(videos);
+    expect(mockFetch).toHaveBeenCalledWith('http://api.test/pose/videos');
+  });
+
   it('includes response details when an endpoint fails', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
@@ -64,6 +81,12 @@ describe('video-parser-api', () => {
   it('returns a specific error for missing video', async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, status: 404 });
     await expect(getVideo('missing')).rejects.toThrow('Video not found');
+  });
+
+  it('builds the parser source-video stream URL', async () => {
+    expect(getSourceVideoUrl('video 1')).toBe(
+      'http://api.test/pose/video/video%201/source',
+    );
   });
 
   it('uploads a source video file with multipart form data', async () => {
@@ -288,7 +311,21 @@ describe('processVideo', () => {
 
   it('emits uploading progress, then processing once the upload completes, and resolves with the parsed result', async () => {
     const events: ProcessVideoProgress[] = [];
-    const result = { videoId: 'v1', frameCount: 12, fps: 30, width: 640, height: 480, sourceVideo: {} };
+    const result = {
+      videoId: 'v1',
+      frameCount: 12,
+      fps: 30,
+      width: 640,
+      height: 480,
+      sourceVideo: {
+        id: 'source-1',
+        objectKey: 'uploads/source-1/clip.mp4',
+        fileName: 'clip.mp4',
+        mimeType: 'video/mp4',
+        size: 3,
+        uploadedAt: '2026-05-15T09:00:00.000Z',
+      },
+    };
     const promise = processVideo(makeFile(), (e) => events.push(e));
     const xhr = FakeXHR.instances[0]!;
 
