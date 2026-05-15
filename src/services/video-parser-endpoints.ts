@@ -8,8 +8,7 @@ const DEFAULT_HTTP_SCHEME = 'http';
 const DEFAULT_WS_SCHEME = 'ws';
 const LOCALHOST_HOST =
   Platform.OS === 'android'
-    ? process.env.EXPO_PUBLIC_VIDEO_PARSER_ANDROID_HOST?.trim() ||
-      DEFAULT_ANDROID_EMULATOR_HOST
+    ? process.env.EXPO_PUBLIC_VIDEO_PARSER_ANDROID_HOST?.trim() || DEFAULT_ANDROID_EMULATOR_HOST
     : 'localhost';
 const LOOPBACK_HOSTS = new Set(['localhost', LOOPBACK_IPV4, '::1']);
 
@@ -94,6 +93,23 @@ function trimTrailingSlash(value: string): string {
   return end === value.length ? value : value.slice(0, end);
 }
 
+function normalizeEnvValue(value: string | null | undefined): string | null {
+  if (!value) return null;
+
+  let normalized = value.trim();
+  while (normalized.length > 0 && (normalized.charCodeAt(0) === 34 || normalized.charCodeAt(0) === 39)) {
+    normalized = normalized.slice(1).trimStart();
+  }
+  while (
+    normalized.length > 0 &&
+    (normalized.charCodeAt(normalized.length - 1) === 34 || normalized.charCodeAt(normalized.length - 1) === 39)
+  ) {
+    normalized = normalized.slice(0, -1).trimEnd();
+  }
+
+  return normalized || null;
+}
+
 function resolveHost(): string {
   const envHost = parseHostname(process.env.EXPO_PUBLIC_VIDEO_PARSER_HOST);
   if (envHost) return envHost;
@@ -120,7 +136,7 @@ function resolveWsScheme(): string {
 }
 
 export function getVideoParserHttpBaseUrl(): string {
-  const explicitBaseUrl = process.env.EXPO_PUBLIC_VIDEO_PARSER_BASE_URL?.trim();
+  const explicitBaseUrl = normalizeEnvValue(process.env.EXPO_PUBLIC_VIDEO_PARSER_BASE_URL);
   if (explicitBaseUrl) return trimTrailingSlash(explicitBaseUrl);
 
   const host = resolveHost();
@@ -129,7 +145,7 @@ export function getVideoParserHttpBaseUrl(): string {
 }
 
 export function getVideoParserWsUrl(path = '/ws'): string {
-  const explicitWsUrl = process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_URL?.trim();
+  const explicitWsUrl = normalizeEnvValue(process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_URL);
   if (explicitWsUrl) return explicitWsUrl;
 
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;

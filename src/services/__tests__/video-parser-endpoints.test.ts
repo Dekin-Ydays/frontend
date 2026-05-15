@@ -72,8 +72,26 @@ describe('video-parser-endpoints', () => {
     expect(module.getVideoParserHttpBaseUrl()).toBe('https://api.example.com');
   });
 
+  it('strips accidental quotes from explicit HTTP base URL env', async () => {
+    process.env.EXPO_PUBLIC_VIDEO_PARSER_BASE_URL = '"https://api.example.com/"';
+    const module = await loadModule();
+    expect(module.getVideoParserHttpBaseUrl()).toBe('https://api.example.com');
+  });
+
+  it('strips unmatched leading quote from explicit HTTP base URL env', async () => {
+    process.env.EXPO_PUBLIC_VIDEO_PARSER_BASE_URL = '"https://api.example.com';
+    const module = await loadModule();
+    expect(module.getVideoParserHttpBaseUrl()).toBe('https://api.example.com');
+  });
+
   it('uses explicit WS URL from env', async () => {
     process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_URL = 'wss://api.example.com/ws';
+    const module = await loadModule();
+    expect(module.getVideoParserWsUrl('/ignored')).toBe('wss://api.example.com/ws');
+  });
+
+  it('strips accidental quotes from explicit WS URL env', async () => {
+    process.env.EXPO_PUBLIC_VIDEO_PARSER_WS_URL = "'wss://api.example.com/ws'";
     const module = await loadModule();
     expect(module.getVideoParserWsUrl('/ignored')).toBe('wss://api.example.com/ws');
   });
@@ -83,12 +101,8 @@ describe('video-parser-endpoints', () => {
     process.env.EXPO_PUBLIC_VIDEO_PARSER_PORT = '4321';
     const module = await loadModule();
 
-    expect(module.getVideoParserHttpBaseUrl()).toBe(
-      urlWithPort(HTTP_SCHEME, ENV_HOST, '4321')
-    );
-    expect(module.getVideoParserWsUrl('socket')).toBe(
-      `${urlWithPort(WS_SCHEME, ENV_HOST, '4321')}/socket`
-    );
+    expect(module.getVideoParserHttpBaseUrl()).toBe(urlWithPort(HTTP_SCHEME, ENV_HOST, '4321'));
+    expect(module.getVideoParserWsUrl('socket')).toBe(`${urlWithPort(WS_SCHEME, ENV_HOST, '4321')}/socket`);
   });
 
   it('extracts non-loopback runtime host from expoConfig.hostUri', async () => {
@@ -98,34 +112,26 @@ describe('video-parser-endpoints', () => {
       },
     });
 
-    expect(module.getVideoParserHttpBaseUrl()).toBe(
-      urlWithPort(HTTP_SCHEME, RUNTIME_HOST, '3000')
-    );
+    expect(module.getVideoParserHttpBaseUrl()).toBe(urlWithPort(HTTP_SCHEME, RUNTIME_HOST, '3000'));
   });
 
   it('extracts runtime host from dev client deep link url param', async () => {
     const module = await loadModule({
       constants: {
         linkingUri: `dekin://expo-development-client/?url=${encodeURIComponent(
-          urlWithPort(HTTP_SCHEME, DEV_CLIENT_HOST, '8081')
+          urlWithPort(HTTP_SCHEME, DEV_CLIENT_HOST, '8081'),
         )}`,
       },
     });
 
-    expect(module.getVideoParserHttpBaseUrl()).toBe(
-      urlWithPort(HTTP_SCHEME, DEV_CLIENT_HOST, '3000')
-    );
+    expect(module.getVideoParserHttpBaseUrl()).toBe(urlWithPort(HTTP_SCHEME, DEV_CLIENT_HOST, '3000'));
   });
 
   it('falls back to localhost on iOS and Android emulator host', async () => {
     const iosModule = await loadModule({ platform: 'ios' });
     const androidModule = await loadModule({ platform: 'android' });
 
-    expect(iosModule.getVideoParserHttpBaseUrl()).toBe(
-      urlWithPort(HTTP_SCHEME, 'localhost', '3000')
-    );
-    expect(androidModule.getVideoParserHttpBaseUrl()).toBe(
-      urlWithPort(HTTP_SCHEME, ANDROID_EMULATOR_HOST, '3000')
-    );
+    expect(iosModule.getVideoParserHttpBaseUrl()).toBe(urlWithPort(HTTP_SCHEME, 'localhost', '3000'));
+    expect(androidModule.getVideoParserHttpBaseUrl()).toBe(urlWithPort(HTTP_SCHEME, ANDROID_EMULATOR_HOST, '3000'));
   });
 });
