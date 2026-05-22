@@ -187,7 +187,7 @@ export function CameraWeb({ referenceId }: CameraWebProps = {}) {
         setPoseDetected(true);
         if (!hasGuidedReference) {
           for (const landmarks of list) {
-            drawSkeleton(ctx, landmarks, { width, height });
+            drawSkeleton(ctx, landmarks, { width, height, mirrorX: true });
           }
         }
       } else {
@@ -215,6 +215,7 @@ export function CameraWeb({ referenceId }: CameraWebProps = {}) {
     canvasRef,
     poseLandmarkerRef,
     onResults: handleDetectionResults,
+    mirrorX: true,
   });
 
   useEffect(() => {

@@ -14,6 +14,7 @@ interface UsePoseDetectionLoopParams<TResult> {
     width: number;
     height: number;
   }) => void;
+  mirrorX?: boolean;
 }
 
 interface UsePoseDetectionLoopResult {
@@ -22,11 +23,31 @@ interface UsePoseDetectionLoopResult {
   resetTimestamp: () => void;
 }
 
+export function drawVideoFrame(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+  mirrorX = false,
+): void {
+  if (!mirrorX) {
+    ctx.drawImage(video, 0, 0, width, height);
+    return;
+  }
+
+  ctx.save();
+  ctx.translate(width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(video, 0, 0, width, height);
+  ctx.restore();
+}
+
 export function usePoseDetectionLoop<TResult>({
   videoRef,
   canvasRef,
   poseLandmarkerRef,
   onResults,
+  mirrorX = false,
 }: UsePoseDetectionLoopParams<TResult>): UsePoseDetectionLoopResult {
   const animationIdRef = useRef<number | null>(null);
   const lastTimestampMsRef = useRef<number>(-Infinity);
@@ -68,12 +89,12 @@ export function usePoseDetectionLoop<TResult>({
       const results = currentLandmarker.detectForVideo(currentVideo, timestampMs);
 
       currentCtx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
-      currentCtx.drawImage(
+      drawVideoFrame(
+        currentCtx,
         currentVideo,
-        0,
-        0,
         currentCanvas.width,
         currentCanvas.height,
+        mirrorX,
       );
 
       onResultsRef.current({
@@ -87,7 +108,7 @@ export function usePoseDetectionLoop<TResult>({
     };
 
     detect();
-  }, [canvasRef, poseLandmarkerRef, stopLoop, videoRef]);
+  }, [canvasRef, mirrorX, poseLandmarkerRef, stopLoop, videoRef]);
 
   useEffect(() => stopLoop, [stopLoop]);
 
