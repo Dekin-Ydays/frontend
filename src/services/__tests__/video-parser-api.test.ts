@@ -1,7 +1,6 @@
 import { vi } from 'vitest';
 
 import {
-  COMPARISON_PRESETS,
   compareVideos,
   getLatestPose,
   getSourceVideoUrl,
@@ -121,7 +120,16 @@ describe('video-parser-api', () => {
     const payload = {
       referenceVideoId: 'ref-1',
       comparisonVideoId: 'cmp-1',
-      config: COMPARISON_PRESETS.sports,
+      config: {
+        normalization: {
+          center: true,
+          scale: true,
+          rotation: false,
+        },
+        positionWeight: 0.7,
+        angularWeight: 0.3,
+        visibilityThreshold: 0.7,
+      },
     };
     const response = {
       overallScore: 88,

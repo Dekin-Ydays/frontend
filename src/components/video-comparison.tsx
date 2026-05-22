@@ -8,17 +8,16 @@ import {
   Alert,
 } from "react-native";
 import { AppText } from "./ui/app-text";
+import { compareVideos, ScoringResult } from "@/services/video-parser-api";
 import {
-  compareVideos,
-  ComparisonConfig,
-  ScoringResult,
   COMPARISON_PRESETS,
-} from "@/services/video-parser-api";
+  getComparisonPresetConfig,
+  type ComparisonPreset,
+} from "@/services/comparison-presets";
 import { ScoreVisualization } from "./score-visualization";
 import { VideoSelector } from "./video-selector";
 import { FrameComparator } from "./frame-comparator";
 
-type PresetType = keyof typeof COMPARISON_PRESETS;
 
 interface VideoInputProps {
   label: string;
@@ -55,8 +54,8 @@ interface ComparisonFormProps {
   setReferenceId: (id: string) => void;
   comparisonId: string;
   setComparisonId: (id: string) => void;
-  selectedPreset: PresetType;
-  setSelectedPreset: (preset: PresetType) => void;
+  selectedPreset: ComparisonPreset;
+  setSelectedPreset: (preset: ComparisonPreset) => void;
   loading: boolean;
   onCompare: () => void;
 }
@@ -113,26 +112,25 @@ const ComparisonForm = ({
     <View style={styles.inputGroup}>
       <AppText variant="bolderBaseText">Comparison Preset</AppText>
       <View style={styles.presetContainer}>
-        {(Object.keys(COMPARISON_PRESETS) as PresetType[]).map((preset) => (
-          <TouchableOpacity
-            key={preset}
-            style={[
-              styles.presetButton,
-              selectedPreset === preset && styles.presetButtonActive,
-            ]}
-            onPress={() => setSelectedPreset(preset)}
-          >
-            <AppText variant="baseText">
-              {preset.charAt(0).toUpperCase() + preset.slice(1)}
-            </AppText>
-          </TouchableOpacity>
-        ))}
+        {(Object.keys(COMPARISON_PRESETS) as ComparisonPreset[]).map(
+          (preset) => (
+            <TouchableOpacity
+              key={preset}
+              style={[
+                styles.presetButton,
+                selectedPreset === preset && styles.presetButtonActive,
+              ]}
+              onPress={() => setSelectedPreset(preset)}
+            >
+              <AppText variant="baseText">
+                {COMPARISON_PRESETS[preset].label}
+              </AppText>
+            </TouchableOpacity>
+          ),
+        )}
       </View>
       <AppText variant="baseText">
-        {selectedPreset === "dance" && "Position & angles balanced (50/50)"}
-        {selectedPreset === "yoga" && "Focus on angles, rotation-invariant"}
-        {selectedPreset === "sports" &&
-          "Focus on position, higher visibility threshold"}
+        {COMPARISON_PRESETS[selectedPreset].description}
       </AppText>
     </View>
 
@@ -199,7 +197,7 @@ export function VideoComparison({
 }: VideoComparisonProps = {}) {
   const [referenceId, setReferenceId] = useState(initialReferenceId);
   const [comparisonId, setComparisonId] = useState(initialComparisonId);
-  const [selectedPreset, setSelectedPreset] = useState<PresetType>("dance");
+  const [selectedPreset, setSelectedPreset] = useState<ComparisonPreset>("dance");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScoringResult | null>(null);
 
@@ -221,7 +219,7 @@ export function VideoComparison({
     setResult(null);
 
     try {
-      const config: ComparisonConfig = COMPARISON_PRESETS[selectedPreset];
+      const config = getComparisonPresetConfig(selectedPreset);
       const trimmedReference = referenceId.trim();
       const trimmedComparison = comparisonId.trim();
       const comparisonResult = await compareVideos({

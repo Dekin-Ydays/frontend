@@ -333,34 +333,3 @@ export async function compareVideos(
     404: 'One or both videos not found',
   });
 }
-
-export const COMPARISON_PRESETS = {
-  dance: {
-    normalization: {
-      center: true,
-      scale: true,
-      rotation: false,
-    },
-    positionWeight: 0.5,
-    angularWeight: 0.5,
-  },
-  yoga: {
-    normalization: {
-      center: true,
-      scale: true,
-      rotation: true,
-    },
-    positionWeight: 0.4,
-    angularWeight: 0.6,
-  },
-  sports: {
-    normalization: {
-      center: true,
-      scale: true,
-      rotation: false,
-    },
-    positionWeight: 0.7,
-    angularWeight: 0.3,
-    visibilityThreshold: 0.7,
-  },
-} as const;
