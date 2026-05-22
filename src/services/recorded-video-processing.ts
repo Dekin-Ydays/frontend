@@ -1,3 +1,4 @@
+import { clearVideoListCache } from "@/services/video-list-cache";
 import {
   newJobId,
   processVideo,
@@ -104,6 +105,7 @@ export async function processRecordedVideo(
       jobId,
     );
 
+    clearVideoListCache();
     emit({ kind: "done", result });
     return result;
   } catch (err) {

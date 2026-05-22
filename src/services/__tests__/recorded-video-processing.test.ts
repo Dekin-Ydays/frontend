@@ -10,9 +10,14 @@ import type {
 } from "../video-parser-api";
 
 const mocks = vi.hoisted(() => ({
+  clearVideoListCache: vi.fn(),
   newJobId: vi.fn(),
   processVideo: vi.fn(),
   subscribeExtractionProgress: vi.fn(),
+}));
+
+vi.mock("../video-list-cache", () => ({
+  clearVideoListCache: mocks.clearVideoListCache,
 }));
 
 vi.mock("../video-parser-api", () => ({
@@ -23,6 +28,7 @@ vi.mock("../video-parser-api", () => ({
 
 describe("processRecordedVideo", () => {
   beforeEach(() => {
+    mocks.clearVideoListCache.mockReset();
     mocks.newJobId.mockReturnValue("job-1");
     mocks.processVideo.mockReset();
     mocks.subscribeExtractionProgress.mockReset();
@@ -99,6 +105,7 @@ describe("processRecordedVideo", () => {
       { kind: "done", result },
     ]);
     expect(unsubscribe).toHaveBeenCalledTimes(1);
+    expect(mocks.clearVideoListCache).toHaveBeenCalledTimes(1);
   });
 
   it("emits error status, rejects, and unsubscribes on upload failure", async () => {
@@ -118,6 +125,7 @@ describe("processRecordedVideo", () => {
       message: "server exploded",
     });
     expect(unsubscribe).toHaveBeenCalledTimes(1);
+    expect(mocks.clearVideoListCache).not.toHaveBeenCalled();
   });
 
   it("emits an error status from failed extraction events", async () => {
