@@ -1,11 +1,8 @@
 import React from "react";
 import { View, StyleSheet, ScrollView, Text } from "react-native";
 import { AppText } from "./ui/app-text";
-import {
-  ScoringResult,
-  getScoreColor,
-  getScoreLabel,
-} from "@/services/video-parser-api";
+import type { ScoringResult } from "@/services/video-parser-api";
+import { getScoreColor, getScoreLabel } from "@/services/score-presentation";
 
 interface ScoreVisualizationProps {
   result: ScoringResult;
