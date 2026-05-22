@@ -52,6 +52,8 @@ export interface ProjectedSkeleton {
 
 export interface ProjectOptions {
   visibilityThreshold?: number;
+  /** Mirror projected x-coordinates for selfie/front-camera overlays. */
+  mirrorX?: boolean;
 }
 
 /**
@@ -65,10 +67,13 @@ export function projectSkeleton(
   height: number,
   options: ProjectOptions = {},
 ): ProjectedSkeleton {
-  const { visibilityThreshold = 0.5 } = options;
+  const { visibilityThreshold = 0.5, mirrorX = false } = options;
   const out: ProjectedSkeleton = { lines: [], joints: [] };
   if (!landmarks || landmarks.length === 0) return out;
   if (width <= 0 || height <= 0) return out;
+
+  const projectX = (x: number) => (mirrorX ? 1 - x : x) * width;
+  const projectY = (y: number) => y * height;
 
   for (let ci = 0; ci < SKELETON_CONNECTIONS.length; ci++) {
     const [si, ei] = SKELETON_CONNECTIONS[ci];
@@ -82,8 +87,8 @@ export function projectSkeleton(
       continue;
     }
     out.lines.push({
-      p1: { x: a.x * width, y: a.y * height },
-      p2: { x: b.x * width, y: b.y * height },
+      p1: { x: projectX(a.x), y: projectY(a.y) },
+      p2: { x: projectX(b.x), y: projectY(b.y) },
       key: `l${ci}`,
     });
   }
@@ -92,8 +97,8 @@ export function projectSkeleton(
     const l = landmarks[i];
     if ((l.visibility ?? 1) < visibilityThreshold) continue;
     out.joints.push({
-      cx: l.x * width,
-      cy: l.y * height,
+      cx: projectX(l.x),
+      cy: projectY(l.y),
       key: `j${i}`,
       index: i,
     });
@@ -116,6 +121,8 @@ export interface DrawOptions {
    * exists" semantics. Pass 0.5 to match `projectSkeleton`'s default.
    */
   visibilityThreshold?: number;
+  /** Mirror projected x-coordinates for selfie/front-camera overlays. */
+  mirrorX?: boolean;
 }
 
 function defaultJointColor(index: number): string {
@@ -137,10 +144,12 @@ export function drawSkeleton(
     pointRadius = 6,
     pointColor,
     visibilityThreshold = 0,
+    mirrorX = false,
   } = options;
 
   const projected = projectSkeleton(landmarks, width, height, {
     visibilityThreshold,
+    mirrorX,
   });
 
   ctx.strokeStyle = lineColor;

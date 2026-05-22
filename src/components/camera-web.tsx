@@ -32,7 +32,10 @@ import {
   type RecordedVideoProcessingStatus,
 } from "@/services/recorded-video-processing";
 import { getVideo, type VideoFrame } from "@/services/video-parser-api";
-import { referenceFrameAtElapsedMs } from "@/utils/reference-playback";
+import {
+  REFERENCE_PLAYBACK_INTERVAL_MS,
+  referenceFrameAtElapsedMs,
+} from "@/utils/reference-playback";
 import { drawSkeleton } from "@/utils/skeleton-renderer";
 import { usePoseDetectionLoop } from "@/hooks/use-pose-detection-loop";
 
@@ -200,6 +203,7 @@ export function CameraWeb({ referenceId }: CameraWebProps = {}) {
           lineWidth: 4,
           pointRadius: 5,
           visibilityThreshold: 0.5,
+          mirrorX: true,
         });
       }
     },
@@ -417,7 +421,7 @@ export function CameraWeb({ referenceId }: CameraWebProps = {}) {
     if (status.kind !== "recording") return;
     const id = window.setInterval(() => {
       setElapsedMs(performance.now() - status.startedAt);
-    }, 250);
+    }, REFERENCE_PLAYBACK_INTERVAL_MS);
     return () => window.clearInterval(id);
   }, [status]);
 

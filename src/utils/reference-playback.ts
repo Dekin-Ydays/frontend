@@ -1,5 +1,8 @@
 import type { VideoFrame } from "@/services/video-parser-api";
 
+export const REFERENCE_PLAYBACK_FPS = 30;
+export const REFERENCE_PLAYBACK_INTERVAL_MS = 1000 / REFERENCE_PLAYBACK_FPS;
+
 export function referenceFrameIndexAtElapsedMs(
   frames: VideoFrame[],
   elapsedMs: number,

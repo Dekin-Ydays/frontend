@@ -202,6 +202,23 @@ describe('projectSkeleton', () => {
     });
   });
 
+  it('can mirror projected coordinates horizontally for selfie overlays', () => {
+    const body = fullBody();
+    body[0] = { ...body[0], x: 0.2, y: 0.5 };
+    body[1] = { ...body[1], x: 0.7, y: 0.5 };
+
+    const projected = projectSkeleton(body, 100, 100, { mirrorX: true });
+
+    expect(projected.joints[0].cx).toBeCloseTo(80);
+    expect(projected.joints[0].cy).toBe(50);
+    expect(projected.joints[1].cx).toBeCloseTo(30);
+    expect(projected.joints[1].cy).toBe(50);
+    expect(projected.lines[0].p1.x).toBeCloseTo(80);
+    expect(projected.lines[0].p1.y).toBe(50);
+    expect(projected.lines[0].p2.x).toBeCloseTo(30);
+    expect(projected.lines[0].p2.y).toBe(50);
+  });
+
   it('drops joints whose visibility falls below the threshold', () => {
     const visible = fullBody(1);
     visible[0] = { ...visible[0], visibility: 0.1 };

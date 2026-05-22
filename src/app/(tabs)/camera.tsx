@@ -26,7 +26,10 @@ import {
   type RecordedVideoProcessingStatus,
 } from "@/services/recorded-video-processing";
 import { getVideo, type VideoFrame } from "@/services/video-parser-api";
-import { referenceFrameAtElapsedMs } from "@/utils/reference-playback";
+import {
+  REFERENCE_PLAYBACK_INTERVAL_MS,
+  referenceFrameAtElapsedMs,
+} from "@/utils/reference-playback";
 import { projectSkeleton } from "@/utils/skeleton-renderer";
 
 type VisionCameraModule = typeof import("react-native-vision-camera");
@@ -124,9 +127,12 @@ export default function CameraScreen() {
         referenceFrame?.landmarks,
         overlaySize.width,
         overlaySize.height,
-        { visibilityThreshold: 0.5 },
+        {
+          visibilityThreshold: 0.5,
+          mirrorX: cameraPosition === "front",
+        },
       ),
-    [overlaySize, referenceFrame],
+    [cameraPosition, overlaySize, referenceFrame],
   );
 
   const handleProcessingStatus = useCallback(
@@ -152,7 +158,7 @@ export default function CameraScreen() {
     }
     const id = setInterval(() => {
       setElapsedMs(Date.now() - status.startedAt);
-    }, 250);
+    }, REFERENCE_PLAYBACK_INTERVAL_MS);
     return () => clearInterval(id);
   }, [status]);
 
