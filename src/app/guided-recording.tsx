@@ -12,28 +12,12 @@ import { Camera, RefreshDouble } from "iconoir-react-native";
 
 import { AppText } from "@/components/ui/app-text";
 import { useVideoList } from "@/hooks/use-video-list";
+import { getVideo, type VideoFrame } from "@/services/video-parser-api";
 import {
-  getVideo,
-  type VideoFrame,
-  type VideoMetadata,
-} from "@/services/video-parser-api";
-
-function formatDuration(ms: number | null): string {
-  if (!ms) return "0:00";
-  const seconds = Math.max(0, Math.floor(ms / 1000));
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
-
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
-  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-}
-
-function isUsableReference(video: VideoMetadata): boolean {
-  return video.endTime !== null && video.frameCount > 0 && video.duration !== null;
-}
+  formatVideoDuration,
+  formatVideoTimestamp,
+  isUsableReferenceVideo,
+} from "@/services/video-metadata";
 
 export default function GuidedRecordingScreen() {
   const { videos, loading, error, refresh } = useVideoList();
@@ -43,7 +27,7 @@ export default function GuidedRecordingScreen() {
   const [selectionError, setSelectionError] = useState<string | null>(null);
 
   const references = useMemo(
-    () => videos.filter(isUsableReference),
+    () => videos.filter(isUsableReferenceVideo),
     [videos],
   );
 
@@ -149,18 +133,18 @@ export default function GuidedRecordingScreen() {
               onPress={() => setSelectedId(video.id)}
               style={[styles.videoRow, selected && styles.videoRowSelected]}
               accessibilityRole="button"
-              accessibilityLabel={`Selectionner la video ${formatTimestamp(video.startTime)}`}
+              accessibilityLabel={`Selectionner la video ${formatVideoTimestamp(video.startTime)}`}
             >
               <View style={styles.videoHeader}>
                 <AppText variant="bolderBaseText" numberOfLines={1}>
-                  {formatTimestamp(video.startTime)}
+                  {formatVideoTimestamp(video.startTime)}
                 </AppText>
                 <View style={styles.frameBadge}>
                   <AppText variant="baseText">{video.frameCount} frames</AppText>
                 </View>
               </View>
               <AppText variant="secondaryText">
-                {formatDuration(video.duration)} - ID {video.id}
+                {formatVideoDuration(video.duration, "0:00")} - ID {video.id}
               </AppText>
             </Pressable>
           );

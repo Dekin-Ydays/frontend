@@ -12,24 +12,15 @@ import { Copy } from "iconoir-react-native";
 import { AppText } from "./ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useVideoList } from "@/hooks/use-video-list";
+import {
+  formatVideoDuration,
+  formatVideoTimestamp,
+} from "@/services/video-metadata";
 
 interface VideoSelectorProps {
   selectedVideoId: string | null;
   onSelectVideo: (videoId: string) => void;
 }
-
-const formatDuration = (ms: number | null): string => {
-  if (!ms) return "In progress";
-  const seconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
-
-const formatTimestamp = (timestamp: string): string => {
-  const date = new Date(timestamp);
-  return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-};
 
 export function VideoSelector({
   selectedVideoId,
@@ -74,11 +65,11 @@ export function VideoSelector({
           <View style={styles.selectedVideoInfo}>
             <View style={styles.selectedVideoHeader}>
               <AppText variant="baseText" numberOfLines={1}>
-                {formatTimestamp(selectedVideo.startTime)}
+                {formatVideoTimestamp(selectedVideo.startTime)}
               </AppText>
               <AppText variant="baseText">
                 {selectedVideo.frameCount} frames •{" "}
-                {formatDuration(selectedVideo.duration)}
+                {formatVideoDuration(selectedVideo.duration)}
               </AppText>
             </View>
             <TouchableOpacity
@@ -142,7 +133,7 @@ export function VideoSelector({
               >
                 <View style={styles.videoItemHeader}>
                   <AppText variant="bolderBaseText">
-                    {formatTimestamp(video.startTime)}
+                    {formatVideoTimestamp(video.startTime)}
                   </AppText>
                   {!video.endTime && (
                     <View style={styles.recordingBadge}>
@@ -151,7 +142,7 @@ export function VideoSelector({
                   )}
                 </View>
                 <AppText variant="baseText">
-                  {video.frameCount} frames • {formatDuration(video.duration)}
+                  {video.frameCount} frames • {formatVideoDuration(video.duration)}
                 </AppText>
                 <View style={styles.videoItemIdContainer}>
                   <AppText variant="baseText" numberOfLines={1}>
