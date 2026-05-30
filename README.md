@@ -1,5 +1,9 @@
 # Dekin Frontend Setup
 
+> Nouveau mainteneur : commencer par la passation française canonique dans le repo infrastructure : https://github.com/Dekin-Ydays/infrastructure/blob/main/HANDOVER_FR.md
+>
+> Ce repo est le frontend Expo de Dekin. En production web, le backend parser est configuré via `EXPO_PUBLIC_VIDEO_PARSER_BASE_URL` et `EXPO_PUBLIC_VIDEO_PARSER_WS_URL`.
+
 This is the essential setup for running the Expo frontend locally.
 
 ## 1. Prerequisites
@@ -16,10 +20,14 @@ For iOS native modules:
 
 ## 2. Clone Repository
 
+Standalone:
+
 ```bash
 git clone https://github.com/Dekin-Ydays/frontend.git
 cd frontend
 ```
+
+Si les repos Dekin sont déjà clonés côte à côte, se placer simplement dans `frontend/`.
 
 ## 3. Install Dependencies
 
