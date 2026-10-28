@@ -43,3 +43,6 @@ app-example
 /android
 .direnv
 .vercel
+
+# Alchemy local state
+.alchemy/

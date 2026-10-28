@@ -11,5 +11,5 @@ jobs:
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
-      - run: npm run lint
-      - run: npm run test:coverage
+      - run: bun run lint
+      - run: bun run test:coverage

@@ -15,7 +15,7 @@ module.exports = defineConfig([
     },
   },
   {
-    ignores: ["dist/*"],
+    ignores: ["dist/*", "deploy/*"],
   },
   {
     files: ["src/app/(tabs)/camera.tsx"],

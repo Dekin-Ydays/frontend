@@ -1,8 +1,8 @@
 # Dekin Frontend Setup
 
-> Nouveau mainteneur : commencer par la passation française canonique dans le repo infrastructure : https://github.com/Dekin-Ydays/infrastructure/blob/main/HANDOVER_FR.md
->
 > Ce repo est le frontend Expo de Dekin. En production web, le backend parser est configuré via `EXPO_PUBLIC_VIDEO_PARSER_BASE_URL` et `EXPO_PUBLIC_VIDEO_PARSER_WS_URL`.
+>
+> Déploiement web : site statique Cloudflare décrit dans `deploy/alchemy.run.ts` (Alchemy), déployé par `.github/workflows/deploy.yml` ; les deux variables ci-dessus y sont injectées depuis la stack `dekin-video-parser`. Voir `infrastructure/README.md`.
 
 This is the essential setup for running the Expo frontend locally.
 
@@ -10,7 +10,7 @@ This is the essential setup for running the Expo frontend locally.
 
 Install these first:
 - Node.js 20 LTS (recommended)
-- npm (comes with Node)
+- Bun 1.3+ (`curl -fsSL https://bun.sh/install | bash`)
 - Watchman (recommended on macOS): `brew install watchman`
 
 For iOS native modules:
@@ -32,7 +32,7 @@ Si les repos Dekin sont déjà clonés côte à côte, se placer simplement dans
 ## 3. Install Dependencies
 
 ```bash
-npm install
+bun install
 ```
 
 ## 4. Start Frontend
@@ -40,7 +40,7 @@ npm install
 Start Metro:
 
 ```bash
-npx expo start --clear
+bunx expo start --clear
 ```
 
 ### Web
@@ -54,13 +54,13 @@ Important: Expo Go cannot run the native camera module used here (`react-native-
 Use a development build:
 
 ```bash
-npx expo run:ios
+bunx expo run:ios
 ```
 
 Then run:
 
 ```bash
-npx expo start --dev-client
+bunx expo start --dev-client
 ```
 
 Open the app with the development client (not Expo Go).
@@ -81,9 +81,9 @@ Model asset not bundled in native app. Rebuild native app:
 
 ```bash
 cd frontend
-npx expo prebuild --platform ios
-npx pod-install
-npx expo run:ios --no-build-cache
+bunx expo prebuild --platform ios
+bunx pod-install
+bunx expo run:ios --no-build-cache
 ```
 
 ### iOS simulator camera unavailable
@@ -94,8 +94,8 @@ Expected behavior. Use a physical iPhone for camera-based pose tracking.
 Frontend:
 
 ```bash
-npm run lint
-npm run test
-npm run test:coverage
-npm run workflow:test
+bun run lint
+bun run test
+bun run test:coverage
+bun run workflow:test
 ```
